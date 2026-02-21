@@ -9,8 +9,8 @@ import SwiftUI
 
 struct LoginView: View {
     
-    @State private var email: String = "kmkm"
-    @State private var password: String = "knkm"
+    
+    @StateObject var viewModel = LoginViewViewModel()
     
     var body: some View {
         NavigationStack{
@@ -21,11 +21,11 @@ struct LoginView: View {
                     .padding(.bottom, -40)
                     
                 Form{
-                    TextField("Email Address..", text: $email)
+                    TextField("Email Address..", text: $viewModel.email)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .listRowBackground(Color.white)
-                    SecureField("Password...", text: $password)
+                    SecureField("Password...", text: $viewModel.password)
                         .listRowBackground(Color.white)
                 }
                 .scrollContentBackground(.hidden)
@@ -33,9 +33,15 @@ struct LoginView: View {
                 .scrollDisabled(true)
                 .foregroundColor(.black)
                 
-                Text("  ") // Error part will be update
+                if !viewModel.errorMessage.isEmpty{
+                    Text(viewModel.errorMessage)
+                        .foregroundStyle(.red)
+                } else {
+                    Text("  ")
+                }
+                
                 BigButtonView(title: "Log In"){
-                    print("edildi")
+                    viewModel.login()
                 }
                 Spacer()
                 VStack(spacing: 5){
