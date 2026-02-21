@@ -19,7 +19,14 @@ class LoginViewViewModel: ObservableObject{
     }
     func login(){
         guard validate() else {return}
-        Auth.auth().signIn(withEmail: email, password: password)
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self?.errorMessage = error.localizedDescription
+                }
+                return
+            }
+        }
     }
     private func validate() -> Bool{
         errorMessage = ""
