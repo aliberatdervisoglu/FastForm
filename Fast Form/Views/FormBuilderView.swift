@@ -6,10 +6,30 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct FormBuilderView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack{
+            Text("FORM BUILDER VIEW")
+
+            Button {
+                do {
+                    try Auth.auth().signOut()
+                    print("Başarıyla çıkış yapıldı")
+                } catch {
+                    print("Çıkış yaparken bir hata oluştu")
+                }
+            } label: {
+                Text("Güvenli Çıkış Yap")
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.red)
+                    .cornerRadius(10)
+            }
+            .padding()
+        }
     }
 }
 
