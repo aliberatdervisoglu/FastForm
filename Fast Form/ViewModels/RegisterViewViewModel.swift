@@ -23,6 +23,12 @@ class RegisterViewViewModel: ObservableObject{
         guard validate() else { return }
         
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self?.errorMessage = error.localizedDescription
+                }
+                return
+            }
             
             guard let userID = authResult?.user.uid else { return }
             // authResult is like food and we are the customer. we are sitting at the table and waiting food. it come and ->
@@ -67,6 +73,7 @@ class RegisterViewViewModel: ObservableObject{
             errorMessage = "Password must be at least 6 characters long"
             return false
         }
+        
         return true
     }
 }
