@@ -8,10 +8,8 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @State private var fullName = ""
-    @State private var email = ""
-    @State private var password = ""
-    @State private var confirmPassword = ""
+    
+    @StateObject var viewModel = RegisterViewViewModel()
     
     // go back to LoginView
     @Environment(\.dismiss) var dismiss
@@ -25,18 +23,18 @@ struct RegisterView: View {
             
             Form {
                 Section {
-                    TextField("Full Name...", text: $fullName)
+                    TextField("Full Name...", text: $viewModel.name)
                         .listRowBackground(Color.white)
                     
-                    TextField("Email Address...", text: $email)
+                    TextField("Email Address...", text: $viewModel.email)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .listRowBackground(Color.white)
                     
-                    SecureField("Password...", text: $password)
+                    SecureField("Password...", text: $viewModel.password)
                         .listRowBackground(Color.white)
                     
-                    SecureField("Confirm Password...", text: $confirmPassword)
+                    SecureField("Confirm Password...", text: $viewModel.confirmPassword)
                         .listRowBackground(Color.white)
                 }
             }
@@ -46,9 +44,14 @@ struct RegisterView: View {
             .foregroundColor(.black)
             .padding(.bottom, -20)
             
-            Text("  ") // error
+            if !viewModel.errorMessage.isEmpty{
+                Text(viewModel.errorMessage)
+                    .foregroundStyle(.red)
+            } else {
+                Text("  ")
+            }
             BigButtonView(title: "Sign Up") {
-                print("Kayıt işlemi başlatıldı")
+                viewModel.register()
             }
             
             Spacer()
