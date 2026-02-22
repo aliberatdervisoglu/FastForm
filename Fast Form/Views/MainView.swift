@@ -21,13 +21,18 @@ struct MainView: View {
     @ViewBuilder
     var mainTabView: some View {
         TabView{
-            FormBuilderView()
+            
+            FormListView(formitems: [])
                 .tabItem({
-                    Label("Form Builder", systemImage: "clipboard")
+                    Label("Form List", systemImage: "list.dash")
                 })
             ResponseFormView()
                 .tabItem({
                     Label("Responses", systemImage: "list.bullet.clipboard")
+                })
+            FormBuilderView()
+                .tabItem({
+                    Label("Form Builder", systemImage: "clipboard")
                 })
             ProfileView(takenUserID: "uBTFyEMizhYmsjIZBGYkkRhPNy63")
                 .tabItem({

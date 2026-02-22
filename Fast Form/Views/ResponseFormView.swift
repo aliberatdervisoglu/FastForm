@@ -9,7 +9,15 @@ import SwiftUI
 
 struct ResponseFormView: View {
     var body: some View {
-        Text("response form")
+        NavigationStack{
+            VStack(spacing: 20) {
+                Text("selam")
+                
+                List{
+                    
+                }
+            }
+        }
     }
 }
 
