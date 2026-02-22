@@ -10,15 +10,61 @@ import SwiftUI
 struct MainView: View {
     @StateObject var viewModel = MainViewViewModel()
     
+    
     var body: some View {
         if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty{
-            FormBuilderView()
+            mainTabView
         } else {
             LoginView()
         }
     }
+    @ViewBuilder
+    var mainTabView: some View {
+        TabView{
+            FormBuilderView()
+                .tabItem({
+                    Label("Form Builder", systemImage: "clipboard")
+                })
+            ResponseFormView()
+                .tabItem({
+                    Label("Responses", systemImage: "list.bullet.clipboard")
+                })
+            ProfileView(takenUserID: "uBTFyEMizhYmsjIZBGYkkRhPNy63")
+                .tabItem({
+                    Label("Profile" , systemImage: "person.crop.circle")
+                })
+            SettingsView()
+                .tabItem({
+                    Label("Settings" , systemImage: "gearshape.fill")
+                })
+        }
+        .tint(Color("BrandGradientStart"))
+    }
+    
+    
 }
 
 #Preview {
     MainView()
 }
+
+
+//TabView{
+//    FormBuilderView()
+//        .tabItem({
+//            Label("Form Builder", systemImage: "clipboard")
+//        })
+//    ResponseFormView()
+//        .tabItem({
+//            Label("Responses", systemImage: "list.bullet.clipboard")
+//        })
+//    ProfileView()
+//        .tabItem({
+//            Label("Profile" , systemImage: "person.crop.circle")
+//        })
+//    SettingsView()
+//        .tabItem({
+//            Label("Settings" , systemImage: "gearshape.fill")
+//        })
+//}
+//.tint(Color("BrandGradientStart"))
