@@ -22,7 +22,7 @@ struct MainView: View {
     var mainTabView: some View {
         TabView{
             
-            FormListView(formitems: [])
+            FormListView(userId: "kemdçwö")
                 .tabItem({
                     Label("Form List", systemImage: "list.dash")
                 })

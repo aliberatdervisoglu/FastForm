@@ -8,23 +8,31 @@
 import SwiftUI
 
 struct FormListView: View {
-    @StateObject var viewModel = FormListViewViewModel()
+    @StateObject var viewModel: FormListViewViewModel
     
-    var formitems: [FormModel]
-    
+    init(userId: String){
+        self._viewModel = StateObject(wrappedValue: FormListViewViewModel(userID: userId))
+    }
     var body: some View {
         NavigationStack{
-            VStack{
-                // maybe in List
-                ForEach(formitems){item in
-                    FormListItemView(item: item)
+            ScrollView {
+                VStack{
+                    ForEach(viewModel.formitems){item in
+                        FormListItemView(item: item){
+                            viewModel.deleteForm(id: item.id)
+                        }
+                        
+                    }
+                    Spacer()
                 }
+                .navigationTitle("My Forms")
             }
+
         }
-        .navigationTitle("My Forms")
     }
 }
 
 #Preview {
-    FormListView(formitems: [FormModel(id: "vefvvfe", title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(id: "kmlm", title: "dscs", type: QuestionType.paragraph, isRequired: true)], createDate: Date().timeIntervalSince1970, isAnonymus: true)])
+    FormListView(userId: "UiJ9L9CvhXgDUa19COge2C7y2RB3")
+    
 }

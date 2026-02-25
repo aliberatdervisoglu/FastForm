@@ -10,6 +10,8 @@ import SwiftUI
 struct FormListItemView: View {
     @StateObject var viewModel = FormListItemViewViewModel()
     var item: FormModel
+    var onDelete: () -> Void
+    
     var body: some View {
         HStack{
             
@@ -25,18 +27,30 @@ struct FormListItemView: View {
             
             Spacer()
             
-            NavigationLink(destination: FormBuilderView()) {
-                            Image(systemName: "pencil.circle.fill")
-                                .resizable()
-                                .frame(width: 35, height: 35)
-                                .foregroundStyle(Color("BrandGradientEnd"))
-                        }
+            VStack(alignment: .leading, spacing: 5){
+                NavigationLink(destination: FormBuilderView()) {
+                        Image(systemName: "pencil.circle.fill")
+                        .resizable()
+                        .frame(width: 35, height: 35)
+                        .foregroundStyle(Color("BrandGradientEnd"))
+                }
+                Button {
+                    onDelete()
+                } label: {
+                    Image(systemName: "trash.circle.fill") 
+                            .resizable()
+                            .frame(width: 35, height: 35)
+                            .foregroundStyle(Color("BrandGradientEnd"))
+                }
+
+                
+            }
+            
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(Color("BrandGradientStart").opacity(0.2)) // Çok koyuysa opacity ile açabilirsin
-            )
+                .fill(Color("BrandGradientStart").opacity(0.2))             )
         .padding(.horizontal)
 
         
@@ -47,5 +61,7 @@ struct FormListItemView: View {
 }
 
 #Preview {
-    FormListItemView(item: FormModel(title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(title: "dscs", type: QuestionType.paragraph, isRequired: true)], createDate: Date().timeIntervalSince1970, isAnonymus: true))
+    FormListItemView(item: FormModel(title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(title: "dscs", type: QuestionType.paragraph, isRequired: true)], createDate: Date().timeIntervalSince1970, isAnonymus: true)) {
+        print("hi")
+    }
 }
