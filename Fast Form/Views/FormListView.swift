@@ -45,6 +45,8 @@ struct FormListView: View {
         }
         .onAppear {
             viewModel.fetchForms()
+            
+            
         }
     }
 }

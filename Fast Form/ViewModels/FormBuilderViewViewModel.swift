@@ -6,3 +6,11 @@
 //
 
 import Foundation
+import Combine
+
+class FormBuilderViewViewModel: ObservableObject {
+    @Published var title: String = ""
+    init() {
+        
+    }
+}

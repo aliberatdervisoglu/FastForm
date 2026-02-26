@@ -19,20 +19,28 @@ struct FormListItemView: View {
                 Text(item.title)
                     .font(.title)
                     .bold()
-                    .foregroundStyle(Color("BrandGradientEnd"))
+                    .foregroundStyle(.white)
                 Text(item.explanation)
                     .font(.title2)
-                    .foregroundStyle(Color("BrandGradientEnd"))
+                    .foregroundStyle(.white)
             }
             
             Spacer()
             
             VStack(alignment: .leading, spacing: 5){
-                NavigationLink(destination: FormBuilderView(formToEdit: item)) {
+                NavigationLink(destination:FormBuilderView(item: .constant(FormModel(
+                    id: "test_id",
+                    title: "Örnek Form",
+                    ownerId: "user_123",
+                    explanation: "Bu bir test açıklamasıdır.",
+                    questionList: [],
+                    createDate: Date().timeIntervalSince1970,
+                    isAnonymus: true
+                )))) {
                         Image(systemName: "pencil.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)
-                        .foregroundStyle(Color("BrandGradientEnd"))
+                        .foregroundStyle(.white)
                 }
                 Button {
                     onDelete()
@@ -40,7 +48,7 @@ struct FormListItemView: View {
                     Image(systemName: "trash.circle.fill") 
                             .resizable()
                             .frame(width: 35, height: 35)
-                            .foregroundStyle(Color("BrandGradientEnd"))
+                            .foregroundStyle(.white)
                 }
 
                 
@@ -50,7 +58,7 @@ struct FormListItemView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(Color("BrandGradientStart").opacity(0.2))             )
+                .fill(LinearGradient.brandGradient))
         .padding(.horizontal)
 
         
