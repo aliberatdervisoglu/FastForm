@@ -10,6 +10,10 @@ import SwiftUI
 struct FormListView: View {
     @StateObject var viewModel: FormListViewViewModel
     
+    @State private var showingDeleteAlert: Bool = false
+    @State private var itemToDelete: FormModel? = nil
+
+    
     init(userId: String){
         self._viewModel = StateObject(wrappedValue: FormListViewViewModel(userID: userId))
     }
@@ -19,15 +23,28 @@ struct FormListView: View {
                 VStack{
                     ForEach(viewModel.formitems){item in
                         FormListItemView(item: item){
-                            viewModel.deleteForm(id: item.id)
+                            self.itemToDelete = item
+                            self.showingDeleteAlert = true
                         }
-                        
                     }
                     Spacer()
                 }
                 .navigationTitle("My Forms")
+                .alert("Delete Form", isPresented: $showingDeleteAlert) {
+                    Button("Delete", role: .destructive) {
+                        if let id = itemToDelete?.id {
+                            viewModel.deleteForm(id: id)
+                        }
+                    }
+                    Button("Cancel", role: .cancel) {  }
+                } message: {
+                    Text("'\(itemToDelete?.title ?? "Unknown Form" )' will be deleted. Are you sure?")
+                }
             }
 
+        }
+        .onAppear {
+            viewModel.fetchForms()
         }
     }
 }

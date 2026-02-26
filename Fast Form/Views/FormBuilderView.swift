@@ -6,33 +6,15 @@
 //
 
 import SwiftUI
-import FirebaseAuth
 
 struct FormBuilderView: View {
+    var formToEdit: FormModel
     var body: some View {
-        VStack{
-            Text("FORM BUILDER VIEW")
-
-            Button {
-                do {
-                    try Auth.auth().signOut()
-                    print("Başarıyla çıkış yapıldı")
-                } catch {
-                    print("Çıkış yaparken bir hata oluştu")
-                }
-            } label: {
-                Text("Güvenli Çıkış Yap")
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.red)
-                    .cornerRadius(10)
-            }
-            .padding()
-        }
+        Text(" form builder  ")
+        
     }
 }
 
 #Preview {
-    FormBuilderView()
+    FormBuilderView(formToEdit: FormModel(id: "jnlnj", title: "kmkm", ownerId: "kşmşk", explanation: "mşkmşk", questionList: [Question(title: "dscsacdadd", type: QuestionType.paragraph, isRequired: true)], createDate: Date().timeIntervalSince1970, isAnonymus: true))
 }

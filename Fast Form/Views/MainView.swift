@@ -30,7 +30,7 @@ struct MainView: View {
                 .tabItem({
                     Label("Responses", systemImage: "list.bullet.clipboard")
                 })
-            FormBuilderView()
+            FormBuilderView(formToEdit: FormModel(id: "jnlnj", title: "kmkm", ownerId: "kşmşk", explanation: "mşkmşk", questionList: [Question(title: "dscsacdadd", type: QuestionType.paragraph, isRequired: true)], createDate: Date().timeIntervalSince1970, isAnonymus: true))
                 .tabItem({
                     Label("Form Builder", systemImage: "clipboard")
                 })

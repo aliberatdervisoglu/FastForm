@@ -19,6 +19,32 @@ class FormListViewViewModel: ObservableObject {
         self.userId = userID
     }
     
+    
+    
+    func fetchForms(){
+        let db = Firestore.firestore()
+        
+        db.collection("users")
+            .document(userId)
+            .collection("forms")
+            .getDocuments { [weak self] snapshot, error in
+                
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                    return
+                }
+                DispatchQueue.main.async {
+                    self?.formitems = snapshot?.documents.compactMap { doc in
+                        try? doc.data(as: FormModel.self)
+                        
+                    } ?? []
+                }
+                    
+                
+        }
+    }
+    
+    
     func deleteForm(id: String){
         let db = Firestore.firestore()
         db.collection("users")

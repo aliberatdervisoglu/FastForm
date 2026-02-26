@@ -28,7 +28,7 @@ struct FormListItemView: View {
             Spacer()
             
             VStack(alignment: .leading, spacing: 5){
-                NavigationLink(destination: FormBuilderView()) {
+                NavigationLink(destination: FormBuilderView(formToEdit: item)) {
                         Image(systemName: "pencil.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)
