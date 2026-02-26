@@ -17,24 +17,45 @@ struct FormBuilderView: View {
                 formInfoView
                 Divider().background(.gray.opacity(0.8))
                     .padding(15)
-                ForEach(item.questionList){question in
-//                    FormListItemView(item: quesiton){
-//                        self.itemToDelete = item
-//                        self.showingDeleteAlert = true
-//                    }
-                }
+                
                 Spacer()
+                ForEach($item.questionList) { $question in
+                    FormQuestionDisplayView(question: $question)
+                }
                 Spacer()
                 BigButtonView(title: "Add") {
-                    print("hi")
+                    let newQuestion = viewModel.createNewQuestion()
+                    item.questionList.append(newQuestion)
                 }
-                
             }
             .navigationTitle("Build & Edit Form")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        saveAndReset()
+                    } label: {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title)
+                            .foregroundStyle(Color(.green))
+                    }
+                 }
+            }
 
         }
     }
-    
+    func saveAndReset() {
+        viewModel.save(item: item)
+        // Kayıt bitince taslağı boşalt ki bir sonraki "Create" sekmesine basışta boş gelsin
+        self.item = FormModel(
+                        id: UUID().uuidString,
+                        title: "",
+                        ownerId: "", // Backend zaten Auth'dan alacak
+                        explanation: "",
+                        questionList: [],
+                        createDate: Date().timeIntervalSince1970,
+                        isAnonymus: false
+                    )
+    }
     
     @ViewBuilder
     var formInfoView : some View {
@@ -124,7 +145,7 @@ struct FormBuilderView: View {
         title: "Örnek Form",
         ownerId: "user_123",
         explanation: "Bu bir test açıklamasıdır.",
-        questionList: [Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"])],
+        questionList: [Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"]),Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"]),Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"]),Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"])],
         createDate: Date().timeIntervalSince1970,
         isAnonymus: true
     )))

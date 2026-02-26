@@ -8,6 +8,17 @@
 import SwiftUI
 
 struct MainView: View {
+    
+    @State private var draftForm: FormModel = FormModel(
+        id: UUID().uuidString,
+        title: "",
+        ownerId: "",
+        explanation: "",
+        questionList: [],
+        createDate: Date().timeIntervalSince1970,
+        isAnonymus: false
+        )
+    
     @StateObject var viewModel = MainViewViewModel()
     
     
@@ -30,15 +41,7 @@ struct MainView: View {
                 .tabItem({
                     Label("Responses", systemImage: "list.bullet.clipboard")
                 })
-            FormBuilderView(item: .constant(FormModel(
-                    id: "test_id",
-                    title: "Örnek Form",
-                    ownerId: "user_123",
-                    explanation: "Bu bir test açıklamasıdır.",
-                    questionList: [],
-                    createDate: Date().timeIntervalSince1970,
-                    isAnonymus: true
-                )))
+            FormBuilderView(item: $draftForm)
                 .tabItem({
                     Label("Form Builder", systemImage: "clipboard")
                 })

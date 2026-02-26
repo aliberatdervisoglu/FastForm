@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct NewQuestionView: View {
+    var question: Question?
     var body: some View {
         Text("New Question")
     }
