@@ -10,6 +10,7 @@ import SwiftUI
 struct FormBuilderView: View {
     @StateObject var viewModel = FormBuilderViewViewModel()
     @Binding var item: FormModel
+    @State private var selectedQuestion: Question? = nil // to add direct sheet link to add button
     
     var body: some View {
         NavigationStack{
@@ -19,14 +20,23 @@ struct FormBuilderView: View {
                     .padding(15)
                 
                 Spacer()
+                BigButtonView(title: "Add new question") {
+                    let newQuestion = viewModel.createNewQuestion()
+                    item.questionList.append(newQuestion)
+                    selectedQuestion = newQuestion
+                }
+                .sheet(item: $selectedQuestion) { question in
+                    NewQuestionView(question: .constant(question))
+                        .presentationDetents([.medium,.large]) // the half of screen or full of screen
+                        .presentationDragIndicator(.visible) // single line to hold above
+                }
+                
+                
                 ForEach($item.questionList) { $question in
                     FormQuestionDisplayView(question: $question)
                 }
                 Spacer()
-                BigButtonView(title: "Add") {
-                    let newQuestion = viewModel.createNewQuestion()
-                    item.questionList.append(newQuestion)
-                }
+                
             }
             .navigationTitle("Build & Edit Form")
             .toolbar {

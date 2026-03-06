@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FormQuestionDisplayView: View {
+    @State var isEditingQuestion: Bool = false
     @Binding var question: Question
     var body: some View {
         
@@ -24,19 +25,28 @@ struct FormQuestionDisplayView: View {
             Spacer()
             
             VStack(alignment: .leading, spacing: 5){
-                NavigationLink(destination: NewQuestionView(question: question)) {
-                        Image(systemName: "pencil.circle.fill")
+                Button{
+                    isEditingQuestion = true // to open toggle
+                } label: {
+                    Image(systemName: "pencil.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)
                         .foregroundStyle(.white)
                 }
+                .sheet(isPresented: $isEditingQuestion) {
+                    NewQuestionView(question: .constant(question))
+                        .presentationDetents([.medium,.large]) // the half of screen or full of screen
+                        .presentationDragIndicator(.visible) // single line to hold above
+                }
+                
+                
                 Button {
                     print("delete question")
                 } label: {
                     Image(systemName: "trash.circle.fill")
-                            .resizable()
-                            .frame(width: 35, height: 35)
-                            .foregroundStyle(.white)
+                        .resizable()
+                        .frame(width: 35, height: 35)
+                        .foregroundStyle(.white)
                 }
 
                 
