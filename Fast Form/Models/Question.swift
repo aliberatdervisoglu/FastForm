@@ -29,4 +29,5 @@ struct Question: Identifiable, Codable {
     var type: QuestionType
     var isRequired: Bool
     var options: [String]? //  will be used for some QuestionType
+    var maxCharactersLimit: Int = 50
 }

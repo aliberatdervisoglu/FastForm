@@ -26,7 +26,10 @@ struct FormBuilderView: View {
                     selectedQuestion = newQuestion
                 }
                 .sheet(item: $selectedQuestion) { question in
-                    NewQuestionView(question: .constant(question))
+                    NewQuestionView(question: question, onSave: { updatedQuestion in
+
+                        print("Preview'da Kaydedildi: \(updatedQuestion.title)")
+                    })
                         .presentationDetents([.medium,.large]) // the half of screen or full of screen
                         .presentationDragIndicator(.visible) // single line to hold above
                 }

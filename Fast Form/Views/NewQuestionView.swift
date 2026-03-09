@@ -9,9 +9,18 @@
 import SwiftUI
 
 struct NewQuestionView: View {
-    @Binding var question: Question
-    @State private var showRequiredInfo = false
-    @State private var showTypeInfo = false
+    @Environment(\.dismiss) var dismiss //  to close without save
+    @StateObject var viewModel: NewQuestionViewViewModel //  we use init for viewmodel
+    @State private var showRequiredInfo = false // popover i Button
+    @State private var showTypeInfo = false // popover i Button
+    @State private var showCharLimitInfo = false // popover i Button
+    
+    var onSave: (Question) -> Void
+    
+    init(question: Question, onSave: @escaping (Question) -> Void) {
+        self._viewModel = StateObject(wrappedValue: NewQuestionViewViewModel(question: question))
+        self.onSave = onSave
+    }
     
     
     var body: some View {
@@ -27,6 +36,9 @@ struct NewQuestionView: View {
                         //--- 2.PART TYPE AND SETTINGS ---
                         questionSettingsSectionView
                         //--- 3.PART DYNAMIC ANSWERS ---
+                        Divider() // Araya şık bir çizgi atar
+                                .background(.white.opacity(0.3))
+                                .padding(.vertical, 5)
                         questionDynamicAnswerSectionView
                     }
                     .padding()
@@ -36,11 +48,25 @@ struct NewQuestionView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            print("Tapped")
+                            // viewmodel gives as the pack the copy of question but updated version
+                            viewModel.save{ updatedquestion in
+                                // From completion(question) quesion is as updatedquestion here. like a boomerang
+                                onSave(updatedquestion)
+                                dismiss()
+                            }
                         } label: {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title)
                                 .foregroundStyle(Color(.green))
+                        }
+                    }
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(Color(.red))
                         }
                     }
                 }
@@ -81,11 +107,11 @@ struct NewQuestionView: View {
                 }
                 .popover(isPresented: $showRequiredInfo) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(question.type.rawValue.capitalized)
+                        Text(viewModel.question.type.rawValue.capitalized)
                             .font(.headline)
                             .bold()
                         
-                        Text(getRequiredInfoText(for: question.type)) // Fonksiyondan gelen metni yazdırır
+                        Text(getRequiredInfoText(for: viewModel.question.type))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -95,7 +121,7 @@ struct NewQuestionView: View {
                 }
                 Spacer()
                 
-                Picker("question type picker", selection: $question.type){
+                Picker("question type picker", selection: $viewModel.question.type){
                     ForEach(QuestionType.allCases, id: \.self) {type in
                         Text(type.rawValue).tag(type)
                     }
@@ -139,7 +165,7 @@ struct NewQuestionView: View {
                 
                 
                 Spacer()
-                Toggle("", isOn: $question.isRequired)
+                Toggle("", isOn: $viewModel.question.isRequired)
                     .labelsHidden()
                     .tint(.green)
             }
@@ -153,26 +179,11 @@ struct NewQuestionView: View {
                 .font(.title)
                 .bold()
                 .foregroundStyle(.white.opacity(0.8))
-            switch question.type {
+            switch viewModel.question.type {
             case .shortAnswer:
-                TextField("Text...", text: .constant(""))
-                    .padding(10)
-                    .font(.title2)
-                    .bold()
-                    .foregroundStyle(.black.opacity(0.8))
-                    .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
-                    .disabled(true)
-                
+                shortAnswerView
             case .paragraph:
-                TextField("Text...", text: .constant(""), axis: .vertical)
-                    .lineLimit(3, reservesSpace: true)
-                    .font(.title2)
-                    .bold()
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundStyle(.black.opacity(0.8))
-                    .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
-                    .disabled(true)
+                paragraphAnswerView
             case .multipleChoice:
                 Text("")
             case .checkboxes:
@@ -186,6 +197,104 @@ struct NewQuestionView: View {
         
         
     }
+    @ViewBuilder
+    var shortAnswerView: some View {
+        HStack(spacing: 5) {
+            Text("Character Limit: ")
+                .font(.title3)
+                .bold()
+                .foregroundStyle(.white.opacity(0.8))
+            Button {
+                showCharLimitInfo = true
+            } label: {
+                Image(systemName: "info.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+            }
+            .popover(isPresented: $showRequiredInfo) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(viewModel.question.type.rawValue.capitalized)
+                        .font(.headline)
+                        .bold()
+                    
+                    Text("Set the maximum number of characters allowed for this response.\n\n💡 Tip: A limit between 30 and 70 characters is usually ideal for names, email addresses, or brief answers.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(width: 250)
+                .presentationCompactAdaptation(.popover)
+            }
+            Spacer()
+            
+            TextField("50", value: $viewModel.question.maxCharactersLimit, format: .number)
+                .padding(10)
+
+                .keyboardType(.numberPad)
+                .font(.headline)
+                .foregroundStyle(.black.opacity(0.8))
+                .frame(width: 100)
+                .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+        }
+        TextField("Text...", text: .constant(""))
+            .padding(10)
+            .font(.title2)
+            .bold()
+            .foregroundStyle(.black.opacity(0.8))
+            .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+            .disabled(true)
+        
+    }
+    @ViewBuilder
+    var paragraphAnswerView: some View {
+        HStack(spacing: 5) {
+            Text("Character Limit: ")
+                .font(.title3)
+                .bold()
+                .foregroundStyle(.white.opacity(0.8))
+            Button {
+                showCharLimitInfo = true
+            } label: {
+                Image(systemName: "info.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+            }
+            .popover(isPresented: $showRequiredInfo) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(viewModel.question.type.rawValue.capitalized)
+                        .font(.headline)
+                        .bold()
+                    
+                    Text("Set the minimum and maximum number of characters allowed for this detailed response.\n\n💡 Tip: A minimum of 100 characters encourages thoughtful answers, while a maximum of 500-1000 keeps them readable.")                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(width: 250)
+                .presentationCompactAdaptation(.popover)
+            }
+            Spacer()
+            
+            TextField("50", value: $viewModel.question.maxCharactersLimit, format: .number)
+                .padding(10)
+
+                .keyboardType(.numberPad)
+                .font(.headline)
+                .foregroundStyle(.black.opacity(0.8))
+                .frame(width: 100)
+                .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+        }
+        TextField("Text...", text: .constant(""), axis: .vertical)
+            .lineLimit(3, reservesSpace: true)
+            .font(.title2)
+            .bold()
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundStyle(.black.opacity(0.8))
+            .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+            .disabled(true)
+    }
+    
+    
     func getRequiredInfoText(for type: QuestionType) -> String {
         switch type {
         case .shortAnswer:
@@ -205,5 +314,16 @@ struct NewQuestionView: View {
 }
 
 #Preview {
-    NewQuestionView(question: .constant(Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"])))
+    NewQuestionView(
+        question: Question(
+            id: "test-id-123",
+            title: "Örnek Soru Başlığı",
+            type: .paragraph,
+            isRequired: true,
+            options: ["Seçenek 1", "Seçenek 2"]
+        ),
+        onSave: { updatedQuestion in
+            print("Preview'da Kaydedildi: \(updatedQuestion.title)")
+        }
+    )
 }
