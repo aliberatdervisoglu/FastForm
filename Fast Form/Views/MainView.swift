@@ -20,8 +20,7 @@ struct MainView: View {
         )
     
     @StateObject var viewModel = MainViewViewModel()
-    
-    
+    @State private var selectedTab: Int = 0
     var body: some View {
         if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty{
             mainTabView
@@ -31,28 +30,33 @@ struct MainView: View {
     }
     @ViewBuilder
     var mainTabView: some View {
-        TabView{
+        TabView(selection: $selectedTab){
             
-            FormListView(userId: "kemdçwö")
+            FormListView(userId: viewModel.currentUserID)
                 .tabItem({
                     Label("Form List", systemImage: "list.dash")
                 })
+                .tag(0)
             ResponseFormView()
                 .tabItem({
                     Label("Responses", systemImage: "list.bullet.clipboard")
                 })
-            FormBuilderView(item: $draftForm)
+                .tag(1)
+            FormBuilderView(formToEdit: draftForm, tabselection: $selectedTab)
                 .tabItem({
                     Label("Form Builder", systemImage: "clipboard")
                 })
+                .tag(2)
             ProfileView(takenUserID: "uBTFyEMizhYmsjIZBGYkkRhPNy63")
                 .tabItem({
                     Label("Profile" , systemImage: "person.crop.circle")
                 })
+                .tag(3)
             SettingsView()
                 .tabItem({
                     Label("Settings" , systemImage: "gearshape.fill")
                 })
+                .tag(4)
         }
         .tint(Color("BrandGradientStart"))
     }

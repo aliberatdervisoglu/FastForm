@@ -11,6 +11,7 @@ import Combine
 
 class MainViewViewModel: ObservableObject{
     @Published var currentUserID: String = ""
+    @Published var selectedTabBarItem: Int = 0
     
     init(){
         let _ = Auth.auth().addStateDidChangeListener{ [weak self] _, user in

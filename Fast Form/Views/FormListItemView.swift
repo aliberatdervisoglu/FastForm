@@ -28,15 +28,9 @@ struct FormListItemView: View {
             Spacer()
             
             VStack(alignment: .leading, spacing: 5){
-                NavigationLink(destination:FormBuilderView(item: .constant(FormModel(
-                    id: "test_id",
-                    title: "Örnek Form",
-                    ownerId: "user_123",
-                    explanation: "Bu bir test açıklamasıdır.",
-                    questionList: [],
-                    createDate: Date().timeIntervalSince1970,
-                    isAnonymus: true
-                )))) {
+                // there should be a new update here
+                
+                NavigationLink(destination:FormBuilderView(formToEdit: item, tabselection: .constant(0))) {
                         Image(systemName: "pencil.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)

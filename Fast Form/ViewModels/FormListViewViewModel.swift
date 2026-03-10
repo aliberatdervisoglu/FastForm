@@ -14,6 +14,7 @@ class FormListViewViewModel: ObservableObject {
     @Published var formitems: [FormModel] = []
     
     private let userId: String
+    private var listenerRegistration: ListenerRegistration?
     
     init(userID: String){
         self.userId = userID
@@ -24,10 +25,12 @@ class FormListViewViewModel: ObservableObject {
     func fetchForms(){
         let db = Firestore.firestore()
         
-        db.collection("users")
+        listenerRegistration?.remove()
+        
+        listenerRegistration = db.collection("users")
             .document(userId)
             .collection("forms")
-            .getDocuments { [weak self] snapshot, error in
+            .addSnapshotListener { [weak self] snapshot, error in
                 
                 if let error = error {
                     print("Error: \(error.localizedDescription)")
@@ -60,7 +63,9 @@ class FormListViewViewModel: ObservableObject {
                     }
                 }
             }
-        
+    }
+    deinit {
+        listenerRegistration?.remove()
     }
     
     

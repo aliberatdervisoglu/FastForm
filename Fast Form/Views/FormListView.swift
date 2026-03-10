@@ -41,7 +41,7 @@ struct FormListView: View {
                     Text("'\(itemToDelete?.title ?? "Unknown Form" )' will be deleted. Are you sure?")
                 }
             }
-
+    
         }
         .onAppear {
             viewModel.fetchForms()

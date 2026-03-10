@@ -8,9 +8,29 @@
 import SwiftUI
 
 struct FormBuilderView: View {
-    @StateObject var viewModel = FormBuilderViewViewModel()
-    @Binding var item: FormModel
+    
+    @StateObject var viewModel: FormBuilderViewViewModel
+    @State var item: FormModel
     @State private var selectedQuestion: Question? = nil // to add direct sheet link to add button
+    @Environment(\.dismiss) var dismiss
+    @Binding var tabSelection: Int
+    init(formToEdit: FormModel? = nil, tabselection: Binding<Int>){
+        if let incomingForm = formToEdit{
+            self._item = State(initialValue: incomingForm)
+        } else {
+            self._item = State(initialValue: FormModel(
+                id: UUID().uuidString,
+                title: "",
+                ownerId: "",
+                explanation: "",
+                questionList: [],
+                createDate: Date().timeIntervalSince1970,
+                isAnonymus: false
+                        ))
+        }
+        self._viewModel = StateObject(wrappedValue: FormBuilderViewViewModel())
+        self._tabSelection = tabselection
+    }
     
     var body: some View {
         NavigationStack{
@@ -40,7 +60,7 @@ struct FormBuilderView: View {
                         
                         
                     })
-                    .presentationDetents([.medium,.large]) // the half of screen or full of screen
+//                    .presentationDetents([.medium,.large]) // the half of screen or full of screen
                     .presentationDragIndicator(.visible) // single line to hold above
                 }
                 
@@ -57,12 +77,17 @@ struct FormBuilderView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         saveAndReset()
+                        if tabSelection == 2 {
+                            tabSelection = 0
+                        } else {
+                            dismiss()
+                        }
                     } label: {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.title)
                             .foregroundStyle(Color(.green))
                     }
-                 }
+                }
             }
 
         }
@@ -91,6 +116,7 @@ struct FormBuilderView: View {
             questionList: [],
             createDate: Date().timeIntervalSince1970,
             isAnonymus: false)
+        
     }
     
     @ViewBuilder
@@ -106,7 +132,7 @@ struct FormBuilderView: View {
                     .bold()
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.black.opacity(0.8))
                     .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
 
                 
@@ -123,7 +149,7 @@ struct FormBuilderView: View {
                     .bold()
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.black.opacity(0.8))
                     .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
                 
                 
@@ -176,13 +202,5 @@ struct FormBuilderView: View {
 }
 
 #Preview {
-    FormBuilderView(item: .constant(FormModel(
-        id: "test_id",
-        title: "Örnek Form",
-        ownerId: "user_123",
-        explanation: "Bu bir test açıklamasıdır.",
-        questionList: [Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"]),Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"]),Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"]),Question(id: "sdçcs", title: "şsdlöcsc", type: QuestionType.paragraph, isRequired: true, options: ["scsd"])],
-        createDate: Date().timeIntervalSince1970,
-        isAnonymus: true
-    )))
+    FormBuilderView(formToEdit: nil, tabselection: .constant(1))
 }
