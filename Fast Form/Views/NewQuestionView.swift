@@ -80,7 +80,7 @@ struct NewQuestionView: View {
                 .font(.title)
                 .bold()
                 .foregroundStyle(.white.opacity(0.8))
-            TextField("Enter the question title...", text: .constant(""), axis: .vertical)
+            TextField("Enter the question title...", text: $viewModel.question.title, axis: .vertical)
                 .lineLimit(3, reservesSpace: true)
                 .font(.title2)
                 .bold()
@@ -105,7 +105,8 @@ struct NewQuestionView: View {
                         .font(.title3)
                         .foregroundStyle(.white)
                 }
-                .popover(isPresented: $showRequiredInfo) {
+                
+                .popover(isPresented: $showTypeInfo) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(viewModel.question.type.rawValue.capitalized)
                             .font(.headline)
@@ -211,7 +212,7 @@ struct NewQuestionView: View {
                     .font(.title3)
                     .foregroundStyle(.white)
             }
-            .popover(isPresented: $showRequiredInfo) {
+            .popover(isPresented: $showCharLimitInfo) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(viewModel.question.type.rawValue.capitalized)
                         .font(.headline)
@@ -259,7 +260,7 @@ struct NewQuestionView: View {
                     .font(.title3)
                     .foregroundStyle(.white)
             }
-            .popover(isPresented: $showRequiredInfo) {
+            .popover(isPresented: $showCharLimitInfo) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(viewModel.question.type.rawValue.capitalized)
                         .font(.headline)

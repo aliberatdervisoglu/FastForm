@@ -22,22 +22,33 @@ struct FormBuilderView: View {
                 Spacer()
                 BigButtonView(title: "Add new question") {
                     let newQuestion = viewModel.createNewQuestion()
-                    item.questionList.append(newQuestion)
+//                    item.questionList.append(newQuestion) don!t append yet because if we append it there, our form may include some empty question.
                     selectedQuestion = newQuestion
                 }
                 .sheet(item: $selectedQuestion) { question in
                     NewQuestionView(question: question, onSave: { updatedQuestion in
-
-                        print("Preview'da Kaydedildi: \(updatedQuestion.title)")
+                        
+                        
+                        // te opened sheet gives us a arranged question and we search the index of late version of this question and update in our binding list
+                        if let index = item.questionList.firstIndex(where: { $0.id == updatedQuestion.id }) {
+                            item.questionList[index] = updatedQuestion
+                        } else {
+                        // if we cannot find the quetion in our list we add this to our list here: FOR NEW QUESTION
+                            item.questionList.append(updatedQuestion)
+                        }
+                        
+                        
+                        
                     })
-                        .presentationDetents([.medium,.large]) // the half of screen or full of screen
-                        .presentationDragIndicator(.visible) // single line to hold above
+                    .presentationDetents([.medium,.large]) // the half of screen or full of screen
+                    .presentationDragIndicator(.visible) // single line to hold above
                 }
                 
                 
                 ForEach($item.questionList) { $question in
                     FormQuestionDisplayView(question: $question)
                 }
+                
                 Spacer()
                 
             }
@@ -57,17 +68,29 @@ struct FormBuilderView: View {
         }
     }
     func saveAndReset() {
+
+        guard !item.questionList.isEmpty else {
+            print("There should be at least one question in a form!")
+            //TODO: we will give an alert to user,later
+            return
+        }
+
+        guard !item.title.isEmpty else {
+            print("The title cannot be empty!")
+            //TODO: we will give another alert to user, later
+            return
+        }
+        
         viewModel.save(item: item)
-        // Kayıt bitince taslağı boşalt ki bir sonraki "Create" sekmesine basışta boş gelsin
+        
         self.item = FormModel(
-                        id: UUID().uuidString,
-                        title: "",
-                        ownerId: "", // Backend zaten Auth'dan alacak
-                        explanation: "",
-                        questionList: [],
-                        createDate: Date().timeIntervalSince1970,
-                        isAnonymus: false
-                    )
+            id: UUID().uuidString,
+            title: "",
+            ownerId: "",
+            explanation: "",
+            questionList: [],
+            createDate: Date().timeIntervalSince1970,
+            isAnonymus: false)
     }
     
     @ViewBuilder
@@ -94,7 +117,7 @@ struct FormBuilderView: View {
                     .font(.title)
                     .bold()
                     .foregroundStyle(.white.opacity(0.8))
-                TextField("Enter a title...", text: $item.title, axis: .vertical)
+                TextField("Enter a title...", text: $item.explanation, axis: .vertical)
                     .lineLimit(3, reservesSpace: true)
                     .font(.title2)
                     .bold()
