@@ -19,28 +19,33 @@ struct FormListView: View {
     }
     var body: some View {
         NavigationStack{
-            ScrollView {
-                VStack{
-                    ForEach(viewModel.formitems){item in
-                        FormListItemView(item: item){
-                            self.itemToDelete = item
-                            self.showingDeleteAlert = true
+            ZStack {
+                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+                ScrollView {
+                    VStack{
+                        ForEach(viewModel.formitems){item in
+                            FormListItemView(item: item){
+                                self.itemToDelete = item
+                                self.showingDeleteAlert = true
+                            }
                         }
+                        Spacer()
                     }
-                    Spacer()
-                }
-                .navigationTitle("My Forms")
-                .alert("Delete Form", isPresented: $showingDeleteAlert) {
-                    Button("Delete", role: .destructive) {
-                        if let id = itemToDelete?.id {
-                            viewModel.deleteForm(id: id)
+                    .navigationTitle("My Forms")
+                    .alert("Delete Form", isPresented: $showingDeleteAlert) {
+                        Button("Delete", role: .destructive) {
+                            if let id = itemToDelete?.id {
+                                viewModel.deleteForm(id: id)
+                            }
                         }
+                        Button("Cancel", role: .cancel) {  }
+                    } message: {
+                        Text("'\(itemToDelete?.title ?? "Unknown Form" )' will be deleted. Are you sure?")
                     }
-                    Button("Cancel", role: .cancel) {  }
-                } message: {
-                    Text("'\(itemToDelete?.title ?? "Unknown Form" )' will be deleted. Are you sure?")
                 }
             }
+            
+            
     
         }
         .onAppear {

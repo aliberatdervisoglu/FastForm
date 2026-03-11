@@ -35,58 +35,71 @@ struct FormBuilderView: View {
     
     var body: some View {
         NavigationStack{
-            ScrollView{
-                formInfoView
-                Divider().background(.gray.opacity(0.8))
-                    .padding(15)
+            ZStack{
+                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
                 
-                Spacer()
-                BigButtonView(title: "Add new question") {
-                    let newQuestion = viewModel.createNewQuestion()
-//                    item.questionList.append(newQuestion) don't append yet because if we append it there, our form may include some empty question.
-                    selectedQuestion = newQuestion
+                ScrollView{
+                    formInfoView
+                    Divider().background(.gray.opacity(0.8))
+                        .padding(15)
+                    
+                    Spacer()
+                    BigButtonView(title: "Add new question") {
+                        let newQuestion = viewModel.createNewQuestion()
+                        // item.questionList.append(newQuestion) don't append yet because if we append it there, our form may include some empty question.
+                        selectedQuestion = newQuestion
+                    }
+                    .sheet(item: $selectedQuestion) { question in
+                        NewQuestionView(question: question, onSave: { updatedQuestion in
+                            
+                            
+                            // te opened sheet gives us a arranged question and we search the index of late version of this question and update in our binding list
+                            if let index = item.questionList.firstIndex(where: { $0.id == updatedQuestion.id }) {
+                                item.questionList[index] = updatedQuestion
+                            } else {
+                            // if we cannot find the quetion in our list we add this to our list here: FOR NEW QUESTION
+                                item.questionList.append(updatedQuestion)
+                            }
+                            
+                            
+                            
+                        })
+    //                    .presentationDetents([.medium,.large]) // the half of screen or full of screen
+                        .presentationDragIndicator(.visible) // single line to hold above
+                    }
+                    
+                    
+                    ForEach($item.questionList) { $question in
+                        FormQuestionDisplayView(question: $question)
+                    }
+                    .onMove { source, destination in
+                        item.questionList.move(fromOffsets: source, toOffset: destination)
+                    }
+                    
+                    Spacer()
+                    
                 }
-                .sheet(item: $selectedQuestion) { question in
-                    NewQuestionView(question: question, onSave: { updatedQuestion in
+                .navigationTitle("Build & Edit Form")
+                .toolbar {
+//                    ToolbarItem(placement: .automatic) {
+//                            EditButton()
+//                                .font(.headline)
+//                                .foregroundStyle(.gray)
+//                        }
+                    ToolbarItem(placement: .navigationBarTrailing) {
                         
-                        
-                        // te opened sheet gives us a arranged question and we search the index of late version of this question and update in our binding list
-                        if let index = item.questionList.firstIndex(where: { $0.id == updatedQuestion.id }) {
-                            item.questionList[index] = updatedQuestion
-                        } else {
-                        // if we cannot find the quetion in our list we add this to our list here: FOR NEW QUESTION
-                            item.questionList.append(updatedQuestion)
+                        Button {
+                            saveAndReset()
+                            if tabSelection == 2 {
+                                tabSelection = 0
+                            } else {
+                                dismiss()
+                            }
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(Color(.green))
                         }
-                        
-                        
-                        
-                    })
-//                    .presentationDetents([.medium,.large]) // the half of screen or full of screen
-                    .presentationDragIndicator(.visible) // single line to hold above
-                }
-                
-                
-                ForEach($item.questionList) { $question in
-                    FormQuestionDisplayView(question: $question)
-                }
-                
-                Spacer()
-                
-            }
-            .navigationTitle("Build & Edit Form")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        saveAndReset()
-                        if tabSelection == 2 {
-                            tabSelection = 0
-                        } else {
-                            dismiss()
-                        }
-                    } label: {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(Color(.green))
                     }
                 }
             }

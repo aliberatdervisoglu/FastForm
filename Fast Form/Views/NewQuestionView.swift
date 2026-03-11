@@ -205,6 +205,10 @@ struct NewQuestionView: View {
                     .foregroundStyle(.white.opacity(0.8))
                 dropdownAnswerView
             case .toggle:
+                Text("Options: ")
+                    .font(.title)
+                    .bold()
+                    .foregroundStyle(.white.opacity(0.8))
                 toggleAnswerView
             }
         }
@@ -324,8 +328,9 @@ struct NewQuestionView: View {
             ForEach(0..<question.options.count, id: \.self) { index in
                 HStack {
                     Image(systemName: "circle")
-                                        .font(.title)
-                                        .foregroundStyle(.white.opacity(0.6))
+                        .font(.title)
+                        .bold()
+                        .foregroundStyle(.white)
                     TextField("Option \(index + 1)", text: Binding(
                         get: { // if index valid, bring data
                             question.options.indices.contains(index) ?
@@ -380,8 +385,9 @@ struct NewQuestionView: View {
             ForEach(0..<question.options.count, id: \.self) { index in
                 HStack {
                     Image(systemName: "square")
-                                        .font(.title)
-                                        .foregroundStyle(.white.opacity(0.6))
+                        .font(.title)
+                        .bold()
+                        .foregroundStyle(.white)
                     TextField("Option \(index + 1)", text: Binding(
                         get: { // if index valid, bring data
                             question.options.indices.contains(index) ?
@@ -434,9 +440,10 @@ struct NewQuestionView: View {
                 }
             ForEach(0..<question.options.count, id: \.self) { index in
                 HStack {
-                    Image(systemName: "space")
-                                        .font(.title)
-                                        .foregroundStyle(.white.opacity(0.6))
+                    Image(systemName: "chevron.down")
+                        .font(.title)
+                        .bold()
+                        .foregroundStyle(.white)
                     TextField("Option \(index + 1)", text: Binding(
                         get: { // if index valid, bring data
                             question.options.indices.contains(index) ?
@@ -476,6 +483,23 @@ struct NewQuestionView: View {
     
     @ViewBuilder
     var toggleAnswerView: some View {
+        HStack{
+            Image(systemName: "switch.2")
+                        .font(.title2)
+                        .foregroundStyle(.white.opacity(0.8))
+            Text("Users will see a switch")
+                        .font(.headline)
+                        .foregroundStyle(.white.opacity(0.8))
+            Spacer()
+            Toggle(isOn: .constant(true)) {
+                EmptyView()
+            }
+            .labelsHidden()
+            .disabled(true)
+            
+        }
+        .padding(15)
+            .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
     }
     
     
@@ -502,7 +526,7 @@ struct NewQuestionView: View {
         question: Question(
             id: "test-id-123",
             title: "Örnek Soru Başlığı",
-            type: .multipleChoice,
+            type: .toggle,
             isRequired: true,
             options: ["Seçenek 1", "Seçenek 2"]
         ),
