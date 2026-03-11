@@ -12,6 +12,7 @@ struct FormBuilderView: View {
     @StateObject var viewModel: FormBuilderViewViewModel
     @State var item: FormModel
     @State private var selectedQuestion: Question? = nil // to add direct sheet link to add button
+    @State private var showSuccessAnimation = false
     @Environment(\.dismiss) var dismiss
     @Binding var tabSelection: Int
     init(formToEdit: FormModel? = nil, tabselection: Binding<Int>){
@@ -42,7 +43,7 @@ struct FormBuilderView: View {
                 Spacer()
                 BigButtonView(title: "Add new question") {
                     let newQuestion = viewModel.createNewQuestion()
-//                    item.questionList.append(newQuestion) don!t append yet because if we append it there, our form may include some empty question.
+//                    item.questionList.append(newQuestion) don't append yet because if we append it there, our form may include some empty question.
                     selectedQuestion = newQuestion
                 }
                 .sheet(item: $selectedQuestion) { question in
@@ -99,7 +100,10 @@ struct FormBuilderView: View {
             //TODO: we will give an alert to user,later
             return
         }
-
+        for i in 0..<item.questionList.count {
+            item.questionList[i].options = item.questionList[i].options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        }
+        
         guard !item.title.isEmpty else {
             print("The title cannot be empty!")
             //TODO: we will give another alert to user, later
@@ -107,15 +111,19 @@ struct FormBuilderView: View {
         }
         
         viewModel.save(item: item)
+        let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
         
-        self.item = FormModel(
-            id: UUID().uuidString,
-            title: "",
-            ownerId: "",
-            explanation: "",
-            questionList: [],
-            createDate: Date().timeIntervalSince1970,
-            isAnonymus: false)
+        DispatchQueue.main.async {
+            self.item = FormModel(
+                id: UUID().uuidString,
+                title: "",
+                ownerId: "",
+                explanation: "",
+                questionList: [],
+                createDate: Date().timeIntervalSince1970,
+                isAnonymus: false)
+        }
         
     }
     

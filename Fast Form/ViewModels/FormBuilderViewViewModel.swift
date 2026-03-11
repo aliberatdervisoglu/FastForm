@@ -32,8 +32,8 @@ class FormBuilderViewViewModel: ObservableObject {
             .setData(handleItem.asDictionary())
     }
     
-    func createNewQuestion() -> Question {
-        return Question(id: UUID().uuidString, title: "",type: QuestionType.shortAnswer, isRequired: false, options: [])
+    func createNewQuestion(type: QuestionType = .shortAnswer) -> Question {
+        return Question(id: UUID().uuidString, title: "",type: type, isRequired: false, options: [])
     }
     
 }

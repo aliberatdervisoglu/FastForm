@@ -63,7 +63,7 @@ struct FormListItemView: View {
 }
 
 #Preview {
-    FormListItemView(item: FormModel(title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(title: "dscs", type: QuestionType.paragraph, isRequired: true)], createDate: Date().timeIntervalSince1970, isAnonymus: true)) {
+    FormListItemView(item: FormModel(title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(title: "dscs", type: QuestionType.paragraph, isRequired: true,options: ["dsadc"])], createDate: Date().timeIntervalSince1970, isAnonymus: true)) {
         print("hi")
     }
 }
