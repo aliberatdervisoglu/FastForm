@@ -12,7 +12,7 @@ struct FormListView: View {
     
     @State private var showingDeleteAlert: Bool = false
     @State private var itemToDelete: FormModel? = nil
-
+    
     
     init(userId: String){
         self._viewModel = StateObject(wrappedValue: FormListViewViewModel(userID: userId))
@@ -23,7 +23,7 @@ struct FormListView: View {
                 Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
                 ScrollView {
                     VStack{
-                        ForEach(viewModel.formitems){item in
+                        ForEach(viewModel.sortedforms){item in // display sortversion
                             FormListItemView(item: item){
                                 self.itemToDelete = item
                                 self.showingDeleteAlert = true
@@ -32,6 +32,31 @@ struct FormListView: View {
                         Spacer()
                     }
                     .navigationTitle("My Forms")
+                    
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) { // the sort button
+                            Menu {
+                                Picker("Sort by", selection: $viewModel.sortOption) {
+                                    ForEach(FormSortOption.allCases, id: \.self) { option in
+                                        Text(option.rawValue).tag(option)
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(viewModel.sortOption.rawValue)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption)
+                                }
+                                .foregroundStyle(LinearGradient.brandGradient)
+                                .padding()
+                                .padding(.horizontal)
+                                
+                            }
+                        }
+                    }
+                    
                     .alert("Delete Form", isPresented: $showingDeleteAlert) {
                         Button("Delete", role: .destructive) {
                             if let id = itemToDelete?.id {
@@ -53,6 +78,8 @@ struct FormListView: View {
             
             
         }
+        .animation(.easeInOut, value: viewModel.sortOption) // to resort
+        .animation(.easeInOut, value: viewModel.formitems.count) // to delete anything or open this window
     }
 }
 

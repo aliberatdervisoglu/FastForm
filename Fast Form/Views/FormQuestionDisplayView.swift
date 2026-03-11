@@ -16,45 +16,22 @@ struct FormQuestionDisplayView: View {
             
             VStack(alignment: .leading, spacing: 5){
                 Text(question.title)
-                    .font(.title)
+                    .font(.title3)
                     .bold()
                     .foregroundStyle(.white)
+                    .lineLimit(2)
+                Text("Type: " + question.type.rawValue.capitalized)
+                    .font(.caption)
+                    .fontWeight(.light)
+                    .foregroundStyle(.white.opacity(0.8))
                 
             }
             
             Spacer()
             
-            VStack(alignment: .leading, spacing: 5){
-                Button{
-                    isEditingQuestion = true // to open toggle
-                } label: {
-                    Image(systemName: "pencil.circle.fill")
-                        .resizable()
-                        .frame(width: 35, height: 35)
-                        .foregroundStyle(.white)
-                }
-                .sheet(isPresented: $isEditingQuestion) {
-                    NewQuestionView(question: question, onSave: {  updatedQuestion in
-                        
-                        print("Preview'da Kaydedildi: \(updatedQuestion.title)")
-                        }
-                    )
-                        .presentationDetents([.medium,.large]) // the half of screen or full of screen
-                        .presentationDragIndicator(.visible) // single line to hold above
-                }
-                
-                
-                Button {
-                    print("delete question")
-                } label: {
-                    Image(systemName: "trash.circle.fill")
-                        .resizable()
-                        .frame(width: 35, height: 35)
-                        .foregroundStyle(.white)
-                }
-
-                
-            }
+            Image(systemName: "chevron.right")
+                .font(.title.bold())
+                .foregroundStyle(.white.opacity(0.5))
             
         }
         .padding()
