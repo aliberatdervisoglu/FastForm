@@ -13,6 +13,10 @@ struct FormBuilderView: View {
     @State var item: FormModel
     @State private var selectedQuestion: Question? = nil // to add direct sheet link to add button
     @State private var showSuccessAnimation = false
+    
+    @State private var showSaveError = false
+    @State private var showSaveErrorMessage = ""
+
     @Environment(\.dismiss) var dismiss
     @Binding var tabSelection: Int
     init(formToEdit: FormModel? = nil, tabselection: Binding<Int>){
@@ -118,11 +122,12 @@ struct FormBuilderView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         
                         Button {
-                            saveAndReset()
-                            if tabSelection == 2 {
-                                tabSelection = 0
-                            } else {
-                                dismiss()
+                            if saveAndReset(){
+                                if tabSelection == 2 {
+                                    tabSelection = 0
+                                } else {
+                                    dismiss()
+                                }
                             }
                         } label: {
                             Image(systemName: "checkmark.circle.fill")
@@ -132,29 +137,33 @@ struct FormBuilderView: View {
                     }
                 }
             }
-
+            .alert("FormBuilder Error", isPresented: $showSaveError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(showSaveErrorMessage)
+            }
         }
     }
-    func saveAndReset() {
+    func saveAndReset() -> Bool{
 
-        guard !item.questionList.isEmpty else {
-            print("There should be at least one question in a form!")
-            //TODO: we will give an alert to user,later
-            return
-        }
         for i in 0..<item.questionList.count {
             item.questionList[i].options = item.questionList[i].options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         }
         
-        guard !item.title.isEmpty else {
-            print("The title cannot be empty!")
-            //TODO: we will give another alert to user, later
-            return
+        if item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showSaveErrorMessage = "Please enter a valid title for your form!"
+            showSaveError = true
+            return false
+        }
+        guard !item.questionList.isEmpty else {
+            showSaveErrorMessage = "Your form must have at least one question!"
+            showSaveError = true
+            return false
         }
         
         viewModel.save(item: item)
         let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
+        generator.notificationOccurred(.success)
         
         DispatchQueue.main.async {
             self.item = FormModel(
@@ -166,6 +175,7 @@ struct FormBuilderView: View {
                 createDate: Date().timeIntervalSince1970,
                 isAnonymus: false)
         }
+        return true
         
     }
     
