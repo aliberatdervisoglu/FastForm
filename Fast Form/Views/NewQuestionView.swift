@@ -15,6 +15,9 @@ struct NewQuestionView: View {
     @State private var showTypeInfo = false // popover i Button
     @State private var showCharLimitInfo = false // popover i Button
     
+    @State private var showSaveErrorAlert = false
+    @State private var showSaveErrorAlertErrorMessage = ""
+    
     var onSave: (Question) -> Void
     
     init(question: Question, onSave: @escaping (Question) -> Void) {
@@ -44,12 +47,23 @@ struct NewQuestionView: View {
                     .padding()
                 }
                 .navigationTitle("Question")
+                .alert("Missing Informatiom", isPresented: $showSaveErrorAlert){
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(showSaveErrorAlertErrorMessage)
+                }
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                                onSave(question)
+                            if validateQuestion(){
+                                question.options = getCleanedOptions()
+                                onSave(question) // this give our onSave from builer the question and we add or update easily.
                                 dismiss()
+                            } else {
+                                showSaveErrorAlert = true
+                            }
+                            
                         } label: {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title)
@@ -480,16 +494,15 @@ struct NewQuestionView: View {
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: question.options.count)
     }
-    
     @ViewBuilder
     var toggleAnswerView: some View {
         HStack{
             Image(systemName: "switch.2")
-                        .font(.title2)
-                        .foregroundStyle(.white.opacity(0.8))
+                .font(.title2)
+                .foregroundStyle(.white.opacity(0.8))
             Text("Users will see a switch")
-                        .font(.headline)
-                        .foregroundStyle(.white.opacity(0.8))
+                .font(.headline)
+                .foregroundStyle(.white.opacity(0.8))
             Spacer()
             Toggle(isOn: .constant(true)) {
                 EmptyView()
@@ -501,7 +514,6 @@ struct NewQuestionView: View {
         .padding(15)
             .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
     }
-    
     
     func getRequiredInfoText(for type: QuestionType) -> String {
         switch type {
@@ -519,6 +531,34 @@ struct NewQuestionView: View {
             return "Users must turn this switch ON (e.g., agreeing to Terms of Service) to submit."
         }
     }
+    
+    
+    func getCleanedOptions() -> [String]{
+        return question.options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+    func validateQuestion() -> Bool {
+        
+        // to check invalid title
+        guard !question.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            showSaveErrorAlertErrorMessage = "Please enter a valid question title."
+            return false
+        }
+        
+        switch question.type {
+        case .shortAnswer, .paragraph, .toggle:
+            return true
+        case .multipleChoice, .checkboxes, .dropdown:
+            let cleanedOptions = getCleanedOptions()
+            
+            if cleanedOptions.count < 2 {
+                showSaveErrorAlertErrorMessage = "Please add at least 2 valid options for this question type."
+                return false
+            }
+        }
+        return true
+    }
+    
+    
 }
 
 #Preview {

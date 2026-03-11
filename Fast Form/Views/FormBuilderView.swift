@@ -47,20 +47,29 @@ struct FormBuilderView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets())
-                    
-                    
-
-                    
-                    
-                    
+            
                     ForEach($item.questionList) { $question in
                         FormQuestionDisplayView(question: $question)
                             .padding(5)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets())
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    if let index = item.questionList.firstIndex(where: { $0.id == question.id }) {
+                                        item.questionList.remove(at: index)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .contentShape(Rectangle()) 
+                            .onTapGesture {
+                                self.selectedQuestion = question
+                                    }
 
                     }
+                    
                     .onMove { source, destination in
                         item.questionList.move(fromOffsets: source, toOffset: destination)
                     }
@@ -79,6 +88,9 @@ struct FormBuilderView: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 
+                
+                .animation(.easeInOut, value: item.questionList.count)
+
                 // SHEET FOR NEW QUESTION AND SET QUESTION
                 .sheet(item: $selectedQuestion) { question in
                     NewQuestionView(question: question, onSave: { updatedQuestion in
