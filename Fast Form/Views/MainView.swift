@@ -22,11 +22,17 @@ struct MainView: View {
     @StateObject var viewModel = MainViewViewModel()
     @State private var selectedTab: Int = 0
     var body: some View {
-        if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty{
-            mainTabView
-        } else {
-            LoginView()
+        Group{
+            if viewModel.isLoading{
+                LoadingPlaygroundView()
+            } else if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty{
+                mainTabView
+            } else {
+                LoginView()
+            }
         }
+        .animation(.easeInOut(duration: 1.5), value: viewModel.isLoading)
+//        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.isLoading)
     }
     @ViewBuilder
     var mainTabView: some View {
@@ -68,23 +74,3 @@ struct MainView: View {
     MainView()
 }
 
-
-//TabView{
-//    FormBuilderView()
-//        .tabItem({
-//            Label("Form Builder", systemImage: "clipboard")
-//        })
-//    ResponseFormView()
-//        .tabItem({
-//            Label("Responses", systemImage: "list.bullet.clipboard")
-//        })
-//    ProfileView()
-//        .tabItem({
-//            Label("Profile" , systemImage: "person.crop.circle")
-//        })
-//    SettingsView()
-//        .tabItem({
-//            Label("Settings" , systemImage: "gearshape.fill")
-//        })
-//}
-//.tint(Color("BrandGradientStart"))
