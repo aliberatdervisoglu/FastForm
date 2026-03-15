@@ -11,8 +11,11 @@ import SwiftUI
 struct SettingsView: View {
     @StateObject var viewModel = SettingsViewViewModel()
     
-    @State var showDeleteConfirmation: Bool = false
-    @State var logOutConfirmation: Bool = false
+    @State private var showDeleteConfirmation: Bool = false
+    @State private var logOutConfirmation: Bool = false
+    @State private var showChangeName: Bool = false
+    @State private var newName = ""
+//    @State private var showChangeEmail: Bool = false
     
 
     var body: some View {
@@ -32,19 +35,16 @@ struct SettingsView: View {
                         .padding(.bottom, 10)
                     VStack(spacing: 20){
                         setRawView(title: "Set Name", iconname: "person") {
-                            print("trial1")
+                            showChangeName = true
                         }
-                        
                         Divider()
                         setRawView(title: "Set Mail", iconname: "at") {
                             print("trial1")
                         }
-                        
                         Divider()
                         setRawView(title: "Set Password", iconname: "lock") {
                             print("trial1")
                         }
-                        
                         Divider()
                         setRawView(title: "Log Out", iconname: "rectangle.portrait.and.arrow.right", optionalColor: .blue) {
                             print("trial2")
@@ -86,6 +86,56 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("For your security, you must have logged in recently to delete your account. Please log out and log back in, then try again.")
+            }
+            .sheet(isPresented: $showChangeName) {
+                NavigationStack {
+                    VStack(spacing: 20){
+                        Text("Update your name: ")
+                            .font(.title3)
+                            .bold()
+                            .foregroundStyle(.primary)
+                            .padding(.top)
+                        TextField("New Name", text: $newName)
+                            .padding()
+                            .font(.title2)
+                            .bold()
+                            .foregroundStyle(.black.opacity(0.8))
+                            .background(RoundedRectangle(cornerRadius: 15).fill(.gray.opacity(0.3)))
+                            .padding()
+                        Spacer()
+                    }
+                    .padding()
+                    .navigationTitle("Edit Name")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                viewModel.updateName(newName: newName) { success in
+                                    if success {
+                                        showChangeName = false
+                                        newName = ""
+                                    }
+                                }
+                                
+                            } label: {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Color(.green))
+                            }
+                        }
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                showChangeName = false
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Color(.red))
+                            }
+                        }
+                    }
+                    .presentationDetents([.fraction(0.4)])
+                    .presentationDragIndicator(.visible)
+                }
             }
         }
     }

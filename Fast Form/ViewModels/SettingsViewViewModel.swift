@@ -16,10 +16,34 @@ class SettingsViewViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var showReauthAlert = false
 
-    init() {
-        
-    }
+    init() {}
 
+    func updateName(newName: String, completion: @escaping(Bool) -> Void) {
+        let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedname.isEmpty else {
+            self.errormeessage = "Name cannot be empty"
+            return
+        }
+        guard let userID = Auth.auth().currentUser?.uid else {return}
+        let db = Firestore.firestore()
+        
+        self.isLoading = true
+        
+        db.collection("users").document(userID).updateData(["name": trimmedname]) { [weak self] error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                
+                if let error = error {
+                    self?.errormeessage = error.localizedDescription
+                    completion(false)
+                } else {
+                    completion(true)
+                }
+            }
+        }
+    }
+    
+    
     func logOut() {
         do {
             try Auth.auth().signOut()
@@ -27,7 +51,6 @@ class SettingsViewViewModel: ObservableObject {
             self.errormeessage = "Log Out failed: \(error.localizedDescription)"
         }
     }
-    
     
     func deleteAccount(onSuccess: @escaping () -> Void) {
         guard let currentUser = Auth.auth().currentUser else {return}
