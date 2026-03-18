@@ -63,6 +63,7 @@ struct SettingsView: View {
 
                 }
             }
+            .navigationTitle("Settings")
             .alert("You are logging out...", isPresented: $logOutConfirmation) {
                 Button("Log Out") {
                     viewModel.logOut()
@@ -145,6 +146,7 @@ struct SettingsView: View {
             }
             
         }
+        
     }
     @ViewBuilder
     func setRawView(title: String ,iconname: String,optionalColor: Color? = nil, action: @escaping () -> Void) -> some View {
