@@ -25,10 +25,7 @@ struct ProfileView: View {
                 VStack(spacing: 20) {
                     if let user = viewModel.user {
                         profile(user: user)
-                        
-                        BigButtonView(title: "Log Out") {
-                            viewModel.logOut()
-                        }
+
                         
                     } else {
                         ProgressView("Loading Profile...")

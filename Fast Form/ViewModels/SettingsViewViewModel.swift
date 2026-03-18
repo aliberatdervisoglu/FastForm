@@ -43,6 +43,31 @@ class SettingsViewViewModel: ObservableObject {
         }
     }
     
+    func sendPasswordReset(completion: @escaping (Bool) -> Void) {
+        
+        guard let currentMail = Auth.auth().currentUser?.email else {
+            self.errormeessage = "Could not get your email"
+            completion(false)
+            return
+        }
+        self.isLoading = true
+        
+        Auth.auth().sendPasswordReset(withEmail: currentMail) { [weak self] error in
+            
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if let error = error {
+                    self?.errormeessage = error.localizedDescription
+                    completion(false)
+                } else {
+                    completion(true)
+                }
+            }
+            
+        }
+        
+    }
+    
     
     func logOut() {
         do {
@@ -57,7 +82,7 @@ class SettingsViewViewModel: ObservableObject {
         let userID = currentUser.uid
         let db = Firestore.firestore()
         
-        self.isLoading = true // for just one touch to butto
+        self.isLoading = true // for just one touch to button
         
         db.collection("users").document(userID).delete() { [weak self] error in
             if let error = error {

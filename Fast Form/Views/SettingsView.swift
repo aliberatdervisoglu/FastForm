@@ -15,7 +15,7 @@ struct SettingsView: View {
     @State private var logOutConfirmation: Bool = false
     @State private var showChangeName: Bool = false
     @State private var newName = ""
-//    @State private var showChangeEmail: Bool = false
+    @State private var showPasswordChange: Bool = false
     
 
     var body: some View {
@@ -38,16 +38,17 @@ struct SettingsView: View {
                             showChangeName = true
                         }
                         Divider()
-                        setRawView(title: "Set Mail", iconname: "at") {
-                            print("trial1")
-                        }
-                        Divider()
+
                         setRawView(title: "Set Password", iconname: "lock") {
-                            print("trial1")
+                            viewModel.sendPasswordReset { success in
+                                    if success {
+                                        showPasswordChange = true
+                                    }
+                                }
                         }
                         Divider()
                         setRawView(title: "Log Out", iconname: "rectangle.portrait.and.arrow.right", optionalColor: .blue) {
-                            print("trial2")
+                            logOutConfirmation = true
                         }
                         Divider()
                         setRawView(title: "Delete Account", iconname: "person.crop.circle.badge.minus", optionalColor: .red) {
@@ -78,6 +79,11 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel){ }
             } message: {
                 Text("This action cannot be undone. Are you sure you want to delete your account?")
+            }
+            .alert("Check Your Email", isPresented: $showPasswordChange){
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("We've sent a password reset link to your email address. Please check your inbox and follow the instructions.")
             }
             .alert("Security Re-Authentication", isPresented: $viewModel.showReauthAlert) {
                 Button("Log Out & In Again") {
@@ -137,6 +143,7 @@ struct SettingsView: View {
                     .presentationDragIndicator(.visible)
                 }
             }
+            
         }
     }
     @ViewBuilder

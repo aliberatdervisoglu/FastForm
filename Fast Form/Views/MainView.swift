@@ -64,6 +64,9 @@ struct MainView: View {
                 })
                 .tag(4)
         }
+        .onAppear {
+            selectedTab = 0
+        }
         .tint(Color("BrandGradientStart"))
     }
     
