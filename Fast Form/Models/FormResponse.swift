@@ -12,17 +12,15 @@ struct Answer: Codable { //  needed for different question type
     let questionId: String
     var value: String?
     var selections: [String]?
-    var numericValue: Double?
     var booleanValue: Bool?
 }
 
 struct FormResponce: Codable, Identifiable {
     var id = UUID().uuidString
     var formId: String
-    var respondentId: String
-    var answers: [Answer]
-    var submittedDate: TimeInterval
-
+    var respondentId: String?
+    var answers: [String: Answer] // questionId and answer
+    var submittedDate: Date
 }
 
 
