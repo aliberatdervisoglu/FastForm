@@ -37,10 +37,20 @@ class ResponseFormViewViewModel: ObservableObject {
                         print("Error: \(error.localizedDescription)")
                         return
                     }
+                    guard let docs = snapshot?.documents else {
+                        print("empty")
+                        return
+                    }
                     
-                    self.results = snapshot?.documents.compactMap { doc in
-                        try? doc.data(as: FormModel.self)
-                    } ?? []
+                    self.results = docs.compactMap { doc in
+                        do {
+                            let form = try doc.data(as: FormModel.self)
+                            return form
+                        } catch {
+                            print(" (\(doc.documentID)): \(error)")
+                            return nil
+                        }
+                    }
                 }
             }
     }
