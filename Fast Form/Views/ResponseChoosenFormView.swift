@@ -23,16 +23,16 @@ struct ResponseChoosenFormView: View {
                 }
                 .padding()
             }
-            .alert("Uyarı", isPresented: $viewModel.showAlert) {
-                Button("Tamam", role: .cancel) { }
+            .alert("Alert", isPresented: $viewModel.showAlert) {
+                Button("Okey", role: .cancel) { }
             } message: {
-                Text(viewModel.errorMessage ?? "Bilinmeyen bir hata oluştu.")
+                Text(viewModel.errorMessage ?? "Unknown error!")
             }
             .overlay {
                 if viewModel.isLoading {
                     ZStack {
                         Color.black.opacity(0.4).ignoresSafeArea()
-                        ProgressView("Gönderiliyor...")
+                        ProgressView("Sending...")
                             .padding()
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(10)
