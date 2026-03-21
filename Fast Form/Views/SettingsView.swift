@@ -156,12 +156,12 @@ struct SettingsView: View {
             HStack{
                 ZStack {
                     Circle()
-                        .frame(width: 42, height: 42)
+                        .frame(width: 32, height: 32)
                         .foregroundStyle(Color("BrandGradientEnd").opacity(0.1))
                     
                     Image(systemName: iconname)
                         .foregroundStyle(Color("BrandGradientEnd"))
-                        .font(.system(size: 24))
+                        .font(.system(size: 14))
                 }
                 Text(title)
                     .font(.title3)

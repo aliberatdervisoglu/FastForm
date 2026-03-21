@@ -88,14 +88,14 @@ struct ProfileView: View {
             }
             
             Text(title)
-                .font(.subheadline)
+                .font(.title3)
                 .foregroundColor(.gray)
                 .fontWeight(.medium)
             
             Spacer()
             
             Text(value)
-                .font(.subheadline)
+                .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
         }
