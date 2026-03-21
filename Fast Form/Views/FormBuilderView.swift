@@ -51,6 +51,18 @@ struct FormBuilderView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets())
+                    
+                    VStack {
+                        Spacer().frame(height: 5)
+                        BigButtonView(title: "Add new question") {
+                            let newQuestion = viewModel.createNewQuestion()
+                                selectedQuestion = newQuestion
+                        }
+                        Spacer().frame(height: 20)
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
             
                     ForEach($item.questionList) { $question in
                         FormQuestionDisplayView(question: $question)
@@ -78,16 +90,7 @@ struct FormBuilderView: View {
                         item.questionList.move(fromOffsets: source, toOffset: destination)
                     }
                     
-                    VStack {
-                        Spacer().frame(height: 20)
-                        BigButtonView(title: "Add new question") {
-                            let newQuestion = viewModel.createNewQuestion()
-                                selectedQuestion = newQuestion
-                        }
-                    }
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets())
+                   
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
