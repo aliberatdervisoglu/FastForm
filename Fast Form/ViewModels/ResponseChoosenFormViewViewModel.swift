@@ -19,26 +19,38 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
     
     func validateAnswers(form: FormModel, answers: [String: Answer]) -> Bool {
         for question in form.questionList {
+            
+            let answer = answers[question.id]
+            
+            if let answerValue = answer?.value {
+                if question.type == .shortAnswer || question.type == .paragraph {
+                    if answerValue.count > question.maxCharactersLimit {
+                        showError(message: "\(question.title): answer is too long. Character limit (\(question.maxCharactersLimit)) exceeded!")
+                        return false
+                    }
+                }
+            }
+            
             if question.isRequired {
-                guard let answer = answers[question.id] else {
-                    showError(message: "Please fill all required questions: \(question.title)")
+                if answer == nil {
+                    showError(message: "Please fill: \(question.title)")
                     return false
                 }
                 
                 switch question.type {
                 case .shortAnswer, .paragraph, .dropdown, .multipleChoice:
-                    if answer.value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
-                        showError(message: "Lütfen boş bırakmayın: \(question.title)")
+                    if answer?.value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                        showError(message: "Required field: \(question.title)")
                         return false
                     }
                 case .checkboxes:
-                    if answer.selections?.isEmpty ?? true {
-                        showError(message: "Lütfen en az bir seçenek işaretleyin: \(question.title)")
+                    if answer?.selections?.isEmpty ?? true {
+                        showError(message: "Choose at least one: \(question.title)")
                         return false
                     }
                 case .toggle:
-                    if answer.booleanValue != true {
-                        showError(message: "Devam etmek için onaylamalısınız: \(question.title)")
+                    if answer?.booleanValue != true {
+                        showError(message: "Approval required: \(question.title)")
                         return false
                     }
                 }

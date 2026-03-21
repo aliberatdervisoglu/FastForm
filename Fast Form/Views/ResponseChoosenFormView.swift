@@ -96,16 +96,30 @@ struct ResponseChoosenFormView: View {
             Group {
                 switch question.type {
                 case .shortAnswer:
-                    TextField("Answer...", text: textBinding(for: question))
-                        .textFieldStyle(.roundedBorder)
+                    VStack(alignment: .trailing, spacing: 4){
+                        TextField("Answer...", text: textBinding(for: question))
+                            .textFieldStyle(.roundedBorder)
+                        let currentCount = userAnswers[question.id]?.value?.count ?? 0
+                        Text("\(currentCount) / \(question.maxCharactersLimit)")
+                            .font(.caption2)
+                            .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
+                            
+                    }
                     
                 case .paragraph:
-                    TextEditor(text: textBinding(for: question))
-                        .frame(minHeight: 100)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                        )
+                    VStack(alignment: .trailing, spacing: 4){
+                        TextEditor(text: textBinding(for: question))
+                            .frame(minHeight: 100)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
+                            )
+                        let currentCount = userAnswers[question.id]?.value?.count ?? 0
+                        Text("\(currentCount) / \(question.maxCharactersLimit)")
+                            .font(.caption2)
+                            .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
+                            
+                    }
                     
                 case .toggle:
                     HStack{
@@ -249,7 +263,7 @@ struct ResponseChoosenFormView: View {
         Question(title: "Adınız ve Soyadınız nedir?", type: .shortAnswer, isRequired: true, options: []),
         
         // 2. Paragraf
-        Question(title: "Bu pozisyon için neden uygun olduğunuzu düşünüyorsunuz?", type: .paragraph, isRequired: false, options: []),
+        Question(title: "Bu pozisyon için neden uygun olduğunuzu düşünüyorsunuz?", type: .paragraph, isRequired: false, options: [],maxCharactersLimit: 500),
         
         // 3. Çoktan Seçmeli (Radio Button)
         Question(title: "Hangi departman için başvuruyorsunuz?", type: .multipleChoice, isRequired: true, options: ["Yazılım", "Tasarım", "Pazarlama", "İnsan Kaynakları"]),
