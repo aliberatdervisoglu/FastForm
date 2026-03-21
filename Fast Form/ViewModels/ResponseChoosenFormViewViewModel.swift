@@ -68,12 +68,18 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
         
         isLoading = true
         
-        let currentUserId = Auth.auth().currentUser?.uid
-        let respondentId = form.isAnonymus ? nil : currentUserId
+        var info: RespondentInfo? = nil
+        
+        if !form.isAnonymus, let user = Auth.auth().currentUser {
+            info = RespondentInfo(
+                id: user.uid,
+                email: user.email ?? "No Email",
+            )
+        }
         
         let newResponse = FormResponce(
             formId: form.id,
-            respondentId: respondentId,
+            info: info,
             answers: answers,
             submittedDate: Date()
         )

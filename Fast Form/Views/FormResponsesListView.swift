@@ -52,9 +52,9 @@ struct FormResponsesListView: View {
                         .font(.headline)
                         .foregroundStyle(.white)
                 } else {
-                    Text("User: \(response.respondentId?.prefix(8) ?? "Unknown")...")
-                        .font(.headline)
-                        .foregroundStyle(.white)
+                    Text(response.info?.email ?? "No provided Email")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
                 }
                 
                 HStack(spacing: 4) {

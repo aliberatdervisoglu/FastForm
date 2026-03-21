@@ -15,10 +15,14 @@ struct Answer: Codable { //  needed for different question type
     var booleanValue: Bool?
 }
 
+struct RespondentInfo: Codable {
+    let id: String
+    let email: String
+}
 struct FormResponce: Codable, Identifiable {
     var id = UUID().uuidString
     var formId: String
-    var respondentId: String?
+    var info: RespondentInfo?
     var answers: [String: Answer] // questionId and answer
     var submittedDate: Date
 }

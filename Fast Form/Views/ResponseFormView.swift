@@ -10,42 +10,94 @@ import SwiftUI
 struct ResponseFormView: View {
     @StateObject var viewModel = ResponseFormViewViewModel()
     
-    
     var body: some View {
-        NavigationStack{
-            
-            ZStack{
-                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
-                if viewModel.results.isEmpty && viewModel.searchText.isEmpty {
-                    ContentUnavailableView("Search for a Form",
-                                           systemImage: "magnifyingglass",
-                                           description: Text("Type a title to find and fill out a form."))
-                } else {
-                    List(viewModel.results) { form in
-                        NavigationLink(destination: ResponseChoosenFormView(form: form)) {
-                            VStack(alignment: .leading) {
-                                Text(form.title)
-                                    .font(.headline)
-                                Text(form.explanation)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+        NavigationStack {
+            ZStack {
+                Color(uiColor: .systemGroupedBackground)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 16) {
+                        
+                        if viewModel.searchText.isEmpty {
+                            welcomeSection
+                                .padding(.top, 40)
+                            
+                        } else if viewModel.results.isEmpty && viewModel.isLoading == false {
+                            ContentUnavailableView.search(text: viewModel.searchText)
+                                .padding(.top, 40)
+                            
+                        } else if viewModel.isLoading {
+                            ProgressView("Searching forms...")
+                                .padding(.top, 40)
+                            
+                        } else {
+                            ForEach(viewModel.results) { form in
+                                NavigationLink(destination: ResponseChoosenFormView(form: form)) {
+                                    formSearchResultCard(for: form)
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
-                    .scrollContentBackground(.hidden)
-                    
+                    .padding()
                 }
             }
-            .background(Color(uiColor: .systemGroupedBackground))
             .navigationTitle("Find Form")
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Enter a Form Title...")                .onChange(of: viewModel.searchText) {
+            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Enter a Form Title...")
+            .onChange(of: viewModel.searchText) { _, _ in
                 viewModel.searchForms()
             }
-            
         }
     }
-}
 
+    private var welcomeSection: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "magnifyingglass.circle.fill")
+                .font(.system(size: 80))
+                .foregroundStyle(LinearGradient.brandGradient)
+            
+            Text("Ready to fill out a form?")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text("Enter a form title in the search bar above to find it and share your answers.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
+        }
+        .padding()
+    }
+    
+    @ViewBuilder
+    private func formSearchResultCard(for form: FormModel) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(form.title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                
+                Text(form.explanation)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "doc.text.below.ecg.fill")
+                .font(.title2)
+                .foregroundStyle(.white)
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 15)
+                .fill(LinearGradient.brandGradient)
+        )
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2) 
+    }
+}
 #Preview {
     ResponseFormView()
 }

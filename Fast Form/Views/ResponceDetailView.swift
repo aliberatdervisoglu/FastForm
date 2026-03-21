@@ -23,14 +23,18 @@ struct ResponseDetailView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     
-                    HStack(spacing: 6) {
-                        Image(systemName: "calendar")
-                        Text("Submitted on \(response.submittedDate.formatted(date: .abbreviated, time: .shortened))")
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack{
+                            Image(systemName: "calendar")
+                            Text("Submitted on \(response.submittedDate.formatted(date: .abbreviated, time: .shortened))")
+                        }
                         
-                        if let rId = response.respondentId {
+                        if let info = response.info {
                             Spacer()
-                            Image(systemName: "person.circle.fill")
-                            Text("User: \(rId.prefix(8))...")
+                            HStack{
+                                Image(systemName: "person.circle.fill")
+                                Text(info.email)
+                            }
                         }
                     }
                     .font(.caption)
@@ -148,12 +152,11 @@ struct ResponseDetailView: View {
     
     let mockResponse = FormResponce(
         formId: "form123",
-        respondentId: "user_99",
         answers: mockAnswers,
         submittedDate: Date()
     )
     
-    return NavigationStack {
+    NavigationStack {
         ResponseDetailView(form: mockForm, response: mockResponse)
     }
 }
