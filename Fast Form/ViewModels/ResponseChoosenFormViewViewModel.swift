@@ -17,7 +17,7 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
     
     private var db = Firestore.firestore()
     
-    func validateAnswers(form: FormModel, answers: [String: Answer]) -> Bool {
+    func validateAnswers(form: FormModel, answers: [String: Answer]) -> String? {
         for question in form.questionList {
             
             let answer = answers[question.id]
@@ -26,7 +26,7 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
                 if question.type == .shortAnswer || question.type == .paragraph {
                     if answerValue.count > question.maxCharactersLimit {
                         showError(message: "\(question.title): answer is too long. Character limit (\(question.maxCharactersLimit)) exceeded!")
-                        return false
+                        return question.id
                     }
                 }
             }
@@ -34,34 +34,34 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
             if question.isRequired {
                 if answer == nil {
                     showError(message: "Please fill: \(question.title)")
-                    return false
+                    return question.id
                 }
                 
                 switch question.type {
                 case .shortAnswer, .paragraph, .dropdown, .multipleChoice:
                     if answer?.value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
                         showError(message: "Required field: \(question.title)")
-                        return false
+                        return question.id
                     }
                 case .checkboxes:
                     if answer?.selections?.isEmpty ?? true {
                         showError(message: "Choose at least one: \(question.title)")
-                        return false
+                        return question.id
                     }
                 case .toggle:
                     if answer?.booleanValue != true {
                         showError(message: "Approval required: \(question.title)")
-                        return false
+                        return question.id
                     }
                 }
             }
         }
-        return true
+        return nil
     }
     
     
     func submitForm(form: FormModel, answers: [String: Answer], completion: @escaping (Bool) -> Void) {
-        guard validateAnswers(form: form, answers: answers) else {
+        guard (validateAnswers(form: form, answers: answers) == nil) else {
             completion(false)
             return
         }

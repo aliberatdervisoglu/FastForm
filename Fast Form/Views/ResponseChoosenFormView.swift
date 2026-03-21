@@ -5,23 +5,37 @@ struct ResponseChoosenFormView: View {
     
     @StateObject private var viewModel = ResponseChoosenFormViewViewModel()
     @State private var userAnswers: [String: Answer] = [:]
+    @State private var errorQuestionId: String? = nil
     
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    headerSection
-                    Divider()
-                    VStack(spacing: 20) {
-                        ForEach(form.questionList) { question in
-                            questionCard(for: question)
+                ScrollViewReader { proxy in
+                    VStack(alignment: .leading, spacing: 24) {
+                        headerSection
+                        Divider()
+                        VStack(spacing: 20) {
+                            ForEach(form.questionList) { question in
+                                questionCard(for: question)
+                                    .id(question.id) // we are giving this card that their questions id because to swipe if there are a problem
+                            }
+                        }
+                        BigButtonView(title: "Send Form"){
+                            if let errorId = viewModel.validateAnswers(form: form, answers: userAnswers) {
+                                self.errorQuestionId = errorId
+                                withAnimation(.spring()) {
+                                    proxy.scrollTo(errorId, anchor: .center)
+                                }
+                            } else {
+                                self.errorQuestionId = nil
+                                submitForm()
+                            }
                         }
                     }
-                    submitButton
+                    .padding()
                 }
-                .padding()
             }
             .alert("Alert", isPresented: $viewModel.showAlert) {
                 Button("Okey", role: .cancel) { }
@@ -69,133 +83,137 @@ struct ResponseChoosenFormView: View {
         .padding(.horizontal, 4)
     }
     
-    private var submitButton: some View {
-        
-        BigButtonView(title: "Send Form"){
-            submitForm()
-        }
-    }
         
     @ViewBuilder
     private func questionCard(for question: Question) -> some View {
+        let isError = errorQuestionId == question.id
+        
         VStack(alignment: .leading, spacing: 16) {
             
-            HStack(alignment: .top) {
-                Text(question.title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+            VStack(alignment: .leading, spacing: 16){
+                HStack(alignment: .top) {
+                    Text(question.title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
+                    if question.isRequired {
+                        Text("*")
+                            .font(.title3)
+                            .foregroundStyle(.red)
+                    }
+                    Spacer()
+                }
                 
-                if question.isRequired {
-                    Text("*")
-                        .font(.title3)
-                        .foregroundStyle(.red)
-                }
-                Spacer()
-            }
-            
-            Group {
-                switch question.type {
-                case .shortAnswer:
-                    VStack(alignment: .trailing, spacing: 4){
-                        TextField("Answer...", text: textBinding(for: question))
-                            .textFieldStyle(.roundedBorder)
-                        let currentCount = userAnswers[question.id]?.value?.count ?? 0
-                        Text("\(currentCount) / \(question.maxCharactersLimit)")
-                            .font(.caption2)
-                            .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
-                            
-                    }
-                    
-                case .paragraph:
-                    VStack(alignment: .trailing, spacing: 4){
-                        TextEditor(text: textBinding(for: question))
-                            .frame(minHeight: 100)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                            )
-                        let currentCount = userAnswers[question.id]?.value?.count ?? 0
-                        Text("\(currentCount) / \(question.maxCharactersLimit)")
-                            .font(.caption2)
-                            .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
-                            
-                    }
-                    
-                case .toggle:
-                    HStack{
-                        Toggle("", isOn: boolBinding(for: question))
-                            .tint(LinearGradient.brandGradient)
-                            .labelsHidden()
-                        Spacer()
-                    }
-                    
-                case .dropdown:
-                    Picker("Choose", selection: textBinding(for: question)) {
-                        Text("Choose...").tag("")
-                        ForEach(question.options, id: \.self) { option in
-                            Text(option).tag(option)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(Color(uiColor: .secondarySystemBackground))
-                    .tint(LinearGradient.brandGradient)
-                    .cornerRadius(8)
+                Group {
+                    switch question.type {
+                    case .shortAnswer:
+                        VStack(alignment: .trailing, spacing: 4){
+                            TextField("Answer...", text: textBinding(for: question))
+                                .textFieldStyle(.roundedBorder)
+                            let currentCount = userAnswers[question.id]?.value?.count ?? 0
+                            Text("\(currentCount) / \(question.maxCharactersLimit)")
+                                .font(.caption2)
+                                .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
                                 
-                case .multipleChoice:
-                    VStack(alignment: .leading, spacing: 12) {
-                        let binding = textBinding(for: question)
-                                    
-                        ForEach(question.options, id: \.self) { option in
-                            Button(action: {
-                                binding.wrappedValue = option
-                            }) {
-                                HStack(spacing: 12) {
-                                    Image(systemName: binding.wrappedValue == option ? "largecircle.fill.circle" : "circle")
-                                        .foregroundStyle(binding.wrappedValue == option ? .blue : .gray)
-                                        .font(.title3)
-                                    
-                                    Text(option)
-                                        .foregroundStyle(.primary)
-                                    Spacer()
-                                }
-                            }
-                            .buttonStyle(.plain)
                         }
-                    }
-                    .frame(maxWidth: .infinity)
-                case .checkboxes:
-                    // Çoklu seçim (Checkboxes)
-                    VStack(alignment: .leading, spacing: 14) {
-                        let binding = selectionsBinding(for: question)
                         
-                        ForEach(question.options, id: \.self) { option in
-                            Button(action: {
-                                // Listede varsa çıkar, yoksa ekle
-                                if binding.wrappedValue.contains(option) {
-                                    binding.wrappedValue.removeAll { $0 == option }
-                                } else {
-                                    binding.wrappedValue.append(option)
-                                }
-                            }) {
-                                HStack(spacing: 12) {
-                                    Image(systemName: binding.wrappedValue.contains(option) ? "checkmark.square.fill" : "square")
-                                        .foregroundStyle(binding.wrappedValue.contains(option) ? .blue : .gray)
-                                        .font(.title3)
-                                    
-                                    Text(option)
-                                        .foregroundStyle(.primary)
-                                    Spacer()
-                                }
-                            }
-                            .buttonStyle(.plain)
+                    case .paragraph:
+                        VStack(alignment: .trailing, spacing: 4){
+                            TextEditor(text: textBinding(for: question))
+                                .frame(minHeight: 100)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
+                                )
+                            let currentCount = userAnswers[question.id]?.value?.count ?? 0
+                            Text("\(currentCount) / \(question.maxCharactersLimit)")
+                                .font(.caption2)
+                                .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
+                                
                         }
+                        
+                    case .toggle:
+                        HStack{
+                            Toggle("", isOn: boolBinding(for: question))
+                                .tint(LinearGradient.brandGradient)
+                                .labelsHidden()
+                            Spacer()
+                        }
+                        
+                    case .dropdown:
+                        Picker("Choose", selection: textBinding(for: question)) {
+                            Text("Choose...").tag("")
+                            ForEach(question.options, id: \.self) { option in
+                                Text(option).tag(option)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Color(uiColor: .secondarySystemBackground))
+                        .tint(LinearGradient.brandGradient)
+                        .cornerRadius(8)
+                                    
+                    case .multipleChoice:
+                        VStack(alignment: .leading, spacing: 12) {
+                            let binding = textBinding(for: question)
+                                        
+                            ForEach(question.options, id: \.self) { option in
+                                Button(action: {
+                                    binding.wrappedValue = option
+                                }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: binding.wrappedValue == option ? "largecircle.fill.circle" : "circle")
+                                            .foregroundStyle(binding.wrappedValue == option ? .blue : .gray)
+                                            .font(.title3)
+                                        
+                                        Text(option)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    case .checkboxes:
+                        // Çoklu seçim (Checkboxes)
+                        VStack(alignment: .leading, spacing: 14) {
+                            let binding = selectionsBinding(for: question)
+                            
+                            ForEach(question.options, id: \.self) { option in
+                                Button(action: {
+                                    // Listede varsa çıkar, yoksa ekle
+                                    if binding.wrappedValue.contains(option) {
+                                        binding.wrappedValue.removeAll { $0 == option }
+                                    } else {
+                                        binding.wrappedValue.append(option)
+                                    }
+                                }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: binding.wrappedValue.contains(option) ? "checkmark.square.fill" : "square")
+                                            .foregroundStyle(binding.wrappedValue.contains(option) ? .blue : .gray)
+                                            .font(.title3)
+                                        
+                                        Text(option)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
+            if isError {
+                Text(viewModel.errorMessage ?? "Invalid input")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .transition(.opacity)
+            }
         }
         .padding(20)
         .background(Color(uiColor: .systemBackground))
@@ -203,7 +221,11 @@ struct ResponseChoosenFormView: View {
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                
-                .stroke(LinearGradient.brandGradient, lineWidth: 2)
+                .stroke(
+                    isError ?
+                        AnyShapeStyle(Color.red.opacity(0.7)) :
+                        AnyShapeStyle(LinearGradient.brandGradient),
+                    lineWidth: 2)
         )
         .frame(maxWidth: .infinity)
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
