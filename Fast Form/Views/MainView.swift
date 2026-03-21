@@ -64,6 +64,7 @@ struct MainView: View {
                 })
                 .tag(4)
         }
+        .animation(.interactiveSpring(response: 0.5, dampingFraction: 0.8, blendDuration: 0.5), value: selectedTab)
         .onAppear {
             selectedTab = 0
         }

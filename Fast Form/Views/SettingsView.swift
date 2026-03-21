@@ -63,7 +63,7 @@ struct SettingsView: View {
                     Spacer()
 
                 }
-                .padding(.top, 30)
+                .padding(.top, 22)
                 
             }
             .navigationTitle("Settings")
