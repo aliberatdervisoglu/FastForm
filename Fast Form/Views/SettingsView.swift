@@ -60,8 +60,11 @@ struct SettingsView: View {
                     .cornerRadius(20)
                     .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
                     .padding(.horizontal)
+                    Spacer()
 
                 }
+                .padding(.top, 30)
+                
             }
             .navigationTitle("Settings")
             .alert("You are logging out...", isPresented: $logOutConfirmation) {
@@ -164,7 +167,7 @@ struct SettingsView: View {
                         .font(.system(size: 14))
                 }
                 Text(title)
-                    .font(.title3)
+                    .font(.body)
                     .foregroundColor(optionalColor ?? .primary)
                     .fontWeight(.semibold)
                 Spacer()
