@@ -29,9 +29,16 @@ struct FormListItemView: View {
             
             VStack(alignment: .leading, spacing: 5){
                 // there should be a new update here
+                NavigationLink(destination: FormResponsesListView(form: item)) {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(.white)
+                    }
                 
                 NavigationLink(destination:FormBuilderView(formToEdit: item, tabselection: .constant(0))) {
-                        Image(systemName: "pencil.circle.fill")
+                    Image(systemName: "pencil.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)
                         .foregroundStyle(.white)

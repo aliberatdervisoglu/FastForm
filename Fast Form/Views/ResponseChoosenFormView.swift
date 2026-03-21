@@ -164,7 +164,7 @@ struct ResponseChoosenFormView: View {
                                 }) {
                                     HStack(spacing: 12) {
                                         Image(systemName: binding.wrappedValue == option ? "largecircle.fill.circle" : "circle")
-                                            .foregroundStyle(binding.wrappedValue == option ? .blue : .gray)
+                                            .foregroundStyle(binding.wrappedValue == option ? AnyShapeStyle(LinearGradient.brandGradient) : AnyShapeStyle(Color.gray))
                                             .font(.title3)
                                         
                                         Text(option)
@@ -177,13 +177,11 @@ struct ResponseChoosenFormView: View {
                         }
                         .frame(maxWidth: .infinity)
                     case .checkboxes:
-                        // Çoklu seçim (Checkboxes)
                         VStack(alignment: .leading, spacing: 14) {
                             let binding = selectionsBinding(for: question)
                             
                             ForEach(question.options, id: \.self) { option in
                                 Button(action: {
-                                    // Listede varsa çıkar, yoksa ekle
                                     if binding.wrappedValue.contains(option) {
                                         binding.wrappedValue.removeAll { $0 == option }
                                     } else {
@@ -192,7 +190,7 @@ struct ResponseChoosenFormView: View {
                                 }) {
                                     HStack(spacing: 12) {
                                         Image(systemName: binding.wrappedValue.contains(option) ? "checkmark.square.fill" : "square")
-                                            .foregroundStyle(binding.wrappedValue.contains(option) ? .blue : .gray)
+                                            .foregroundStyle(binding.wrappedValue.contains(option) ? AnyShapeStyle(LinearGradient.brandGradient) : AnyShapeStyle(Color.gray))
                                             .font(.title3)
                                         
                                         Text(option)
