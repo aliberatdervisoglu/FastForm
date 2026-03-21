@@ -35,6 +35,13 @@ struct ResponseChoosenFormView: View {
                         }
                     }
                     .padding()
+                    .onChange(of: errorQuestionId) { oldValue, newValue in
+                        if let idToScroll = newValue {
+                            withAnimation(.spring()) {
+                                proxy.scrollTo(idToScroll, anchor: .center)
+                            }
+                        }
+                    }
                 }
             }
             .alert("Alert", isPresented: $viewModel.showAlert) {
@@ -235,6 +242,9 @@ struct ResponseChoosenFormView: View {
         Binding<String>(
             get: { userAnswers[question.id]?.value ?? "" },
             set: { newValue in
+                if errorQuestionId == question.id {
+                    errorQuestionId = nil
+                }
                 var answer = userAnswers[question.id] ?? Answer(questionId: question.id)
                 answer.value = newValue
                 userAnswers[question.id] = answer
