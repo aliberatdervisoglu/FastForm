@@ -7,24 +7,27 @@
 
 import Foundation
 import Combine
-import FirebaseAuth
 
 class LoginViewViewModel: ObservableObject{
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var errorMessage: String = ""
     
-    init(){
-        
+    private let authService: AuthServiceProtocol
+    
+    init(authService: AuthServiceProtocol = AuthManager()){
+        self.authService = authService
     }
     func login(){
         guard validate() else {return}
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
-            if let error = error {
+        authService.signIn(email: email, password: password) { [weak self] result in
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
                 DispatchQueue.main.async {
                     self?.errorMessage = error.localizedDescription
                 }
-                return
             }
         }
     }

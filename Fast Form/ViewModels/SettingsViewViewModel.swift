@@ -7,106 +7,88 @@
 
 import Foundation
 import Combine
-import FirebaseAuth
-import FirebaseFirestore
+
 
 class SettingsViewViewModel: ObservableObject {
 
     @Published var errormeessage: String? = nil
     @Published var isLoading = false
     @Published var showReauthAlert = false
+    
+    private let authService: AuthServiceProtocol
 
-    init() {}
+    init(authService: AuthServiceProtocol = AuthManager()) {
+        self.authService = authService
+    }
 
     func updateName(newName: String, completion: @escaping(Bool) -> Void) {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
             self.errormeessage = "Name cannot be empty"
+            completion(false)
             return
         }
-        guard let userID = Auth.auth().currentUser?.uid else {return}
-        let db = Firestore.firestore()
-        
         self.isLoading = true
-        
-        db.collection("users").document(userID).updateData(["name": trimmedname]) { [weak self] error in
+        authService.updateUserName(newName: trimmedname) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
-                
-                if let error = error {
+                switch result {
+                case .success:
+                    completion(true)
+                case .failure(let error):
                     self?.errormeessage = error.localizedDescription
                     completion(false)
-                } else {
-                    completion(true)
                 }
             }
         }
     }
     
     func sendPasswordReset(completion: @escaping (Bool) -> Void) {
-        
-        guard let currentMail = Auth.auth().currentUser?.email else {
-            self.errormeessage = "Could not get your email"
-            completion(false)
-            return
-        }
         self.isLoading = true
         
-        Auth.auth().sendPasswordReset(withEmail: currentMail) { [weak self] error in
+        authService.sendPasswordReset { [weak self] result in
             
             DispatchQueue.main.async {
                 self?.isLoading = false
-                if let error = error {
+                switch result {
+                case .success:
+                    completion(true)
+                case .failure(let error):
                     self?.errormeessage = error.localizedDescription
                     completion(false)
-                } else {
-                    completion(true)
                 }
             }
-            
         }
-        
     }
-    
     
     func logOut() {
         do {
-            try Auth.auth().signOut()
+            try authService.signOut()
         } catch {
             self.errormeessage = "Log Out failed: \(error.localizedDescription)"
         }
     }
     
     func deleteAccount(onSuccess: @escaping () -> Void) {
-        guard let currentUser = Auth.auth().currentUser else {return}
-        let userID = currentUser.uid
-        let db = Firestore.firestore()
         
         self.isLoading = true // for just one touch to button
         
-        db.collection("users").document(userID).delete() { [weak self] error in
-            if let error = error {
-                self?.handleError(error)
-                return
-            }
-            
-            currentUser.delete(){ [weak self] error in
+        authService.deleteAccount { [weak self] result in
+            DispatchQueue.main.async {
                 self?.isLoading = false
-                
-                if let error = error as NSError? { // type cast for take an ERROR CODE
-                    if error.code == AuthErrorCode.requiresRecentLogin.rawValue { // code: 17014
+                switch result {
+                case .success:
+                    onSuccess()
+                case .failure(let error):
+                    
+                    if let authError = error as? AuthServiceError, authError == .requiresRecentLogin {
                         self?.showReauthAlert = true
                     } else {
-                        self?.handleError(error)
+                        self?.errormeessage = error.localizedDescription
                     }
-                } else {
-                    onSuccess()
                 }
             }
         }
     }
-    private func handleError(_ error: Error) {
-        self.isLoading = false
-        self.errormeessage = error.localizedDescription
-    }
+    
 }

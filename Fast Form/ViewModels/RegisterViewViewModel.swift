@@ -7,8 +7,6 @@
 
 import Foundation
 import Combine
-import FirebaseAuth
-import FirebaseFirestore
 
 class RegisterViewViewModel: ObservableObject{
     @Published var name: String = ""
@@ -17,39 +15,27 @@ class RegisterViewViewModel: ObservableObject{
     @Published var confirmPassword: String = ""
     @Published var errorMessage: String = ""
     
-    init(){}
+    private let authService: AuthServiceProtocol
+    
+    init(authService: AuthServiceProtocol = AuthManager()){
+        self.authService = authService
+    }
     
     func register(){
         guard validate() else { return }
         
-        Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
-            if let error = error {
+        authService.signUp(name: name, email: email, password: password) { [weak self] result in
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
                 DispatchQueue.main.async {
                     self?.errorMessage = error.localizedDescription
                 }
-                return
             }
-            
-            guard let userID = authResult?.user.uid else { return }
-            // authResult is like food and we are the customer. we are sitting at the table and waiting food. it come and ->
-            // -> we first take uid and we will save
-            self?.saveUser(userID: userID) // here we say, if it works now, call the function of us 'saveUser'
         }
     
     }
-    
-    
-    private func saveUser(userID: String){ // user is in auth but we need to add their datas to our firestore (instead of password)
-        let newUser = User(id: userID, name: name, email: email, joined: Date().timeIntervalSince1970)
-        
-        let db = Firestore.firestore()
-        
-        db.collection("users")
-            .document(userID)
-            .setData(newUser.asDictionary())
-        
-    }
-    
     
     private func validate() -> Bool {
         errorMessage = ""
