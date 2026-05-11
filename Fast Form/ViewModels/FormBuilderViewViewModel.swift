@@ -7,33 +7,30 @@
 
 import Foundation
 import Combine
-import FirebaseAuth
-import FirebaseFirestore
 
 class FormBuilderViewViewModel: ObservableObject {
     @Published var showNewQuestionSheet: Bool = false
     @Published var title: String = ""
-    init() {
-        
+    
+    private let formService: FormServiceProtocol
+    
+    init(formService: FormServiceProtocol = FormManager()) {
+        self.formService = formService
     }
     
-    func save (item: FormModel) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
+    func save(item: FormModel) {
         
-        let db = Firestore.firestore()
-        
-        var handleItem = item
-        handleItem.ownerId = userID
-         
-        db.collection("users")
-            .document(userID)
-            .collection("forms")
-            .document(handleItem.id)
-            .setData(handleItem.asDictionary())
+        formService.saveForm(form: item) { result in
+            switch result {
+            case .success:
+                print("Saved successfuly! ")
+            case .failure(let error):
+                print("Error: \(error.localizedDescription) ")
+            }
+        }
     }
     
     func createNewQuestion(type: QuestionType = .shortAnswer) -> Question {
         return Question(id: UUID().uuidString, title: "",type: type, isRequired: false, options: [])
     }
-    
 }

@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import FirebaseFirestore
 
 enum FormSortOption: String, CaseIterable { //  Sort options for formlist
     case newest = "Newest First"
@@ -23,7 +22,8 @@ class FormListViewViewModel: ObservableObject {
     @Published var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
     
     private let userId: String
-    private var listenerRegistration: ListenerRegistration?
+    private var formService: FormServiceProtocol
+    private var formCancellable: ServiceCancellable?
     
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
         switch sortOption {
@@ -38,57 +38,43 @@ class FormListViewViewModel: ObservableObject {
         }
     }
     
-    init(userID: String){
-        self.userId = userID
+    init(userId: String, formService: FormServiceProtocol = FormManager()) {
+        self.userId = userId
+        self.formService = formService
     }
-    
+
     
     
     func fetchForms(){
-        let db = Firestore.firestore()
         
-        listenerRegistration?.remove()
+        formCancellable?.cancel()
         
-        listenerRegistration = db.collection("users")
-            .document(userId)
-            .collection("forms")
-            .addSnapshotListener { [weak self] snapshot, error in
-                
-                if let error = error {
-                    print("Error: \(error.localizedDescription)")
-                    return
-                }
+        formCancellable = formService.observeForms(userId: userId) { [weak self] result in
+            switch result {
+            case .success(let forms):
                 DispatchQueue.main.async {
-                    self?.formitems = snapshot?.documents.compactMap { doc in
-                        try? doc.data(as: FormModel.self)
-                        
-                    } ?? []
+                    self?.formitems = forms
                 }
-                    
-                
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
         }
     }
     
     
     func deleteForm(id: String){
-        let db = Firestore.firestore()
-        db.collection("users")
-            .document(userId)
-            .collection("forms")
-            .document(id)
-            .delete() { error in
-                if let error = error{
-                    print("Delete Error: \(error.localizedDescription)")
-                } else {
-                    DispatchQueue.main.async {
-                        self.formitems.removeAll { $0.id == id}
-                    }
-                }
+        
+        formService.deleteForm(userId: userId, formId: id) { result in
+            switch result {
+            case .success:
+                print("Success deletion form!")
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
             }
+            
+        }
     }
     deinit {
-        listenerRegistration?.remove()
+        formCancellable?.cancel()
     }
-    
-    
 }

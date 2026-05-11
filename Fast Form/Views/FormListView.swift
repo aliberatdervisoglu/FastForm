@@ -15,7 +15,7 @@ struct FormListView: View {
     
     
     init(userId: String){
-        self._viewModel = StateObject(wrappedValue: FormListViewViewModel(userID: userId))
+        self._viewModel = StateObject(wrappedValue: FormListViewViewModel(userId: userId))
     }
     var body: some View {
         NavigationStack{
