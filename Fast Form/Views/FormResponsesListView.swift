@@ -47,12 +47,13 @@ struct FormResponsesListView: View {
     private func responseCard(index: Int, response: FormResponce) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                if form.isAnonymus {
-                    Text("Anonymous Respondent #\(viewModel.responses.count - index)")
-                        .font(.headline)
-                        .foregroundStyle(.white)
+                
+                if let email = response.info?.email, !email.isEmpty {
+                    Text(email)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
                 } else {
-                    Text(response.info?.email ?? "No provided Email")
+                    Text("Anonymous Respondent #\(viewModel.responses.count - index)")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
                 }

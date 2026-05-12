@@ -59,7 +59,7 @@ class FormManager: FormServiceProtocol {
             .document(uid)
             .collection("forms")
             .document(handleItem.id)
-            .setData(form.asDictionary()) { error in
+            .setData(handleItem.asDictionary()) { error in
                 if let error = error {
                     completion(.failure(error))
                 } else {

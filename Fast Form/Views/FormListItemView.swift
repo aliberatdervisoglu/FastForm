@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct FormListItemView: View {
-    @StateObject var viewModel = FormListItemViewViewModel()
     var item: FormModel
     var onDelete: () -> Void
     
