@@ -7,30 +7,35 @@
 
 import Foundation
 import Combine
-import FirebaseFirestore
 
 class FormResponsesListViewViewModel: ObservableObject {
     @Published var responses: [FormResponce] = []
     @Published var isLoading = false
     
-    private let db = Firestore.firestore()
+    private let responseService: ResponseServiceProtocol
+    private var responseCancellable: ServiceCancellable?
     
+    init(responseService: ResponseServiceProtocol = ResponseManager()){
+        self.responseService = responseService
+    }
     func fetchResponses(ownerId: String, formId: String) {
         isLoading = true
         
-        db.collection("users").document(ownerId)
-            .collection("forms").document(formId)
-            .collection("responses")
-            .order(by: "submittedDate", descending: true)
-            .addSnapshotListener { querySnapshot, error in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    guard let documents = querySnapshot?.documents else { return }
-                    
-                    self.responses = documents.compactMap { doc -> FormResponce? in
-                        try? doc.data(as: FormResponce.self)
-                    }
+        responseCancellable?.cancel()
+        
+        responseCancellable = responseService.observeResponse(ownerId: ownerId, formId: formId) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                switch result {
+                case .success(let fetchedResponses):
+                    self?.responses = fetchedResponses
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
                 }
             }
+        }
+    }
+    deinit {
+        responseCancellable?.cancel()
     }
 }

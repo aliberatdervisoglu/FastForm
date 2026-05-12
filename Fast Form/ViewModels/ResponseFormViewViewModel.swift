@@ -7,16 +7,17 @@
 
 import Foundation
 import Combine
-import FirebaseFirestore
 
 class ResponseFormViewViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var results: [FormModel] = []
     @Published var isLoading: Bool = false
     
-    private var db = Firestore.firestore()
+    private let responseService: ResponseServiceProtocol
     
-    init(){}
+    init(responseService: ResponseServiceProtocol = ResponseManager()){
+        self.responseService = responseService
+    }
      
     func searchForms() {
         
@@ -27,32 +28,18 @@ class ResponseFormViewViewModel: ObservableObject {
         
         self.isLoading = true
         
-        db.collectionGroup("forms")
-            .whereField("title", isGreaterThanOrEqualTo: searchText)
-            .whereField("title", isLessThanOrEqualTo: searchText + "\u{f8ff}")
-            .getDocuments { snapshot, error in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    if let error = error {
-                        print("Error: \(error.localizedDescription)")
-                        return
-                    }
-                    guard let docs = snapshot?.documents else {
-                        print("empty")
-                        return
-                    }
-                    
-                    self.results = docs.compactMap { doc in
-                        do {
-                            let form = try doc.data(as: FormModel.self)
-                            return form
-                        } catch {
-                            print(" (\(doc.documentID)): \(error)")
-                            return nil
-                        }
-                    }
+        responseService.searchForms(query: searchText) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                
+                switch result {
+                case .success(let forms):
+                    self?.results = forms
+                case .failure(let error):
+                    print("Search Error: \(error.localizedDescription)")
+                    self?.results = []
                 }
             }
+        }
     }
-    
 }

@@ -7,15 +7,21 @@
 
 import Foundation
 import Combine
-import FirebaseFirestore
-import FirebaseAuth
+
 
 class ResponseChoosenFormViewViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
     @Published var showAlert: Bool = false
     
-    private var db = Firestore.firestore()
+    private let responseService: ResponseServiceProtocol
+    private let authService: AuthServiceProtocol
+    
+    init(responseService: ResponseServiceProtocol = ResponseManager(), authService: AuthServiceProtocol = AuthManager()) {
+        self.responseService = responseService
+        self.authService = authService
+    }
+    
     
     func validateAnswers(form: FormModel, answers: [String: Answer]) -> String? {
         for question in form.questionList {
@@ -70,10 +76,10 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
         
         var info: RespondentInfo? = nil
         
-        if !form.isAnonymus, let user = Auth.auth().currentUser {
+        if !form.isAnonymus, let userId = authService.currentUserID, let userEmail = authService.currentUserEmail {
             info = RespondentInfo(
-                id: user.uid,
-                email: user.email ?? "No Email",
+                id: userId,
+                email: userEmail
             )
         }
         
@@ -84,27 +90,16 @@ class ResponseChoosenFormViewViewModel: ObservableObject {
             submittedDate: Date()
         )
         
-        let ref = db.collection("users").document(form.ownerId)
-                    .collection("forms").document(form.id)
-                    .collection("responses").document(newResponse.id)
-        
-        do {
-            try ref.setData(from: newResponse) { error in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    if let error = error {
-                        self.showError(message: "Gönderilirken hata oluştu: \(error.localizedDescription)")
-                        completion(false)
-                    } else {
-                        completion(true) 
-                    }
-                }
-            }
-        } catch {
+        responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse) { [weak self] result in
             DispatchQueue.main.async {
-                self.isLoading = false
-                self.showError(message: "Veri dönüştürme hatası!")
-                completion(false)
+                self?.isLoading = false
+                switch result {
+                case .success:
+                    completion(true)
+                case .failure(let error):
+                    self?.showError(message: "Error: \(error.localizedDescription)")
+                    completion(false)
+                }
             }
         }
     }
