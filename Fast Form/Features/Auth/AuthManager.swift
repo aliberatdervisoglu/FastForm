@@ -5,8 +5,8 @@
 //  Created by Ali Berat Dervişoğlu on 11.05.2026.
 //
 
-import FirebaseAuth // to log in and sign up
-import FirebaseFirestore // to write user data like name date
+import FirebaseAuth
+import FirebaseFirestore 
 import Foundation
 
 class AuthManager: AuthServiceProtocol {
