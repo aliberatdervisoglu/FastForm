@@ -17,7 +17,7 @@ protocol AuthServiceProtocol {
     /// Mevcut kullanıcı ID'sini döndürür
     var currentUserID: String? { get }
 
-    func observeAuthState(handler: @escaping (String?) -> Void)
+    func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable
 
     func fetchUserData(userId: String, completion: @escaping (Result<User, Error>) -> Void)
 

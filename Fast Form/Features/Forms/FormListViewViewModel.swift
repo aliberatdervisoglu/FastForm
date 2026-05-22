@@ -21,7 +21,7 @@ class FormListViewViewModel {
 
     private let userId: String
     private var formService: FormServiceProtocol
-    private var formCancellable: ServiceCancellable?
+    private var formAbortable: Abortable?
 
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
         switch sortOption {
@@ -42,9 +42,9 @@ class FormListViewViewModel {
     }
 
     func fetchForms() {
-        formCancellable?.cancel()
+        formAbortable?.cancel()
 
-        formCancellable = formService.observeForms(userId: userId) { @MainActor [weak self] result in
+        formAbortable = formService.observeForms(userId: userId) { @MainActor [weak self] result in
             switch result {
             case let .success(forms):
                 self?.formitems = forms
@@ -66,6 +66,6 @@ class FormListViewViewModel {
     }
 
     deinit {
-        formCancellable?.cancel()
+        formAbortable?.cancel()
     }
 }

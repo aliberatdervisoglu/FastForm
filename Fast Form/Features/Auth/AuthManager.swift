@@ -57,9 +57,13 @@ class AuthManager: AuthServiceProtocol {
             }
     }
 
-    func observeAuthState(handler: @escaping (String?) -> Void) {
-        _ = Auth.auth().addStateDidChangeListener { _, user in
+    func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable {
+        let listener = Auth.auth().addStateDidChangeListener { _, user in
             handler(user?.uid)
+        }
+        
+        return AnyAbortable {
+            Auth.auth().removeStateDidChangeListener(listener)
         }
     }
 
@@ -143,4 +147,5 @@ class AuthManager: AuthServiceProtocol {
     var isSignedIn: Bool {
         Auth.auth().currentUser != nil
     }
+    
 }

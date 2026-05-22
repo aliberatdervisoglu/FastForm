@@ -13,7 +13,7 @@ class FormResponsesListViewViewModel {
     var isLoading = false
 
     private let responseService: ResponseServiceProtocol
-    private var responseCancellable: ServiceCancellable?
+    private var responseAbortable: Abortable?
 
     init(responseService: ResponseServiceProtocol = ResponseManager()) {
         self.responseService = responseService
@@ -22,9 +22,9 @@ class FormResponsesListViewViewModel {
     func fetchResponses(ownerId: String, formId: String) {
         isLoading = true
 
-        responseCancellable?.cancel()
+        responseAbortable?.cancel()
 
-        responseCancellable = responseService.observeResponse(ownerId: ownerId, formId: formId) { @MainActor [weak self] result in
+        responseAbortable = responseService.observeResponse(ownerId: ownerId, formId: formId) { @MainActor [weak self] result in
             self?.isLoading = false
             switch result {
             case let .success(fetchedResponses):
@@ -32,10 +32,11 @@ class FormResponsesListViewViewModel {
             case let .failure(error):
                 print("Error: \(error.localizedDescription)")
             }
+            
         }
     }
 
     deinit {
-        responseCancellable?.cancel()
+        responseAbortable?.cancel()
     }
 }

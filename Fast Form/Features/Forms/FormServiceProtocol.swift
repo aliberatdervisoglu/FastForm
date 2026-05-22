@@ -8,7 +8,7 @@
 import Foundation
 
 protocol FormServiceProtocol {
-    func observeForms(userId: String, completion: @escaping (Result<[FormModel], Error>) -> Void) -> ServiceCancellable?
+    func observeForms(userId: String, completion: @escaping (Result<[FormModel], Error>) -> Void) -> Abortable
 
     func deleteForm(userId: String, formId: String, completion: @escaping (Result<Void, Error>) -> Void)
 

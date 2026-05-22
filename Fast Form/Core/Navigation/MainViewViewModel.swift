@@ -13,12 +13,13 @@ class MainViewViewModel {
     var selectedTabBarItem: Int = 0
     var isLoading = true
 
+    private var authAbortable: Abortable?
     private let authService: AuthServiceProtocol
 
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
 
-        authService.observeAuthState { @MainActor [weak self] uid in
+        self.authAbortable = authService.observeAuthState { @MainActor [weak self] uid in
             self?.currentUserID = uid ?? ""
             self?.isLoading = false
         }
@@ -26,5 +27,9 @@ class MainViewViewModel {
 
     var isSignedIn: Bool {
         authService.isSignedIn
+    }
+    
+    deinit {
+        authAbortable?.cancel()
     }
 }

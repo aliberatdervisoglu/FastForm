@@ -11,11 +11,11 @@ import Foundation
 class ResponseManager: ResponseServiceProtocol {
     private let db = Firestore.firestore()
 
-    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], any Error>) -> Void) -> ServiceCancellable? {
+    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], any Error>) -> Void) -> Abortable {
         guard !ownerId.isEmpty, !formId.isEmpty else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "ID'ler eksik!"])))
             print("Invalid Parameters")
-            return nil
+            return AnyAbortable {}
         }
         let listener = db.collection("users").document(ownerId)
             .collection("forms").document(formId)
@@ -31,7 +31,9 @@ class ResponseManager: ResponseServiceProtocol {
                 } ?? []
                 completion(.success(responses))
             }
-        return FirestoreCancellable(listener)
+        return AnyAbortable {
+            listener.remove()
+        }
     }
 
     func searchForms(query: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) {

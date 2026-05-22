@@ -8,7 +8,7 @@
 import Foundation
 
 protocol ResponseServiceProtocol {
-    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], Error>) -> Void) -> ServiceCancellable?
+    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], Error>) -> Void) -> Abortable
 
     func searchForms(query: String, completion: @escaping (Result<[FormModel], Error>) -> Void)
 

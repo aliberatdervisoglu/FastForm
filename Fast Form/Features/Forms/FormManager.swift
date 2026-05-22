@@ -16,7 +16,7 @@ class FormManager: FormServiceProtocol {
         self.authService = authService
     }
 
-    func observeForms(userId: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) -> ServiceCancellable? {
+    func observeForms(userId: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) -> Abortable {
         let listener = db.collection("users")
             .document(userId)
             .collection("forms")
@@ -28,10 +28,12 @@ class FormManager: FormServiceProtocol {
                 let forms = snapshot?.documents.compactMap { doc in
                     try? doc.data(as: FormModel.self)
                 } ?? []
-
+                
                 completion(.success(forms))
             }
-        return FirestoreCancellable(listener)
+        return AnyAbortable {
+            listener.remove() 
+        }
     }
 
     func deleteForm(userId: String, formId: String, completion: @escaping (Result<Void, Error>) -> Void) {
