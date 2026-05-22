@@ -8,22 +8,23 @@
 import Foundation
 
 @Observable
-class MainViewViewModel{
+class MainViewViewModel {
     var currentUserID: String = ""
     var selectedTabBarItem: Int = 0
     var isLoading = true
-    
+
     private let authService: AuthServiceProtocol
-    
-    init(authService: AuthServiceProtocol = AuthManager()){
+
+    init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
-        
+
         authService.observeAuthState { @MainActor [weak self] uid in
             self?.currentUserID = uid ?? ""
             self?.isLoading = false
         }
     }
+
     var isSignedIn: Bool {
-        return authService.isSignedIn
+        authService.isSignedIn
     }
 }

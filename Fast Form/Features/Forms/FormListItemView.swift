@@ -10,11 +10,10 @@ import SwiftUI
 struct FormListItemView: View {
     var item: FormModel
     var onDelete: () -> Void
-    
+
     var body: some View {
-        HStack{
-            
-            VStack(alignment: .leading, spacing: 5){
+        HStack {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(item.title)
                     .font(.title)
                     .bold()
@@ -23,10 +22,10 @@ struct FormListItemView: View {
                     .font(.title2)
                     .foregroundStyle(.white)
             }
-            
+
             Spacer()
-            
-            VStack(alignment: .leading, spacing: 5){
+
+            VStack(alignment: .leading, spacing: 5) {
                 // there should be a new update here
                 NavigationLink(destination: FormResponsesListView(form: item)) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
@@ -34,9 +33,9 @@ struct FormListItemView: View {
                         .scaledToFit()
                         .frame(width: 30, height: 30)
                         .foregroundStyle(.white)
-                    }
-                
-                NavigationLink(destination:FormBuilderView(formToEdit: item, tabselection: .constant(0))) {
+                }
+
+                NavigationLink(destination: FormBuilderView(formToEdit: item, tabselection: .constant(0))) {
                     Image(systemName: "pencil.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)
@@ -45,31 +44,26 @@ struct FormListItemView: View {
                 Button {
                     onDelete()
                 } label: {
-                    Image(systemName: "trash.circle.fill") 
-                            .resizable()
-                            .frame(width: 35, height: 35)
-                            .foregroundStyle(.white)
+                    Image(systemName: "trash.circle.fill")
+                        .resizable()
+                        .frame(width: 35, height: 35)
+                        .foregroundStyle(.white)
                 }
-
-                
             }
-            
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(LinearGradient.brandGradient))
+                .fill(LinearGradient.brandGradient)
+        )
         .padding(.horizontal)
 
-        
 //        .background(Color("BrandGradientStart").opacity(0.2))
-
-        
     }
 }
 
 #Preview {
-    FormListItemView(item: FormModel(title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(title: "dscs", type: QuestionType.paragraph, isRequired: true,options: ["dsadc"])], createDate: Date().timeIntervalSince1970, isAnonymus: true)) {
+    FormListItemView(item: FormModel(title: "TITLE", ownerId: "asdad", explanation: "dawda\ngdbawd", questionList: [Question(title: "dscs", type: QuestionType.paragraph, isRequired: true, options: ["dsadc"])], createDate: Date().timeIntervalSince1970, isAnonymus: true)) {
         print("hi")
     }
 }

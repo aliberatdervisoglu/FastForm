@@ -10,11 +10,11 @@ import SwiftUI
 struct FormResponsesListView: View {
     let form: FormModel
     @State private var viewModel = FormResponsesListViewViewModel()
-    
+
     var body: some View {
         ZStack {
             Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(spacing: 16) {
                     if viewModel.isLoading {
@@ -42,12 +42,10 @@ struct FormResponsesListView: View {
             viewModel.fetchResponses(ownerId: form.ownerId, formId: form.id)
         }
     }
-    
-    @ViewBuilder
+
     private func responseCard(index: Int, response: FormResponce) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                
                 if let email = response.info?.email, !email.isEmpty {
                     Text(email)
                         .font(.caption)
@@ -57,7 +55,7 @@ struct FormResponsesListView: View {
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
                 }
-                
+
                 HStack(spacing: 4) {
                     Image(systemName: "calendar")
                     Text(response.submittedDate.formatted(date: .abbreviated, time: .shortened))
@@ -65,9 +63,9 @@ struct FormResponsesListView: View {
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.8))
             }
-            
+
             Spacer()
-            
+
             Image(systemName: "chevron.right.circle.fill")
                 .font(.title2)
                 .foregroundStyle(.white)
@@ -83,9 +81,9 @@ struct FormResponsesListView: View {
 
 #Preview {
     let mockQuestions = [
-        Question(title: "Deneyiminiz?", type: .shortAnswer, isRequired: true, options: [])
+        Question(title: "Deneyiminiz?", type: .shortAnswer, isRequired: true, options: []),
     ]
-    
+
     let mockForm = FormModel(
         title: "Müşteri Geri Bildirimi",
         ownerId: "ali123",
@@ -94,23 +92,23 @@ struct FormResponsesListView: View {
         createDate: Date().timeIntervalSince1970,
         isAnonymus: false
     )
-    
+
     return NavigationStack {
         FormResponsesListView(form: mockForm)
     }
 }
 
-//#Preview("Anonymous Form") {
+// #Preview("Anonymous Form") {
 //    let mockForm = FormModel(
 //        title: "Gizli Oylama",
 //        ownerId: "ali123",
 //        explanation: "Fikirlerinizi anonim olarak paylaşın.",
 //        questionList: [],
 //        createDate: Date().timeIntervalSince1970,
-//        isAnonymus: true 
+//        isAnonymus: true
 //    )
-//    
+//
 //    return NavigationStack {
 //        FormResponsesListView(form: mockForm)
 //    }
-//}
+// }

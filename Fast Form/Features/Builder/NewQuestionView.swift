@@ -14,18 +14,17 @@ struct NewQuestionView: View {
     @State private var showRequiredInfo = false // popover i Button
     @State private var showTypeInfo = false // popover i Button
     @State private var showCharLimitInfo = false // popover i Button
-    
+
     @State private var showSaveErrorAlert = false
     @State private var showSaveErrorAlertErrorMessage = ""
-    
+
     var onSave: (Question) -> Void
-    
+
     init(question: Question, onSave: @escaping (Question) -> Void) {
-        self._question = State(initialValue: question)
+        _question = State(initialValue: question)
         self.onSave = onSave
     }
-    
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -34,21 +33,21 @@ struct NewQuestionView: View {
                     .opacity(0.7)
                 ScrollView {
                     VStack(spacing: 25) {
-                        //--- 1.PART QUESTION ---
+                        // --- 1.PART QUESTION ---
                         questionHeaderSectionView
-                        //--- 2.PART TYPE AND SETTINGS ---
+                        // --- 2.PART TYPE AND SETTINGS ---
                         questionSettingsSectionView
-                        //--- 3.PART DYNAMIC ANSWERS ---
+                        // --- 3.PART DYNAMIC ANSWERS ---
                         Divider() // Araya şık bir çizgi atar
-                                .background(.white.opacity(0.3))
-                                .padding(.vertical, 5)
+                            .background(.white.opacity(0.3))
+                            .padding(.vertical, 5)
                         questionDynamicAnswerSectionView
                     }
                     .padding()
                 }
                 .navigationTitle("Question")
-                .alert("Missing Informatiom", isPresented: $showSaveErrorAlert){
-                    Button("OK", role: .cancel) { }
+                .alert("Missing Informatiom", isPresented: $showSaveErrorAlert) {
+                    Button("OK", role: .cancel) {}
                 } message: {
                     Text(showSaveErrorAlertErrorMessage)
                 }
@@ -56,14 +55,14 @@ struct NewQuestionView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            if validateQuestion(){
+                            if validateQuestion() {
                                 question.options = getCleanedOptions()
                                 onSave(question) // this give our onSave from builer the question and we add or update easily.
                                 dismiss()
                             } else {
                                 showSaveErrorAlert = true
                             }
-                            
+
                         } label: {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title)
@@ -83,7 +82,7 @@ struct NewQuestionView: View {
             }
         }
     }
-    @ViewBuilder
+
     var questionHeaderSectionView: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Title: ")
@@ -100,7 +99,7 @@ struct NewQuestionView: View {
                 .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
         }
     }
-    @ViewBuilder
+
     var questionSettingsSectionView: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 5) {
@@ -115,13 +114,13 @@ struct NewQuestionView: View {
                         .font(.title3)
                         .foregroundStyle(.white)
                 }
-                
+
                 .popover(isPresented: $showTypeInfo) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(question.type.rawValue.capitalized)
                             .font(.headline)
                             .bold()
-                        
+
                         Text(getRequiredInfoText(for: question.type))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -131,27 +130,25 @@ struct NewQuestionView: View {
                     .presentationCompactAdaptation(.popover)
                 }
                 Spacer()
-                
-                Picker("question type picker", selection: $question.type){
-                    ForEach(QuestionType.allCases, id: \.self) {type in
+
+                Picker("question type picker", selection: $question.type) {
+                    ForEach(QuestionType.allCases, id: \.self) { type in
                         Text(type.rawValue).tag(type)
                     }
                 }
                 .pickerStyle(.menu)
-                
                 .frame(maxWidth: .infinity)
                 .tint(.black.opacity(0.8))
                 .padding(10)
                 .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
-                
             }
-            
+
             HStack(spacing: 5) {
                 Text("Required:")
                     .font(.title)
                     .bold()
                     .foregroundStyle(.white.opacity(0.8))
-                
+
                 Button {
                     showRequiredInfo = true
                 } label: {
@@ -164,7 +161,7 @@ struct NewQuestionView: View {
                         Text("Required Question")
                             .font(.headline)
                             .bold()
-                        
+
                         Text("If you turn this on, users will not be able to submit the form without answering this question.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -173,20 +170,17 @@ struct NewQuestionView: View {
                     .frame(width: 250)
                     .presentationCompactAdaptation(.popover)
                 }
-                
-                
+
                 Spacer()
                 Toggle("", isOn: $question.isRequired)
                     .labelsHidden()
                     .tint(.green)
             }
         }
-        
     }
-    @ViewBuilder
+
     var questionDynamicAnswerSectionView: some View {
-        VStack(alignment: .leading,spacing: 5) {
-            
+        VStack(alignment: .leading, spacing: 5) {
             switch question.type {
             case .shortAnswer:
                 Text("Answer: ")
@@ -226,9 +220,8 @@ struct NewQuestionView: View {
                 toggleAnswerView
             }
         }
-        
-        
     }
+
     @ViewBuilder
     var shortAnswerView: some View {
         HStack(spacing: 5) {
@@ -248,7 +241,7 @@ struct NewQuestionView: View {
                     Text(question.type.rawValue.capitalized)
                         .font(.headline)
                         .bold()
-                    
+
                     Text("Set the maximum number of characters allowed for this response.\n\n💡 Tip: A limit between 30 and 70 characters is usually ideal for names, email addresses, or brief answers.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -258,10 +251,9 @@ struct NewQuestionView: View {
                 .presentationCompactAdaptation(.popover)
             }
             Spacer()
-            
+
             TextField("50", value: $question.maxCharactersLimit, format: .number)
                 .padding(10)
-
                 .keyboardType(.numberPad)
                 .font(.headline)
                 .foregroundStyle(.black.opacity(0.8))
@@ -275,8 +267,8 @@ struct NewQuestionView: View {
             .foregroundStyle(.black.opacity(0.8))
             .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
             .disabled(true)
-        
     }
+
     @ViewBuilder
     var paragraphAnswerView: some View {
         HStack(spacing: 5) {
@@ -296,8 +288,8 @@ struct NewQuestionView: View {
                     Text(question.type.rawValue.capitalized)
                         .font(.headline)
                         .bold()
-                    
-                    Text("Set the minimum and maximum number of characters allowed for this detailed response.\n\n💡 Tip: A minimum of 100 characters encourages thoughtful answers, while a maximum of 500-1000 keeps them readable.")                        .font(.subheadline)
+
+                    Text("Set the minimum and maximum number of characters allowed for this detailed response.\n\n💡 Tip: A minimum of 100 characters encourages thoughtful answers, while a maximum of 500-1000 keeps them readable.").font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
@@ -305,10 +297,9 @@ struct NewQuestionView: View {
                 .presentationCompactAdaptation(.popover)
             }
             Spacer()
-            
+
             TextField("50", value: $question.maxCharactersLimit, format: .number)
                 .padding(10)
-
                 .keyboardType(.numberPad)
                 .font(.headline)
                 .foregroundStyle(.black.opacity(0.8))
@@ -325,21 +316,21 @@ struct NewQuestionView: View {
             .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
             .disabled(true)
     }
-    @ViewBuilder
+
     var multipleChoiceAnswerView: some View {
         VStack {
             BigButtonView(title: "ADD option") {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        question.options.append("")
-                    }
+                    question.options.append("")
+                }
             }
             .padding(.bottom, 20)
             if question.options.isEmpty {
                 ContentUnavailableView("No option!", image: "plus")
-                        .opacity(0)
-                        .frame(height: 1)
-                }
-            ForEach(0..<question.options.count, id: \.self) { index in
+                    .opacity(0)
+                    .frame(height: 1)
+            }
+            ForEach(0 ..< question.options.count, id: \.self) { index in
                 HStack {
                     Image(systemName: "circle")
                         .font(.title)
@@ -348,7 +339,7 @@ struct NewQuestionView: View {
                     TextField("Option \(index + 1)", text: Binding(
                         get: { // if index valid, bring data
                             question.options.indices.contains(index) ?
-                            question.options[index] : ""
+                                question.options[index] : ""
                         },
                         set: { newValue in // if index valid, save data
                             if question.options.indices.contains(index) {
@@ -356,13 +347,12 @@ struct NewQuestionView: View {
                             }
                         }
                     ))
-                        .padding(10)
-                        .font(.headline)
-                        .bold()
-                        .foregroundStyle(.black.opacity(0.8))
-                        .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+                    .padding(10)
+                    .font(.headline)
+                    .bold()
+                    .foregroundStyle(.black.opacity(0.8))
+                    .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
                     Button {
-                        
                         if question.options.indices.contains(index) {
                             _ = withAnimation(.easeInOut) {
                                 question.options.remove(at: index)
@@ -375,28 +365,25 @@ struct NewQuestionView: View {
                     }
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity))
-                
             }
-            
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: question.options.count)
-        
     }
-    @ViewBuilder
+
     var checkboxesAnswerView: some View {
         VStack {
             BigButtonView(title: "ADD option") {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        question.options.append("")
-                    }
+                    question.options.append("")
+                }
             }
             .padding(.bottom, 20)
             if question.options.isEmpty {
                 ContentUnavailableView("No option!", image: "plus")
-                        .opacity(0)
-                        .frame(height: 1)
-                }
-            ForEach(0..<question.options.count, id: \.self) { index in
+                    .opacity(0)
+                    .frame(height: 1)
+            }
+            ForEach(0 ..< question.options.count, id: \.self) { index in
                 HStack {
                     Image(systemName: "square")
                         .font(.title)
@@ -405,7 +392,7 @@ struct NewQuestionView: View {
                     TextField("Option \(index + 1)", text: Binding(
                         get: { // if index valid, bring data
                             question.options.indices.contains(index) ?
-                            question.options[index] : ""
+                                question.options[index] : ""
                         },
                         set: { newValue in // if index valid, save data
                             if question.options.indices.contains(index) {
@@ -413,13 +400,12 @@ struct NewQuestionView: View {
                             }
                         }
                     ))
-                        .padding(10)
-                        .font(.headline)
-                        .bold()
-                        .foregroundStyle(.black.opacity(0.8))
-                        .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+                    .padding(10)
+                    .font(.headline)
+                    .bold()
+                    .foregroundStyle(.black.opacity(0.8))
+                    .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
                     Button {
-                        
                         if question.options.indices.contains(index) {
                             _ = withAnimation(.easeInOut) {
                                 question.options.remove(at: index)
@@ -432,27 +418,25 @@ struct NewQuestionView: View {
                     }
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity))
-                
             }
-            
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: question.options.count)
     }
-    @ViewBuilder
+
     var dropdownAnswerView: some View {
         VStack {
             BigButtonView(title: "ADD option") {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        question.options.append("")
-                    }
+                    question.options.append("")
+                }
             }
             .padding(.bottom, 20)
             if question.options.isEmpty {
                 ContentUnavailableView("No option!", image: "plus")
-                        .opacity(0)
-                        .frame(height: 1)
-                }
-            ForEach(0..<question.options.count, id: \.self) { index in
+                    .opacity(0)
+                    .frame(height: 1)
+            }
+            ForEach(0 ..< question.options.count, id: \.self) { index in
                 HStack {
                     Image(systemName: "chevron.down")
                         .font(.title)
@@ -461,7 +445,7 @@ struct NewQuestionView: View {
                     TextField("Option \(index + 1)", text: Binding(
                         get: { // if index valid, bring data
                             question.options.indices.contains(index) ?
-                            question.options[index] : ""
+                                question.options[index] : ""
                         },
                         set: { newValue in // if index valid, save data
                             if question.options.indices.contains(index) {
@@ -469,13 +453,12 @@ struct NewQuestionView: View {
                             }
                         }
                     ))
-                        .padding(10)
-                        .font(.headline)
-                        .bold()
-                        .foregroundStyle(.black.opacity(0.8))
-                        .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+                    .padding(10)
+                    .font(.headline)
+                    .bold()
+                    .foregroundStyle(.black.opacity(0.8))
+                    .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
                     Button {
-                        
                         if question.options.indices.contains(index) {
                             _ = withAnimation(.easeInOut) {
                                 question.options.remove(at: index)
@@ -488,15 +471,13 @@ struct NewQuestionView: View {
                     }
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity))
-                
             }
-            
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: question.options.count)
     }
-    @ViewBuilder
+
     var toggleAnswerView: some View {
-        HStack{
+        HStack {
             Image(systemName: "switch.2")
                 .font(.title2)
                 .foregroundStyle(.white.opacity(0.8))
@@ -509,47 +490,45 @@ struct NewQuestionView: View {
             }
             .labelsHidden()
             .disabled(true)
-            
         }
         .padding(15)
-            .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
+        .background(RoundedRectangle(cornerRadius: 15).fill(.white.opacity(0.2)))
     }
-    
+
     func getRequiredInfoText(for type: QuestionType) -> String {
         switch type {
         case .shortAnswer:
-            return "Users must enter a brief text response in the field to proceed."
+            "Users must enter a brief text response in the field to proceed."
         case .paragraph:
-            return "Users must provide a detailed, multi-line text response before submitting."
+            "Users must provide a detailed, multi-line text response before submitting."
         case .multipleChoice:
-            return "Users must select exactly one option from the list to submit the form."
+            "Users must select exactly one option from the list to submit the form."
         case .checkboxes:
-            return "Users must check at least one option to proceed."
+            "Users must check at least one option to proceed."
         case .dropdown:
-            return "Users must choose a valid option from the dropdown menu."
+            "Users must choose a valid option from the dropdown menu."
         case .toggle:
-            return "Users must turn this switch ON (e.g., agreeing to Terms of Service) to submit."
+            "Users must turn this switch ON (e.g., agreeing to Terms of Service) to submit."
         }
     }
-    
-    
-    func getCleanedOptions() -> [String]{
-        return question.options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
+    func getCleanedOptions() -> [String] {
+        question.options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
+
     func validateQuestion() -> Bool {
-        
         // to check invalid title
         guard !question.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             showSaveErrorAlertErrorMessage = "Please enter a valid question title."
             return false
         }
-        
+
         switch question.type {
         case .shortAnswer, .paragraph, .toggle:
             return true
         case .multipleChoice, .checkboxes, .dropdown:
             let cleanedOptions = getCleanedOptions()
-            
+
             if cleanedOptions.count < 2 {
                 showSaveErrorAlertErrorMessage = "Please add at least 2 valid options for this question type."
                 return false
@@ -557,8 +536,6 @@ struct NewQuestionView: View {
         }
         return true
     }
-    
-    
 }
 
 #Preview {

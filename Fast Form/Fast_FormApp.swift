@@ -5,27 +5,27 @@
 //  Created by Ali Berat Dervişoğlu on 20.02.2026.
 //
 
-import SwiftUI
 import FirebaseCore
 import FirebaseFirestore
+import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-    return true
-  }
+    func application(_: UIApplication,
+                     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool
+    {
+        FirebaseApp.configure()
+        return true
+    }
 }
 
 @main
 @MainActor
 struct FastFormApp: App {
-  
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-  var body: some Scene {
-    WindowGroup {
-      MainView()
+    var body: some Scene {
+        WindowGroup {
+            MainView()
+        }
     }
-  }
 }

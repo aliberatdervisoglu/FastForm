@@ -8,33 +8,32 @@
 import Foundation
 
 @Observable
-class RegisterViewViewModel{
+class RegisterViewViewModel {
     var name: String = ""
     var email: String = ""
     var password: String = ""
     var confirmPassword: String = ""
     var errorMessage: String = ""
-    
+
     private let authService: AuthServiceProtocol
-    
-    init(authService: AuthServiceProtocol = AuthManager()){
+
+    init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
-    
-    func register(){
+
+    func register() {
         guard validate() else { return }
-        
+
         authService.signUp(name: name, email: email, password: password) { @MainActor [weak self] result in
             switch result {
             case .success:
                 break
-            case .failure(let error):
+            case let .failure(error):
                 self?.errorMessage = error.localizedDescription
             }
         }
-    
     }
-    
+
     private func validate() -> Bool {
         errorMessage = ""
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty,
@@ -57,7 +56,7 @@ class RegisterViewViewModel{
             errorMessage = "Password must be at least 6 characters long"
             return false
         }
-        
+
         return true
     }
 }

@@ -2,13 +2,13 @@ import SwiftUI
 
 struct ResponseChoosenFormView: View {
     let form: FormModel
-    
+
     @State private var viewModel = ResponseChoosenFormViewViewModel()
     @State private var userAnswers: [String: Answer] = [:]
     @State private var errorQuestionId: String? = nil
-    
+
     @Environment(\.dismiss) var dismiss
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -22,20 +22,20 @@ struct ResponseChoosenFormView: View {
                                     .id(question.id) // we are giving this card that their questions id because to swipe if there are a problem
                             }
                         }
-                        BigButtonView(title: "Send Form"){
+                        BigButtonView(title: "Send Form") {
                             if let errorId = viewModel.validateAnswers(form: form, answers: userAnswers) {
-                                self.errorQuestionId = errorId
+                                errorQuestionId = errorId
                                 withAnimation(.spring()) {
                                     proxy.scrollTo(errorId, anchor: .center)
                                 }
                             } else {
-                                self.errorQuestionId = nil
+                                errorQuestionId = nil
                                 submitForm()
                             }
                         }
                     }
                     .padding()
-                    .onChange(of: errorQuestionId) { oldValue, newValue in
+                    .onChange(of: errorQuestionId) { _, newValue in
                         if let idToScroll = newValue {
                             withAnimation(.spring()) {
                                 proxy.scrollTo(idToScroll, anchor: .center)
@@ -45,7 +45,7 @@ struct ResponseChoosenFormView: View {
                 }
             }
             .alert("Alert", isPresented: $viewModel.showAlert) {
-                Button("Okey", role: .cancel) { }
+                Button("Okey", role: .cancel) {}
             } message: {
                 Text(viewModel.errorMessage ?? "Unknown error!")
             }
@@ -65,18 +65,17 @@ struct ResponseChoosenFormView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
     }
-    
-    
+
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(form.title)
                 .font(.title)
                 .fontWeight(.bold)
-            
+
             Text(form.explanation)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            
+
             if form.isAnonymus {
                 HStack {
                     Image(systemName: "eye.slash.fill")
@@ -89,20 +88,18 @@ struct ResponseChoosenFormView: View {
         }
         .padding(.horizontal, 4)
     }
-    
-        
+
     @ViewBuilder
     private func questionCard(for question: Question) -> some View {
         let isError = errorQuestionId == question.id
-        
+
         VStack(alignment: .leading, spacing: 16) {
-            
-            VStack(alignment: .leading, spacing: 16){
+            VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top) {
                     Text(question.title)
                         .font(.headline)
                         .foregroundStyle(.primary)
-                    
+
                     if question.isRequired {
                         Text("*")
                             .font(.title3)
@@ -110,22 +107,21 @@ struct ResponseChoosenFormView: View {
                     }
                     Spacer()
                 }
-                
+
                 Group {
                     switch question.type {
                     case .shortAnswer:
-                        VStack(alignment: .trailing, spacing: 4){
+                        VStack(alignment: .trailing, spacing: 4) {
                             TextField("Answer...", text: textBinding(for: question))
                                 .textFieldStyle(.roundedBorder)
                             let currentCount = userAnswers[question.id]?.value?.count ?? 0
                             Text("\(currentCount) / \(question.maxCharactersLimit)")
                                 .font(.caption2)
                                 .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
-                                
                         }
-                        
+
                     case .paragraph:
-                        VStack(alignment: .trailing, spacing: 4){
+                        VStack(alignment: .trailing, spacing: 4) {
                             TextEditor(text: textBinding(for: question))
                                 .frame(minHeight: 100)
                                 .overlay(
@@ -136,17 +132,16 @@ struct ResponseChoosenFormView: View {
                             Text("\(currentCount) / \(question.maxCharactersLimit)")
                                 .font(.caption2)
                                 .foregroundStyle(currentCount > question.maxCharactersLimit ? .red : .secondary)
-                                
                         }
-                        
+
                     case .toggle:
-                        HStack{
+                        HStack {
                             Toggle("", isOn: boolBinding(for: question))
                                 .tint(LinearGradient.brandGradient)
                                 .labelsHidden()
                             Spacer()
                         }
-                        
+
                     case .dropdown:
                         Picker("Choose", selection: textBinding(for: question)) {
                             Text("Choose...").tag("")
@@ -160,11 +155,11 @@ struct ResponseChoosenFormView: View {
                         .background(Color(uiColor: .secondarySystemBackground))
                         .tint(LinearGradient.brandGradient)
                         .cornerRadius(8)
-                                    
+
                     case .multipleChoice:
                         VStack(alignment: .leading, spacing: 12) {
                             let binding = textBinding(for: question)
-                                        
+
                             ForEach(question.options, id: \.self) { option in
                                 Button(action: {
                                     binding.wrappedValue = option
@@ -173,7 +168,7 @@ struct ResponseChoosenFormView: View {
                                         Image(systemName: binding.wrappedValue == option ? "largecircle.fill.circle" : "circle")
                                             .foregroundStyle(binding.wrappedValue == option ? AnyShapeStyle(LinearGradient.brandGradient) : AnyShapeStyle(Color.gray))
                                             .font(.title3)
-                                        
+
                                         Text(option)
                                             .foregroundStyle(.primary)
                                         Spacer()
@@ -183,10 +178,11 @@ struct ResponseChoosenFormView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
+
                     case .checkboxes:
                         VStack(alignment: .leading, spacing: 14) {
                             let binding = selectionsBinding(for: question)
-                            
+
                             ForEach(question.options, id: \.self) { option in
                                 Button(action: {
                                     if binding.wrappedValue.contains(option) {
@@ -199,7 +195,7 @@ struct ResponseChoosenFormView: View {
                                         Image(systemName: binding.wrappedValue.contains(option) ? "checkmark.square.fill" : "square")
                                             .foregroundStyle(binding.wrappedValue.contains(option) ? AnyShapeStyle(LinearGradient.brandGradient) : AnyShapeStyle(Color.gray))
                                             .font(.title3)
-                                        
+
                                         Text(option)
                                             .foregroundStyle(.primary)
                                         Spacer()
@@ -225,19 +221,18 @@ struct ResponseChoosenFormView: View {
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-               
+
                 .stroke(
                     isError ?
                         AnyShapeStyle(Color.red.opacity(0.7)) :
                         AnyShapeStyle(LinearGradient.brandGradient),
-                    lineWidth: 2)
+                    lineWidth: 2
+                )
         )
         .frame(maxWidth: .infinity)
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
     }
 
-    
-    
     private func textBinding(for question: Question) -> Binding<String> {
         Binding<String>(
             get: { userAnswers[question.id]?.value ?? "" },
@@ -251,6 +246,7 @@ struct ResponseChoosenFormView: View {
             }
         )
     }
+
     private func selectionsBinding(for question: Question) -> Binding<[String]> {
         Binding<[String]>(
             get: {
@@ -263,7 +259,7 @@ struct ResponseChoosenFormView: View {
             }
         )
     }
-    
+
     private func boolBinding(for question: Question) -> Binding<Bool> {
         Binding<Bool>(
             get: { userAnswers[question.id]?.booleanValue ?? false },
@@ -274,10 +270,9 @@ struct ResponseChoosenFormView: View {
             }
         )
     }
-    
-    
+
     private func submitForm() {
-        viewModel.submitForm(form: form, answers: self.userAnswers) { success in
+        viewModel.submitForm(form: form, answers: userAnswers) { success in
             if success {
                 dismiss()
             }
@@ -285,29 +280,28 @@ struct ResponseChoosenFormView: View {
     }
 }
 
-
 #Preview {
     // Modelindeki tüm QuestionType'ları kapsayan sahte bir form oluşturuyoruz.
     let fullMockQuestions = [
         // 1. Kısa Cevap (Zorunlu)
         Question(title: "Adınız ve Soyadınız nedir?", type: .shortAnswer, isRequired: true, options: []),
-        
+
         // 2. Paragraf
-        Question(title: "Bu pozisyon için neden uygun olduğunuzu düşünüyorsunuz?", type: .paragraph, isRequired: false, options: [],maxCharactersLimit: 500),
-        
+        Question(title: "Bu pozisyon için neden uygun olduğunuzu düşünüyorsunuz?", type: .paragraph, isRequired: false, options: [], maxCharactersLimit: 500),
+
         // 3. Çoktan Seçmeli (Radio Button)
         Question(title: "Hangi departman için başvuruyorsunuz?", type: .multipleChoice, isRequired: true, options: ["Yazılım", "Tasarım", "Pazarlama", "İnsan Kaynakları"]),
-        
+
         // 4. Çoklu Seçim (Checkboxes)
         Question(title: "Bildiğiniz programlama dillerini işaretleyin (Birden fazla seçebilirsiniz)", type: .checkboxes, isRequired: false, options: ["Swift", "Kotlin", "Python", "JavaScript", "C#"]),
-        
+
         // 5. Dropdown
         Question(title: "Tecrübe seviyeniz nedir?", type: .dropdown, isRequired: true, options: ["Junior (0-2 Yıl)", "Mid-Senior (2-5 Yıl)", "Senior (5+ Yıl)"]),
-        
+
         // 6. Toggle (Zorunlu)
-        Question(title: "Uygulama şartlarını ve gizlilik politikasını okudum, kabul ediyorum.", type: .toggle, isRequired: true, options: [])
+        Question(title: "Uygulama şartlarını ve gizlilik politikasını okudum, kabul ediyorum.", type: .toggle, isRequired: true, options: []),
     ]
-    
+
     let mockForm = FormModel(
         title: "Fast Form - İş Başvuru Formu",
         ownerId: "ali123",
@@ -316,17 +310,17 @@ struct ResponseChoosenFormView: View {
         createDate: Date().timeIntervalSince1970,
         isAnonymus: true
     )
-    
+
     // Gradient hata vermesin diye sahte bir gradient tanımlayalım (Eğer sende yoksa)
     // Eğer senin 'Extension LinearGradient' dosyan varsa bunu silebilirsin.
     // .stroke(LinearGradient.brandgradient, lineWidth: 2) kısmı hata verirse burayı aç.
     /*
-    extension LinearGradient {
-        static var brandgradient: LinearGradient {
-            LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-        }
-    }
-    */
-    
+     extension LinearGradient {
+         static var brandgradient: LinearGradient {
+             LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+         }
+     }
+     */
+
     return ResponseChoosenFormView(form: mockForm)
 }

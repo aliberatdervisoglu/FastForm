@@ -9,34 +9,32 @@ import Foundation
 
 @Observable
 class ProfileViewViewModel {
-    var user: User? = nil
-    
+    var user: User?
+
     private let authService: AuthServiceProtocol
-    
-    init(authService: AuthServiceProtocol = AuthManager()){
+
+    init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
-    
-    func fetchUser(){
+
+    func fetchUser() {
         guard let userId = authService.currentUserID else { return }
-        
-        
+
         authService.fetchUserData(userId: userId) { @MainActor [weak self] result in
             switch result {
-            case .success(let fetchedUser):
+            case let .success(fetchedUser):
                 self?.user = fetchedUser
-            case .failure(let error):
+            case let .failure(error):
                 print("Error:\(error.localizedDescription)")
             }
         }
     }
-    func logOut(){
+
+    func logOut() {
         do {
             try authService.signOut()
         } catch {
             print("Error: \(error.localizedDescription)")
         }
     }
-    
 }
-

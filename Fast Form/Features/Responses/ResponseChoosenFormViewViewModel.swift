@@ -10,23 +10,21 @@ import Foundation
 @Observable
 class ResponseChoosenFormViewViewModel {
     var isLoading: Bool = false
-    var errorMessage: String? = nil
+    var errorMessage: String?
     var showAlert: Bool = false
-    
+
     private let responseService: ResponseServiceProtocol
     private let authService: AuthServiceProtocol
-    
+
     init(responseService: ResponseServiceProtocol = ResponseManager(), authService: AuthServiceProtocol = AuthManager()) {
         self.responseService = responseService
         self.authService = authService
     }
-    
-    
+
     func validateAnswers(form: FormModel, answers: [String: Answer]) -> String? {
         for question in form.questionList {
-            
             let answer = answers[question.id]
-            
+
             if let answerValue = answer?.value {
                 if question.type == .shortAnswer || question.type == .paragraph {
                     if answerValue.count > question.maxCharactersLimit {
@@ -35,13 +33,13 @@ class ResponseChoosenFormViewViewModel {
                     }
                 }
             }
-            
+
             if question.isRequired {
                 if answer == nil {
                     showError(message: "Please fill: \(question.title)")
                     return question.id
                 }
-                
+
                 switch question.type {
                 case .shortAnswer, .paragraph, .dropdown, .multipleChoice:
                     if answer?.value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
@@ -63,46 +61,45 @@ class ResponseChoosenFormViewViewModel {
         }
         return nil
     }
-    
-    
+
     func submitForm(form: FormModel, answers: [String: Answer], completion: @escaping (Bool) -> Void) {
-        guard (validateAnswers(form: form, answers: answers) == nil) else {
+        guard validateAnswers(form: form, answers: answers) == nil else {
             completion(false)
             return
         }
-        
+
         isLoading = true
-        
+
         var info: RespondentInfo? = nil
-        
+
         if !form.isAnonymus, let userId = authService.currentUserID, let userEmail = authService.currentUserEmail {
             info = RespondentInfo(
                 id: userId,
                 email: userEmail
             )
         }
-        
+
         let newResponse = FormResponce(
             formId: form.id,
             info: info,
             answers: answers,
             submittedDate: Date()
         )
-        
+
         responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse) { @MainActor [weak self] result in
             self?.isLoading = false
             switch result {
             case .success:
                 completion(true)
-            case .failure(let error):
+            case let .failure(error):
                 self?.showError(message: "Error: \(error.localizedDescription)")
                 completion(false)
             }
         }
     }
-    
+
     private func showError(message: String) {
-        self.errorMessage = message
-        self.showAlert = true
+        errorMessage = message
+        showAlert = true
     }
 }

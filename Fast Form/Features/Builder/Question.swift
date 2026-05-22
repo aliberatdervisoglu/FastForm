@@ -14,14 +14,13 @@ enum QuestionType: String, CaseIterable, Codable {
     case multipleChoice = "Multiple Choice" //  radio
     case checkboxes = "Checkboxes" //  box
     case dropdown = "Dropdown"
-    //
-//    case date = "Date"
-//    case time = "Time"
-//    //
-//    case rating = "Rating"
+    ///
+    ///    case date = "Date"
+    ///    case time = "Time"
+    ///    //
+    ///    case rating = "Rating"
     case toggle = "Toggle"
 }
-
 
 struct Question: Identifiable, Codable {
     var id = UUID().uuidString

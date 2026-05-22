@@ -8,30 +8,32 @@
 import Foundation
 
 @Observable
-class LoginViewViewModel{
+class LoginViewViewModel {
     var email: String = ""
     var password: String = ""
     var errorMessage: String = ""
-    
+
     private let authService: AuthServiceProtocol
-    
-    init(authService: AuthServiceProtocol = AuthManager()){
+
+    init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
-    func login(){
-        guard validate() else {return}
+
+    func login() {
+        guard validate() else { return }
         authService.signIn(email: email, password: password) { @MainActor [weak self] result in
             switch result {
             case .success:
                 break
-            case .failure(let error):
+            case let .failure(error):
                 self?.errorMessage = error.localizedDescription
             }
         }
     }
-    private func validate() -> Bool{
+
+    private func validate() -> Bool {
         errorMessage = ""
-        
+
         guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
               !password.trimmingCharacters(in: .whitespaces).isEmpty
         else {

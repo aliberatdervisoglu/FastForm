@@ -8,10 +8,9 @@
 import SwiftUI
 
 struct RegisterView: View {
-    
     @State var viewModel = RegisterViewViewModel()
-    
-    // go back to LoginView
+
+    /// go back to LoginView
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -20,20 +19,20 @@ struct RegisterView: View {
                 .resizable()
                 .scaledToFit()
                 .padding(.bottom, -80)
-            
+
             Form {
                 Section {
                     TextField("Full Name...", text: $viewModel.name)
                         .listRowBackground(Color.white)
-                    
+
                     TextField("Email Address...", text: $viewModel.email)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .listRowBackground(Color.white)
-                    
+
                     SecureField("Password...", text: $viewModel.password)
                         .listRowBackground(Color.white)
-                    
+
                     SecureField("Confirm Password...", text: $viewModel.confirmPassword)
                         .listRowBackground(Color.white)
                 }
@@ -43,8 +42,8 @@ struct RegisterView: View {
             .scrollDisabled(true)
             .foregroundColor(.black)
             .padding(.bottom, -20)
-            
-            if !viewModel.errorMessage.isEmpty{
+
+            if !viewModel.errorMessage.isEmpty {
                 Text(viewModel.errorMessage)
                     .foregroundStyle(.red)
             } else {
@@ -53,10 +52,9 @@ struct RegisterView: View {
             BigButtonView(title: "Sign Up") {
                 viewModel.register()
             }
-            
+
             Spacer()
-            
-            
+
             VStack(spacing: 5) {
                 Text("Already have an account?")
                     .foregroundColor(.secondary)
@@ -78,5 +76,3 @@ struct RegisterView: View {
 #Preview {
     RegisterView()
 }
-
-

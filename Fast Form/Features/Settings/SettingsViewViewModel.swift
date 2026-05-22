@@ -9,71 +9,68 @@ import Foundation
 
 @Observable
 class SettingsViewViewModel {
-
-    var errormeessage: String? = nil
+    var errormeessage: String?
     var isLoading = false
     var showReauthAlert = false
-    
+
     private let authService: AuthServiceProtocol
 
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
 
-    func updateName(newName: String, completion: @escaping(Bool) -> Void) {
+    func updateName(newName: String, completion: @escaping (Bool) -> Void) {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
-            self.errormeessage = "Name cannot be empty"
+            errormeessage = "Name cannot be empty"
             completion(false)
             return
         }
-        self.isLoading = true
+        isLoading = true
         authService.updateUserName(newName: trimmedname) { @MainActor [weak self] result in
             self?.isLoading = false
             switch result {
             case .success:
                 completion(true)
-            case .failure(let error):
+            case let .failure(error):
                 self?.errormeessage = error.localizedDescription
                 completion(false)
             }
         }
     }
-    
+
     func sendPasswordReset(completion: @escaping (Bool) -> Void) {
-        self.isLoading = true
-        
+        isLoading = true
+
         authService.sendPasswordReset { @MainActor [weak self] result in
             self?.isLoading = false
             switch result {
             case .success:
                 completion(true)
-            case .failure(let error):
+            case let .failure(error):
                 self?.errormeessage = error.localizedDescription
                 completion(false)
             }
         }
     }
-    
+
     func logOut() {
         do {
             try authService.signOut()
         } catch {
-            self.errormeessage = "Log Out failed: \(error.localizedDescription)"
+            errormeessage = "Log Out failed: \(error.localizedDescription)"
         }
     }
-    
+
     func deleteAccount(onSuccess: @escaping () -> Void) {
-        
-        self.isLoading = true // for just one touch to button
-        
+        isLoading = true // for just one touch to button
+
         authService.deleteAccount { @MainActor [weak self] result in
             self?.isLoading = false
             switch result {
             case .success:
                 onSuccess()
-            case .failure(let error):
-                
+            case let .failure(error):
                 if let authError = error as? AuthServiceError, authError == .requiresRecentLogin {
                     self?.showReauthAlert = true
                 } else {
@@ -82,5 +79,4 @@ class SettingsViewViewModel {
             }
         }
     }
-    
 }

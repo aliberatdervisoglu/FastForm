@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AuthServiceError: Error, Equatable{
+enum AuthServiceError: Error, Equatable {
     case requiresRecentLogin
     case general(String)
 }

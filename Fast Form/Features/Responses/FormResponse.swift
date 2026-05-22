@@ -1,5 +1,5 @@
 //
-//  FormResponce.swift
+//  FormResponse.swift
 //  Fast Form
 //
 //  Created by Ali Berat Dervişoğlu on 20.02.2026.
@@ -19,6 +19,7 @@ struct RespondentInfo: Codable {
     let id: String
     let email: String
 }
+
 struct FormResponce: Codable, Identifiable {
     var id = UUID().uuidString
     var formId: String
@@ -26,5 +27,3 @@ struct FormResponce: Codable, Identifiable {
     var answers: [String: Answer] // questionId and answer
     var submittedDate: Date
 }
-
-

@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
-    
-    @State private var draftForm: FormModel = FormModel(
+    @State private var draftForm: FormModel = .init(
         id: UUID().uuidString,
         title: "",
         ownerId: "",
@@ -17,15 +16,15 @@ struct MainView: View {
         questionList: [],
         createDate: Date().timeIntervalSince1970,
         isAnonymus: false
-        )
-    
+    )
+
     @State var viewModel = MainViewViewModel()
     @State private var selectedTab: Int = 0
     var body: some View {
-        Group{
-            if viewModel.isLoading{
+        Group {
+            if viewModel.isLoading {
                 LoadingPlaygroundView()
-            } else if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty{
+            } else if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty {
                 mainTabView
             } else {
                 LoginView()
@@ -34,34 +33,33 @@ struct MainView: View {
         .animation(.easeInOut(duration: 1.5), value: viewModel.isLoading)
 //        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: viewModel.isLoading)
     }
-    @ViewBuilder
+
     var mainTabView: some View {
-        TabView(selection: $selectedTab){
-            
+        TabView(selection: $selectedTab) {
             FormListView(userId: viewModel.currentUserID)
-                .tabItem({
+                .tabItem {
                     Label("Form List", systemImage: "list.dash")
-                })
+                }
                 .tag(0)
             ResponseFormView()
-                .tabItem({
+                .tabItem {
                     Label("Responses", systemImage: "list.bullet.clipboard")
-                })
+                }
                 .tag(1)
             FormBuilderView(formToEdit: draftForm, tabselection: $selectedTab)
-                .tabItem({
+                .tabItem {
                     Label("Form Builder", systemImage: "clipboard")
-                })
+                }
                 .tag(2)
             ProfileView(takenUserID: "uBTFyEMizhYmsjIZBGYkkRhPNy63")
-                .tabItem({
-                    Label("Profile" , systemImage: "person.crop.circle")
-                })
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle")
+                }
                 .tag(3)
             SettingsView()
-                .tabItem({
-                    Label("Settings" , systemImage: "gearshape.fill")
-                })
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
                 .tag(4)
         }
         .animation(.interactiveSpring(response: 0.5, dampingFraction: 0.8, blendDuration: 0.5), value: selectedTab)
@@ -70,11 +68,8 @@ struct MainView: View {
         }
         .tint(Color("BrandGradientStart"))
     }
-    
-    
 }
 
 #Preview {
     MainView()
 }
-

@@ -11,10 +11,8 @@ struct FormQuestionDisplayView: View {
     @State var isEditingQuestion: Bool = false
     @Binding var question: Question
     var body: some View {
-        
-        HStack{
-            
-            VStack(alignment: .leading, spacing: 5){
+        HStack {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(question.title)
                     .font(.title3)
                     .bold()
@@ -24,24 +22,20 @@ struct FormQuestionDisplayView: View {
                     .font(.caption)
                     .fontWeight(.light)
                     .foregroundStyle(.white.opacity(0.8))
-                
             }
-            
+
             Spacer()
-            
+
             Image(systemName: "chevron.right")
                 .font(.title.bold())
                 .foregroundStyle(.white.opacity(0.5))
-            
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(LinearGradient.brandGradient))
+                .fill(LinearGradient.brandGradient)
+        )
         .padding(.horizontal)
-
-        
-        
     }
 }
 
@@ -53,5 +47,4 @@ struct FormQuestionDisplayView: View {
         isRequired: true,
         options: []
     )))
-    
 }

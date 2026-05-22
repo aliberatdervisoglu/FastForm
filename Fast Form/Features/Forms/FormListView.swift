@@ -9,30 +9,29 @@ import SwiftUI
 
 struct FormListView: View {
     @State var viewModel: FormListViewViewModel
-    
+
     @State private var showingDeleteAlert: Bool = false
     @State private var itemToDelete: FormModel? = nil
-    
-    
-    init(userId: String){
-        self._viewModel = State(wrappedValue: FormListViewViewModel(userId: userId))
+
+    init(userId: String) {
+        _viewModel = State(wrappedValue: FormListViewViewModel(userId: userId))
     }
+
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             ZStack {
                 Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
                 ScrollView {
-                    VStack{
-                        ForEach(viewModel.sortedforms){item in // display sortversion
-                            FormListItemView(item: item){
-                                self.itemToDelete = item
-                                self.showingDeleteAlert = true
+                    VStack {
+                        ForEach(viewModel.sortedforms) { item in // display sortversion
+                            FormListItemView(item: item) {
+                                itemToDelete = item
+                                showingDeleteAlert = true
                             }
                         }
                         Spacer()
                     }
                     .navigationTitle("My Forms")
-                    
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) { // the sort button
                             Menu {
@@ -52,31 +51,25 @@ struct FormListView: View {
                                 .foregroundStyle(LinearGradient.brandGradient)
                                 .padding()
                                 .padding(.horizontal)
-                                
                             }
                         }
                     }
-                    
+
                     .alert("Delete Form", isPresented: $showingDeleteAlert) {
                         Button("Delete", role: .destructive) {
                             if let id = itemToDelete?.id {
                                 viewModel.deleteForm(id: id)
                             }
                         }
-                        Button("Cancel", role: .cancel) {  }
+                        Button("Cancel", role: .cancel) {}
                     } message: {
-                        Text("'\(itemToDelete?.title ?? "Unknown Form" )' will be deleted. Are you sure?")
+                        Text("'\(itemToDelete?.title ?? "Unknown Form")' will be deleted. Are you sure?")
                     }
                 }
             }
-            
-            
-    
         }
         .onAppear {
             viewModel.fetchForms()
-            
-            
         }
         .animation(.easeInOut, value: viewModel.sortOption) // to resort
         .animation(.easeInOut, value: viewModel.formitems.count) // to delete anything or open this window
@@ -85,5 +78,4 @@ struct FormListView: View {
 
 #Preview {
     FormListView(userId: "UiJ9L9CvhXgDUa19COge2C7y2RB3")
-    
 }
