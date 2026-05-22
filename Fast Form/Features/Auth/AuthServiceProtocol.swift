@@ -15,15 +15,13 @@ protocol AuthServiceProtocol {
     func signUp(name: String, email: String, password: String, completion: @escaping (Result<Void, Error>) -> Void)
 
     /// Mevcut kullanıcı ID'sini döndürür
-    var currentUserID: String? { get }
+    var currentUser: User? { get }
 
     func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable
 
     func fetchUserData(userId: String, completion: @escaping (Result<User, Error>) -> Void)
 
     func signOut() throws
-
-    var currentUserEmail: String? { get }
 
     func updateUserName(newName: String, completion: @escaping (Result<Void, Error>) -> Void)
 

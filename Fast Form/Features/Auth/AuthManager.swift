@@ -10,13 +10,20 @@ import FirebaseFirestore
 import Foundation
 
 class AuthManager: AuthServiceProtocol {
-    var currentUserID: String? {
-        Auth.auth().currentUser?.uid
+    var currentUser: User? {
+        guard let firebaseUser = Auth.auth().currentUser else {
+            return nil
+        }
+        
+        return User(
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName ?? "",
+            email: firebaseUser.email ?? "",
+            joined: 0 // it is not needed here
+        )
     }
 
-    var currentUserEmail: String? {
-        Auth.auth().currentUser?.email
-    }
+    
 
     private let db = Firestore.firestore()
 
@@ -93,12 +100,12 @@ class AuthManager: AuthServiceProtocol {
     }
 
     func updateUserName(newName: String, completion: @escaping (Result<Void, any Error>) -> Void) {
-        guard let userID = currentUserID else { return }
+        guard let userID = currentUser?.id else { return }
 
         db.collection("users")
             .document(userID).updateData(["name": newName]) { error in
                 if let error {
-                    completion(.failure(error))
+                    completion(.failure(NSError(domain: "AuthManager", code: 401, userInfo: [NSLocalizedDescriptionKey : "User ID is missing or user is not authenticated"])))
                 } else {
                     completion(.success(()))
                 }
@@ -106,10 +113,10 @@ class AuthManager: AuthServiceProtocol {
     }
 
     func sendPasswordReset(completion: @escaping (Result<Void, any Error>) -> Void) {
-        guard let email = currentUserEmail else { return }
+        guard let email = currentUser?.email else { return }
         Auth.auth().sendPasswordReset(withEmail: email) { error in
             if let error {
-                completion(.failure(error))
+                completion(.failure(NSError(domain: "AuthManager", code: 400, userInfo: [NSLocalizedDescriptionKey : "User email is missing or unavailble"])))
             } else {
                 completion(.success(()))
             }

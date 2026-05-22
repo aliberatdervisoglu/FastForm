@@ -18,7 +18,10 @@ class ProfileViewViewModel {
     }
 
     func fetchUser() {
-        guard let userId = authService.currentUserID else { return }
+        guard let userId = authService.currentUser?.id else {
+            print("Error: Local user ID is missing")
+            return
+        }
 
         authService.fetchUserData(userId: userId) { @MainActor [weak self] result in
             switch result {

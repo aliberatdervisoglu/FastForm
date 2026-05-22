@@ -72,10 +72,10 @@ class ResponseChoosenFormViewViewModel {
 
         var info: RespondentInfo? = nil
 
-        if !form.isAnonymus, let userId = authService.currentUserID, let userEmail = authService.currentUserEmail {
+        if !form.isAnonymus, let currentUser = authService.currentUser {
             info = RespondentInfo(
-                id: userId,
-                email: userEmail
+                id: currentUser.id,
+                email: currentUser.email
             )
         }
 
@@ -92,7 +92,7 @@ class ResponseChoosenFormViewViewModel {
             case .success:
                 completion(true)
             case let .failure(error):
-                self?.showError(message: "Error: \(error.localizedDescription)")
+                self?.showError(message: "Failed to submit response: \(error.localizedDescription)")
                 completion(false)
             }
         }
