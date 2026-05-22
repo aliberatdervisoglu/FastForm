@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import Combine
 
-class MainViewViewModel: ObservableObject{
-    @Published var currentUserID: String = ""
-    @Published var selectedTabBarItem: Int = 0
-    @Published var isLoading = true
+@Observable
+class MainViewViewModel{
+    var currentUserID: String = ""
+    var selectedTabBarItem: Int = 0
+    var isLoading = true
     
     private let authService: AuthServiceProtocol
     

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RegisterView: View {
     
-    @StateObject var viewModel = RegisterViewViewModel()
+    @State var viewModel = RegisterViewViewModel()
     
     // go back to LoginView
     @Environment(\.dismiss) var dismiss

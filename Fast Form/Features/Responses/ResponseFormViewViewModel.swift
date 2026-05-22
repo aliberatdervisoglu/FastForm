@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import Combine
 
-class ResponseFormViewViewModel: ObservableObject {
-    @Published var searchText: String = ""
-    @Published var results: [FormModel] = []
-    @Published var isLoading: Bool = false
+@Observable
+class ResponseFormViewViewModel {
+    var searchText: String = ""
+    var results: [FormModel] = []
+    var isLoading: Bool = false
     
     private let responseService: ResponseServiceProtocol
     

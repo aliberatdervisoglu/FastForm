@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FormListView: View {
-    @StateObject var viewModel: FormListViewViewModel
+    @State var viewModel: FormListViewViewModel
     
     @State private var showingDeleteAlert: Bool = false
     @State private var itemToDelete: FormModel? = nil

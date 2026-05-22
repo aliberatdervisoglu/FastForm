@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 
 enum FormSortOption: String, CaseIterable { //  Sort options for formlist
     case newest = "Newest First"
@@ -16,10 +15,10 @@ enum FormSortOption: String, CaseIterable { //  Sort options for formlist
 }
 
 
-
-class FormListViewViewModel: ObservableObject {
-    @Published var formitems: [FormModel] = []
-    @Published var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
+@Observable
+class FormListViewViewModel {
+    var formitems: [FormModel] = []
+    var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
     
     private let userId: String
     private var formService: FormServiceProtocol

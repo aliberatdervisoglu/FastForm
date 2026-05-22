@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import Combine
 
-class LoginViewViewModel: ObservableObject{
-    @Published var email: String = ""
-    @Published var password: String = ""
-    @Published var errorMessage: String = ""
+@Observable
+class LoginViewViewModel{
+    var email: String = ""
+    var password: String = ""
+    var errorMessage: String = ""
     
     private let authService: AuthServiceProtocol
     

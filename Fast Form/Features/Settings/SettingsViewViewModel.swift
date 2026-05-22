@@ -6,14 +6,13 @@
 //
 
 import Foundation
-import Combine
 
+@Observable
+class SettingsViewViewModel {
 
-class SettingsViewViewModel: ObservableObject {
-
-    @Published var errormeessage: String? = nil
-    @Published var isLoading = false
-    @Published var showReauthAlert = false
+    var errormeessage: String? = nil
+    var isLoading = false
+    var showReauthAlert = false
     
     private let authService: AuthServiceProtocol
 

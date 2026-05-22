@@ -6,11 +6,11 @@
 //
 
 import Foundation
-import Combine
 
-class FormResponsesListViewViewModel: ObservableObject {
-    @Published var responses: [FormResponce] = []
-    @Published var isLoading = false
+@Observable
+class FormResponsesListViewViewModel {
+    var responses: [FormResponce] = []
+    var isLoading = false
     
     private let responseService: ResponseServiceProtocol
     private var responseCancellable: ServiceCancellable?

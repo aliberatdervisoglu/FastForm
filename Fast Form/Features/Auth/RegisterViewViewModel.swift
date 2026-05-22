@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import Combine
 
-class RegisterViewViewModel: ObservableObject{
-    @Published var name: String = ""
-    @Published var email: String = ""
-    @Published var password: String = ""
-    @Published var confirmPassword: String = ""
-    @Published var errorMessage: String = ""
+@Observable
+class RegisterViewViewModel{
+    var name: String = ""
+    var email: String = ""
+    var password: String = ""
+    var confirmPassword: String = ""
+    var errorMessage: String = ""
     
     private let authService: AuthServiceProtocol
     

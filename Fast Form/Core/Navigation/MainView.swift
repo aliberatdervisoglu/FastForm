@@ -19,7 +19,7 @@ struct MainView: View {
         isAnonymus: false
         )
     
-    @StateObject var viewModel = MainViewViewModel()
+    @State var viewModel = MainViewViewModel()
     @State private var selectedTab: Int = 0
     var body: some View {
         Group{

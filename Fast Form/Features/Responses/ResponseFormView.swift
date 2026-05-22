@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ResponseFormView: View {
-    @StateObject var viewModel = ResponseFormViewViewModel()
+    @State var viewModel = ResponseFormViewViewModel()
     
     var body: some View {
         NavigationStack {

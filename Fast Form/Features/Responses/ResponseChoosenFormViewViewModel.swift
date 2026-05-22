@@ -6,13 +6,12 @@
 //
 
 import Foundation
-import Combine
 
-
-class ResponseChoosenFormViewViewModel: ObservableObject {
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String? = nil
-    @Published var showAlert: Bool = false
+@Observable
+class ResponseChoosenFormViewViewModel {
+    var isLoading: Bool = false
+    var errorMessage: String? = nil
+    var showAlert: Bool = false
     
     private let responseService: ResponseServiceProtocol
     private let authService: AuthServiceProtocol

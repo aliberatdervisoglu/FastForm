@@ -3,7 +3,7 @@ import SwiftUI
 struct ResponseChoosenFormView: View {
     let form: FormModel
     
-    @StateObject private var viewModel = ResponseChoosenFormViewViewModel()
+    @State private var viewModel = ResponseChoosenFormViewViewModel()
     @State private var userAnswers: [String: Answer] = [:]
     @State private var errorQuestionId: String? = nil
     

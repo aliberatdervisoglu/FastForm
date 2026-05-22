@@ -6,11 +6,11 @@
 //
 
 import Foundation
-import Combine
 
-class FormBuilderViewViewModel: ObservableObject {
-    @Published var showNewQuestionSheet: Bool = false
-    @Published var title: String = ""
+@Observable
+class FormBuilderViewViewModel {
+    var showNewQuestionSheet: Bool = false
+    var title: String = ""
     
     private let formService: FormServiceProtocol
     

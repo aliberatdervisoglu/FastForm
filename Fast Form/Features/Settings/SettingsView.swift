@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @StateObject var viewModel = SettingsViewViewModel()
+    @State var viewModel = SettingsViewViewModel()
     
     @State private var showDeleteConfirmation: Bool = false
     @State private var logOutConfirmation: Bool = false

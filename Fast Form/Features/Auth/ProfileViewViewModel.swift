@@ -6,11 +6,10 @@
 //
 
 import Foundation
-import Combine
 
-
-class ProfileViewViewModel: ObservableObject {
-    @Published var user: User? = nil
+@Observable
+class ProfileViewViewModel {
+    var user: User? = nil
     
     private let authService: AuthServiceProtocol
     
