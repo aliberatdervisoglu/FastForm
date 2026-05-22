@@ -21,12 +21,10 @@ class ProfileViewViewModel {
         guard let userId = authService.currentUserID else { return }
         
         
-        authService.fetchUserData(userId: userId) { [weak self] result in
+        authService.fetchUserData(userId: userId) { @MainActor [weak self] result in
             switch result {
             case .success(let fetchedUser):
-                DispatchQueue.main.async {
-                    self?.user = fetchedUser
-                }
+                self?.user = fetchedUser
             case .failure(let error):
                 print("Error:\(error.localizedDescription)")
             }

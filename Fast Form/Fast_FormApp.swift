@@ -18,6 +18,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 @main
+@MainActor
 struct FastFormApp: App {
   
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate

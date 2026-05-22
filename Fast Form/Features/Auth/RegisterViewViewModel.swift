@@ -24,14 +24,12 @@ class RegisterViewViewModel{
     func register(){
         guard validate() else { return }
         
-        authService.signUp(name: name, email: email, password: password) { [weak self] result in
+        authService.signUp(name: name, email: email, password: password) { @MainActor [weak self] result in
             switch result {
             case .success:
                 break
             case .failure(let error):
-                DispatchQueue.main.async {
-                    self?.errorMessage = error.localizedDescription
-                }
+                self?.errorMessage = error.localizedDescription
             }
         }
     

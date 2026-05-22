@@ -18,14 +18,12 @@ class MainViewViewModel{
     init(authService: AuthServiceProtocol = AuthManager()){
         self.authService = authService
         
-        authService.observeAuthState { [weak self] uid in
-            DispatchQueue.main.async {
-                self?.currentUserID = uid ?? ""
-                self?.isLoading = false
-            }
+        authService.observeAuthState { @MainActor [weak self] uid in
+            self?.currentUserID = uid ?? ""
+            self?.isLoading = false
         }
     }
-     var isSignedIn: Bool {
+    var isSignedIn: Bool {
         return !currentUserID.isEmpty
     }
 }

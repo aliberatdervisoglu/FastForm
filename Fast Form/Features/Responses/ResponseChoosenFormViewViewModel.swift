@@ -89,16 +89,14 @@ class ResponseChoosenFormViewViewModel {
             submittedDate: Date()
         )
         
-        responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success:
-                    completion(true)
-                case .failure(let error):
-                    self?.showError(message: "Error: \(error.localizedDescription)")
-                    completion(false)
-                }
+        responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse) { @MainActor [weak self] result in
+            self?.isLoading = false
+            switch result {
+            case .success:
+                completion(true)
+            case .failure(let error):
+                self?.showError(message: "Error: \(error.localizedDescription)")
+                completion(false)
             }
         }
     }

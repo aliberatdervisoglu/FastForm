@@ -23,15 +23,13 @@ class FormResponsesListViewViewModel {
         
         responseCancellable?.cancel()
         
-        responseCancellable = responseService.observeResponse(ownerId: ownerId, formId: formId) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success(let fetchedResponses):
-                    self?.responses = fetchedResponses
-                case .failure(let error):
-                    print("Error: \(error.localizedDescription)")
-                }
+        responseCancellable = responseService.observeResponse(ownerId: ownerId, formId: formId) { @MainActor [weak self] result in
+            self?.isLoading = false
+            switch result {
+            case .success(let fetchedResponses):
+                self?.responses = fetchedResponses
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
             }
         }
     }

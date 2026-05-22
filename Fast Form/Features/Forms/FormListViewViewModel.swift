@@ -48,12 +48,10 @@ class FormListViewViewModel {
         
         formCancellable?.cancel()
         
-        formCancellable = formService.observeForms(userId: userId) { [weak self] result in
+        formCancellable = formService.observeForms(userId: userId) { @MainActor [weak self] result in
             switch result {
             case .success(let forms):
-                DispatchQueue.main.async {
-                    self?.formitems = forms
-                }
+                self?.formitems = forms
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
             }

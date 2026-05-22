@@ -28,16 +28,14 @@ class SettingsViewViewModel {
             return
         }
         self.isLoading = true
-        authService.updateUserName(newName: trimmedname) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success:
-                    completion(true)
-                case .failure(let error):
-                    self?.errormeessage = error.localizedDescription
-                    completion(false)
-                }
+        authService.updateUserName(newName: trimmedname) { @MainActor [weak self] result in
+            self?.isLoading = false
+            switch result {
+            case .success:
+                completion(true)
+            case .failure(let error):
+                self?.errormeessage = error.localizedDescription
+                completion(false)
             }
         }
     }
@@ -45,17 +43,14 @@ class SettingsViewViewModel {
     func sendPasswordReset(completion: @escaping (Bool) -> Void) {
         self.isLoading = true
         
-        authService.sendPasswordReset { [weak self] result in
-            
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success:
-                    completion(true)
-                case .failure(let error):
-                    self?.errormeessage = error.localizedDescription
-                    completion(false)
-                }
+        authService.sendPasswordReset { @MainActor [weak self] result in
+            self?.isLoading = false
+            switch result {
+            case .success:
+                completion(true)
+            case .failure(let error):
+                self?.errormeessage = error.localizedDescription
+                completion(false)
             }
         }
     }
@@ -72,19 +67,17 @@ class SettingsViewViewModel {
         
         self.isLoading = true // for just one touch to button
         
-        authService.deleteAccount { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                switch result {
-                case .success:
-                    onSuccess()
-                case .failure(let error):
-                    
-                    if let authError = error as? AuthServiceError, authError == .requiresRecentLogin {
-                        self?.showReauthAlert = true
-                    } else {
-                        self?.errormeessage = error.localizedDescription
-                    }
+        authService.deleteAccount { @MainActor [weak self] result in
+            self?.isLoading = false
+            switch result {
+            case .success:
+                onSuccess()
+            case .failure(let error):
+                
+                if let authError = error as? AuthServiceError, authError == .requiresRecentLogin {
+                    self?.showReauthAlert = true
+                } else {
+                    self?.errormeessage = error.localizedDescription
                 }
             }
         }
