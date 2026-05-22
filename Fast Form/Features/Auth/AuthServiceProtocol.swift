@@ -29,5 +29,7 @@ protocol AuthServiceProtocol {
     
     func sendPasswordReset(completion: @escaping (Result<Void, Error>) -> Void)
     
-    func deleteAccount(completion: @escaping (Result<Void, Error>) -> Void)    
+    func deleteAccount(completion: @escaping (Result<Void, Error>) -> Void)
+    
+    var isSignedIn: Bool { get }
 }

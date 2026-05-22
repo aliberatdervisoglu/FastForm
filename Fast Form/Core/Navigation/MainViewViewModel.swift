@@ -24,6 +24,6 @@ class MainViewViewModel{
         }
     }
     var isSignedIn: Bool {
-        return !currentUserID.isEmpty
+        return authService.isSignedIn
     }
 }

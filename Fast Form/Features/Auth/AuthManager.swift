@@ -144,4 +144,7 @@ class AuthManager: AuthServiceProtocol {
         try Auth.auth().signOut()
     }
 
+    public var isSignedIn: Bool {
+        return Auth.auth().currentUser != nil
+    }
 }
