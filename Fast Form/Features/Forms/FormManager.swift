@@ -15,7 +15,8 @@ class FormManager: FormServiceProtocol {
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
-
+    
+    ///***** Should I use AsynStream instead of this closures
     func observeForms(userId: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) -> Abortable {
         let listener = db.collection("users")
             .document(userId)

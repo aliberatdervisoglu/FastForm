@@ -11,6 +11,7 @@ import Foundation
 class ResponseManager: ResponseServiceProtocol {
     private let db = Firestore.firestore()
 
+    ///***** Should I use AsynStream instead of this closures
     func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], any Error>) -> Void) -> Abortable {
         guard !ownerId.isEmpty, !formId.isEmpty else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "ID'ler eksik!"])))
@@ -36,46 +37,26 @@ class ResponseManager: ResponseServiceProtocol {
         }
     }
 
-    func searchForms(query: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) {
-        db.collectionGroup("forms")
+    func searchForms(query: String) async throws -> [FormModel] {
+        let querySnapshot = try await db.collectionGroup("forms")
             .whereField("title", isGreaterThanOrEqualTo: query)
             .whereField("title", isLessThanOrEqualTo: query + "\u{f8ff}")
-            .getDocuments { QuerySnapshot, error in
-                if let error {
-                    completion(.failure(error))
-                    return
-                }
-                DispatchQueue.main.async {
-                    let forms = QuerySnapshot?.documents.compactMap { doc in
-                        try? doc.data(as: FormModel.self)
-                    } ?? []
-
-                    completion(.success(forms))
-                }
-            }
+            .getDocuments()
+        let forms = querySnapshot.documents.compactMap { doc in
+            try? doc.data(as: FormModel.self)
+        }
+        return forms
     }
 
-    func submitResponse(ownerId: String, formId: String, response: FormResponce, completion: @escaping (Result<Void, any Error>) -> Void) {
+    func submitResponse(ownerId: String, formId: String, response: FormResponce) async throws {
         guard !ownerId.isEmpty, !formId.isEmpty, !response.id.isEmpty else {
-            completion(.failure(NSError(domain: "Firestore", code: -1, userInfo: [NSLocalizedDescriptionKey: "Document path IDs cannot be empty"])))
-            return
+            throw NSError(domain: "Firestore", code: -1, userInfo: [NSLocalizedDescriptionKey: "Document path IDs cannot be empty"])
         }
 
         let ref = db.collection("users").document(ownerId)
             .collection("forms").document(formId)
             .collection("responses").document(response.id)
 
-        do {
-            try ref.setData(from: response) { error in
-                if let error {
-                    completion(.failure(error))
-                    return
-                } else {
-                    completion(.success(()))
-                }
-            }
-        } catch {
-            completion(.failure(error))
-        }
+        try await ref.setData(response.asDictionary())
     }
 }

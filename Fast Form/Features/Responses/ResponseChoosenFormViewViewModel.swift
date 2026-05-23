@@ -62,10 +62,9 @@ class ResponseChoosenFormViewViewModel {
         return nil
     }
 
-    func submitForm(form: FormModel, answers: [String: Answer], completion: @escaping (Bool) -> Void) {
+    func submitForm(form: FormModel, answers: [String: Answer]) async -> Bool {
         guard validateAnswers(form: form, answers: answers) == nil else {
-            completion(false)
-            return
+            return false
         }
 
         isLoading = true
@@ -86,15 +85,18 @@ class ResponseChoosenFormViewViewModel {
             submittedDate: Date()
         )
 
-        responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse) { @MainActor [weak self] result in
-            self?.isLoading = false
-            switch result {
-            case .success:
-                completion(true)
-            case let .failure(error):
-                self?.showError(message: "Failed to submit response: \(error.localizedDescription)")
-                completion(false)
+        do {
+            try await responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse)
+            await MainActor.run {
+                self.isLoading = false
             }
+            return true
+        } catch {
+            await MainActor.run {
+                self.showError(message: "Failed to submit response: \(error.localizedDescription)")
+                self.isLoading = false
+            }
+            return false
         }
     }
 

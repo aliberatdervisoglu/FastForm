@@ -27,15 +27,20 @@ class ResponseFormViewViewModel {
 
         isLoading = true
 
-        responseService.searchForms(query: searchText) { @MainActor [weak self] result in
-            self?.isLoading = false
-
-            switch result {
-            case let .success(forms):
-                self?.results = forms
-            case let .failure(error):
-                print("Search Error: \(error.localizedDescription)")
-                self?.results = []
+        Task {
+            do {
+                let incomingForms = try await responseService.searchForms(query: searchText)
+                
+                await MainActor.run {
+                    self.results = incomingForms
+                    self.isLoading = false
+                }
+            } catch {
+                print("Search Error: /(error.localizedDescription)")
+                await MainActor.run {
+                    self.results = []
+                    self.isLoading = false
+                }
             }
         }
     }

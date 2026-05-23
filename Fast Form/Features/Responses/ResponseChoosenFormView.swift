@@ -210,7 +210,7 @@ struct ResponseChoosenFormView: View {
                 .frame(maxWidth: .infinity)
             }
             if isError {
-                Text(viewModel.errorMessage ?? "Invalid input")
+                Text("Please check this question before submitting.")
                     .font(.caption)
                     .foregroundStyle(.red)
                     .transition(.opacity)
@@ -272,8 +272,9 @@ struct ResponseChoosenFormView: View {
     }
 
     private func submitForm() {
-        viewModel.submitForm(form: form, answers: userAnswers) { success in
-            if success {
+        Task {
+            let isSuccess = await viewModel.submitForm(form: form, answers: userAnswers)
+            if isSuccess {
                 dismiss()
             }
         }
