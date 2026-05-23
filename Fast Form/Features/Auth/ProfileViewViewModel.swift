@@ -22,13 +22,14 @@ class ProfileViewViewModel {
             print("Error: Local user ID is missing")
             return
         }
-
-        authService.fetchUserData(userId: userId) { @MainActor [weak self] result in
-            switch result {
-            case let .success(fetchedUser):
-                self?.user = fetchedUser
-            case let .failure(error):
-                print("Error:\(error.localizedDescription)")
+        Task {
+            do {
+                let user = try await authService.fetchUserData(userId: userId)
+                await MainActor.run {
+                    self.user = user
+                }
+            } catch {
+                print("Error: \(error.localizedDescription)")
             }
         }
     }

@@ -27,124 +27,110 @@ class AuthManager: AuthServiceProtocol {
 
     private let db = Firestore.firestore()
 
-    func signIn(email: String, password: String, completion: @escaping (Result<Void, any Error>) -> Void) {
-        Auth.auth().signIn(withEmail: email, password: password) { _, error in
-            if let error {
-                completion(.failure(error))
-            } else {
-                completion(.success(()))
-            }
-        }
+    func signIn(email: String, password: String) async throws {
+        try await Auth.auth().signIn(withEmail: email, password: password)
     }
 
-    func signUp(name: String, email: String, password: String, completion: @escaping (Result<Void, any Error>) -> Void) {
-        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-            if let error {
-                completion(.failure(error))
-                return
-            }
-
-            guard let userID = result?.user.uid else { return }
-
-            self?.saveUserToFirestore(id: userID, name: name, email: email, completion: completion)
-        }
+    func signUp(name: String, email: String, password: String) async throws {
+        let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        let userID = authResult.user.uid
+        
+        let newUser = User(
+            id: userID,
+            name: name,
+            email: email,
+            joined: Date().timeIntervalSince1970
+        )
+        try await saveUserData(user: newUser)
     }
 
-    private func saveUserToFirestore(id: String, name: String, email: String, completion: @escaping (Result<Void, any Error>) -> Void) {
-        let newUser = User(id: id, name: name, email: email, joined: Date().timeIntervalSince1970)
-
-        db.collection("users")
-            .document(id)
-            .setData(newUser.asDictionary()) { error in
-                if let error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(()))
-                }
-            }
+    private func saveUserData(user: User) async throws {
+        try await db.collection("users")
+            .document(user.id)
+            .setData(user.asDictionary())
     }
 
+    ///***** Should I use AsynStream instead of this closures
     func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable {
         let listener = Auth.auth().addStateDidChangeListener { _, user in
             handler(user?.uid)
         }
-        
         return AnyAbortable {
             Auth.auth().removeStateDidChangeListener(listener)
         }
     }
 
-    func fetchUserData(userId: String, completion: @escaping (Result<User, any Error>) -> Void) {
-        db.collection("users")
-            .document(userId)
-            .getDocument { snapshot, error in
-                if let error {
-                    completion(.failure(error))
-                    return
-                }
+    func fetchUserData(userId: String) async throws -> User {
+        let snapshot = try await db.collection("users").document(userId).getDocument()
+        
+        guard let data = snapshot.data() else {
+            throw NSError(
+                domain: "AuthManager",
+                code: 404,
+                userInfo: [NSLocalizedDescriptionKey : "User Not Found"]
+            )
+        }
+        
+        let user = User(
+            id: data["id"] as? String ?? "",
+            name: data["name"] as? String ?? "",
+            email: data["email"] as? String ?? "",
+            joined: data["joined"] as? TimeInterval ?? 0
+        )
+        return user
+    }
 
-                guard let data = snapshot?.data() else {
-                    completion(.failure(NSError(domain: "AuthMAnager", code: 404, userInfo: [NSLocalizedDescriptionKey: "User not found"])))
-                    return
-                }
-
-                let user = User(
-                    id: data["id"] as? String ?? "",
-                    name: data["name"] as? String ?? "",
-                    email: data["email"] as? String ?? "",
-                    joined: data["joined"] as? TimeInterval ?? 0
+    func updateUserName(newName: String) async throws {
+        guard let userID = currentUser?.id else {
+                throw NSError(
+                    domain: "AuthManager",
+                    code: 401,
+                    userInfo: [NSLocalizedDescriptionKey : "Current user not found"]
                 )
-
-                completion(.success(user))
-            }
+        }
+        try await db.collection("users").document(userID).updateData(["name": newName])
+        
     }
 
-    func updateUserName(newName: String, completion: @escaping (Result<Void, any Error>) -> Void) {
-        guard let userID = currentUser?.id else { return }
-
-        db.collection("users")
-            .document(userID).updateData(["name": newName]) { error in
-                if let error {
-                    completion(.failure(NSError(domain: "AuthManager", code: 401, userInfo: [NSLocalizedDescriptionKey : "User ID is missing or user is not authenticated"])))
-                } else {
-                    completion(.success(()))
-                }
-            }
+    func sendPasswordReset() async throws {
+        guard let email = currentUser?.email else {
+            throw NSError(
+                domain: "AuthManager",
+                code: 400,
+                userInfo: [NSLocalizedDescriptionKey : "User email is missing or unavailble"]
+            )
+            
+        }
+        try await Auth.auth().sendPasswordReset(withEmail: email)
     }
 
-    func sendPasswordReset(completion: @escaping (Result<Void, any Error>) -> Void) {
-        guard let email = currentUser?.email else { return }
-        Auth.auth().sendPasswordReset(withEmail: email) { error in
-            if let error {
-                completion(.failure(NSError(domain: "AuthManager", code: 400, userInfo: [NSLocalizedDescriptionKey : "User email is missing or unavailble"])))
+    func deleteAccount() async throws {
+        guard let authCurrentUser = Auth.auth().currentUser else {
+            throw NSError(
+                domain: "AuthManager",
+                code: 401,
+                userInfo: [NSLocalizedDescriptionKey : "No authenticated user to delete account for"]
+            )
+        }
+        let userID = authCurrentUser.uid
+
+        try await db.collection("users").document(userID).delete()
+        
+        do {
+            try await authCurrentUser.delete()
+        } catch {
+            let authError = error as NSError
+            
+            if authError.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                throw NSError(
+                    domain: "AuthManager",
+                    code: authError.code,
+                    userInfo: [NSLocalizedDescriptionKey : "This operation is sensitive and requires recent authentication. Log in again before retrying."]
+                )
             } else {
-                completion(.success(()))
+                throw error
             }
         }
-    }
-
-    func deleteAccount(completion: @escaping (Result<Void, any Error>) -> Void) {
-        guard let currentUser = Auth.auth().currentUser else { return }
-        let userID = currentUser.uid
-
-        db.collection("users")
-            .document(userID).delete { error in
-                if let error {
-                    completion(.failure(error))
-                    return
-                }
-                currentUser.delete { error in
-                    if let error = error as NSError? {
-                        if error.code == AuthErrorCode.requiresRecentLogin.rawValue {
-                            completion(.failure(AuthServiceError.requiresRecentLogin))
-                        } else {
-                            completion(.failure(error))
-                        }
-                    } else {
-                        completion(.success(()))
-                    }
-                }
-            }
     }
 
     func signOut() throws {

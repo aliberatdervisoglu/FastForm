@@ -19,38 +19,55 @@ class SettingsViewViewModel {
         self.authService = authService
     }
 
-    func updateName(newName: String, completion: @escaping (Bool) -> Void) {
+    func updateName(newName: String) async throws {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
-            errormeessage = "Name cannot be empty"
-            completion(false)
-            return
-        }
-        isLoading = true
-        authService.updateUserName(newName: trimmedname) { @MainActor [weak self] result in
-            self?.isLoading = false
-            switch result {
-            case .success:
-                completion(true)
-            case let .failure(error):
-                self?.errormeessage = error.localizedDescription
-                completion(false)
+            await MainActor.run {
+                self.errormeessage = "Name cannot be empty."
             }
+            throw NSError(domain: "ProfileViewViewModel", code: 400, userInfo: [NSLocalizedDescriptionKey: "Name cannot be empty."])
+        }
+        await MainActor.run {
+            self.isLoading = true
+        }
+        
+        defer {
+            Task {
+                await MainActor.run {
+                    self.isLoading = false
+                }
+            }
+        }
+        
+        do {
+            try await authService.updateUserName(newName: trimmedname)
+        } catch {
+            await MainActor.run {
+                self.errormeessage = error.localizedDescription
+            }
+            throw error
         }
     }
 
-    func sendPasswordReset(completion: @escaping (Bool) -> Void) {
-        isLoading = true
-
-        authService.sendPasswordReset { @MainActor [weak self] result in
-            self?.isLoading = false
-            switch result {
-            case .success:
-                completion(true)
-            case let .failure(error):
-                self?.errormeessage = error.localizedDescription
-                completion(false)
+    func sendPasswordReset() async throws {
+        await MainActor.run {
+            self.isLoading = true
+        }
+        
+        defer {
+            Task {
+                await MainActor.run {
+                    self.isLoading = false
+                }
             }
+        }
+        do {
+            try await authService.sendPasswordReset()
+        } catch {
+            await MainActor.run {
+                self.errormeessage = error.localizedDescription
+            }
+            throw error
         }
     }
 
@@ -62,21 +79,25 @@ class SettingsViewViewModel {
         }
     }
 
-    func deleteAccount(onSuccess: @escaping () -> Void) {
-        isLoading = true // for just one touch to button
-
-        authService.deleteAccount { @MainActor [weak self] result in
-            self?.isLoading = false
-            switch result {
-            case .success:
-                onSuccess()
-            case let .failure(error):
-                if let authError = error as? AuthServiceError, authError == .requiresRecentLogin {
-                    self?.showReauthAlert = true
-                } else {
-                    self?.errormeessage = error.localizedDescription
+    func deleteAccount() async throws {
+        await MainActor.run {
+            self.isLoading = true
+        }
+        
+        defer {
+            Task {
+                await MainActor.run {
+                    self.isLoading = false
                 }
             }
+        }
+        do {
+            try await authService.deleteAccount()
+        } catch {
+            await MainActor.run {
+                self.errormeessage = error.localizedDescription
+            }
+            throw error
         }
     }
 }

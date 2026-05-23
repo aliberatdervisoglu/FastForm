@@ -9,25 +9,24 @@ import Foundation
 
 protocol AuthServiceProtocol {
     /// Giriş yapma fonksiyonu
-    func signIn(email: String, password: String, completion: @escaping (Result<Void, Error>) -> Void)
+    func signIn(email: String, password: String) async throws
 
     /// Kayıt olma ve kullanıcıyı Firestore'a kaydetme fonksiyonu
-    func signUp(name: String, email: String, password: String, completion: @escaping (Result<Void, Error>) -> Void)
+    func signUp(name: String, email: String, password: String) async throws
 
     /// Mevcut kullanıcı ID'sini döndürür
     var currentUser: User? { get }
 
     func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable
 
-    func fetchUserData(userId: String, completion: @escaping (Result<User, Error>) -> Void)
-
+    func fetchUserData(userId: String) async throws -> User
+    
     func signOut() throws
 
-    func updateUserName(newName: String, completion: @escaping (Result<Void, Error>) -> Void)
-
-    func sendPasswordReset(completion: @escaping (Result<Void, Error>) -> Void)
-
-    func deleteAccount(completion: @escaping (Result<Void, Error>) -> Void)
-
+    func updateUserName(newName: String) async throws
+    
+    func sendPasswordReset() async throws
+    
+    func deleteAccount() async throws
     var isSignedIn: Bool { get }
 }

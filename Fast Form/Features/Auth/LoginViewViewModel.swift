@@ -21,12 +21,14 @@ class LoginViewViewModel {
 
     func login() {
         guard validate() else { return }
-        authService.signIn(email: email, password: password) { @MainActor [weak self] result in
-            switch result {
-            case .success:
-                break
-            case let .failure(error):
-                self?.errorMessage = error.localizedDescription
+        Task {
+            do {
+                try await authService.signIn(email: email, password: password)
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                }
+                
             }
         }
     }
