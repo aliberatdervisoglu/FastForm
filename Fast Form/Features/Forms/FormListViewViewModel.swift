@@ -55,11 +55,11 @@ class FormListViewViewModel {
     }
 
     func deleteForm(id: String) {
-        formService.deleteForm(userId: userId, formId: id) { result in
-            switch result {
-            case .success:
+        Task {
+            do {
+                try await formService.deleteForm(userId: userId, formId: id)
                 print("Success deletion form!")
-            case let .failure(error):
+            } catch {
                 print("Error: \(error.localizedDescription)")
             }
         }

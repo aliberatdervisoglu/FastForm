@@ -36,39 +36,22 @@ class FormManager: FormServiceProtocol {
         }
     }
 
-    func deleteForm(userId: String, formId: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        db.collection("users")
-            .document(userId)
-            .collection("forms")
-            .document(formId)
-            .delete { error in
-                if let error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(()))
-                }
-            }
+    func deleteForm(userId: String, formId: String) async throws {
+        try await db.collection("users").document(userId).collection("forms").document(formId).delete()
     }
 
-    func saveForm(form: FormModel, completion: @escaping (Result<Void, any Error>) -> Void) {
-        guard let uid = authService.currentUserID else {
-            completion(.failure(NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı bulunamadı"])))
-            return
+    func saveForm(form: FormModel) async throws {
+        guard let uid = authService.currentUser?.id else {
+            throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "User cannot found"])
         }
 
         var handleItem = form
         handleItem.ownerId = uid
 
-        db.collection("users")
+        try await db.collection("users")
             .document(uid)
             .collection("forms")
             .document(handleItem.id)
-            .setData(handleItem.asDictionary()) { error in
-                if let error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(()))
-                }
-            }
+            .setData(handleItem.asDictionary())
     }
 }

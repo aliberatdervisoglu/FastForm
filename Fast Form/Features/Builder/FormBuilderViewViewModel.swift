@@ -19,12 +19,12 @@ class FormBuilderViewViewModel {
     }
 
     func save(item: FormModel) {
-        formService.saveForm(form: item) { result in
-            switch result {
-            case .success:
+        Task {
+            do {
+                try await formService.saveForm(form: item)
                 print("Saved successfuly! ")
-            case let .failure(error):
-                print("Error: \(error.localizedDescription) ")
+            } catch {
+                print("Error: \(error.localizedDescription)")
             }
         }
     }
@@ -33,3 +33,5 @@ class FormBuilderViewViewModel {
         Question(id: UUID().uuidString, title: "", type: type, isRequired: false, options: [])
     }
 }
+
+
