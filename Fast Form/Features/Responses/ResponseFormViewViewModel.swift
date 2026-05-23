@@ -30,7 +30,7 @@ class ResponseFormViewViewModel {
         Task {
             do {
                 let incomingForms = try await responseService.searchForms(query: searchText)
-                
+
                 await MainActor.run {
                     self.results = incomingForms
                     self.isLoading = false

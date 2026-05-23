@@ -20,13 +20,13 @@ protocol AuthServiceProtocol {
     func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable
 
     func fetchUserData(userId: String) async throws -> User
-    
+
     func signOut() throws
 
     func updateUserName(newName: String) async throws
-    
+
     func sendPasswordReset() async throws
-    
+
     func deleteAccount() async throws
     var isSignedIn: Bool { get }
 }

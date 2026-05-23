@@ -33,5 +33,3 @@ class FormBuilderViewViewModel {
         Question(id: UUID().uuidString, title: "", type: type, isRequired: false, options: [])
     }
 }
-
-

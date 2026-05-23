@@ -11,7 +11,7 @@ import Foundation
 class ResponseManager: ResponseServiceProtocol {
     private let db = Firestore.firestore()
 
-    ///***** Should I use AsynStream instead of this closures
+    /// ***** Should I use AsynStream instead of this closures
     func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], any Error>) -> Void) -> Abortable {
         guard !ownerId.isEmpty, !formId.isEmpty else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "ID'ler eksik!"])))
@@ -42,10 +42,9 @@ class ResponseManager: ResponseServiceProtocol {
             .whereField("title", isGreaterThanOrEqualTo: query)
             .whereField("title", isLessThanOrEqualTo: query + "\u{f8ff}")
             .getDocuments()
-        let forms = querySnapshot.documents.compactMap { doc in
+        return querySnapshot.documents.compactMap { doc in
             try? doc.data(as: FormModel.self)
         }
-        return forms
     }
 
     func submitResponse(ownerId: String, formId: String, response: FormResponce) async throws {

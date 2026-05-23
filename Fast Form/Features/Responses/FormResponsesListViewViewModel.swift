@@ -32,7 +32,6 @@ class FormResponsesListViewViewModel {
             case let .failure(error):
                 print("Error: \(error.localizedDescription)")
             }
-            
         }
     }
 

@@ -24,7 +24,7 @@ class RegisterViewViewModel {
     func register() {
         guard validate() else { return }
 
-        Task{
+        Task {
             do {
                 try await authService.signUp(name: name, email: email, password: password)
             } catch {

@@ -6,7 +6,7 @@
 //
 
 import FirebaseAuth
-import FirebaseFirestore 
+import FirebaseFirestore
 import Foundation
 
 class AuthManager: AuthServiceProtocol {
@@ -14,7 +14,7 @@ class AuthManager: AuthServiceProtocol {
         guard let firebaseUser = Auth.auth().currentUser else {
             return nil
         }
-        
+
         return User(
             id: firebaseUser.uid,
             name: firebaseUser.displayName ?? "",
@@ -22,8 +22,6 @@ class AuthManager: AuthServiceProtocol {
             joined: 0 // it is not needed here
         )
     }
-
-    
 
     private let db = Firestore.firestore()
 
@@ -34,7 +32,7 @@ class AuthManager: AuthServiceProtocol {
     func signUp(name: String, email: String, password: String) async throws {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
         let userID = authResult.user.uid
-        
+
         let newUser = User(
             id: userID,
             name: name,
@@ -50,7 +48,7 @@ class AuthManager: AuthServiceProtocol {
             .setData(user.asDictionary())
     }
 
-    ///***** Should I use AsynStream instead of this closures
+    /// ***** Should I use AsynStream instead of this closures
     func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable {
         let listener = Auth.auth().addStateDidChangeListener { _, user in
             handler(user?.uid)
@@ -62,34 +60,32 @@ class AuthManager: AuthServiceProtocol {
 
     func fetchUserData(userId: String) async throws -> User {
         let snapshot = try await db.collection("users").document(userId).getDocument()
-        
+
         guard let data = snapshot.data() else {
             throw NSError(
                 domain: "AuthManager",
                 code: 404,
-                userInfo: [NSLocalizedDescriptionKey : "User Not Found"]
+                userInfo: [NSLocalizedDescriptionKey: "User Not Found"]
             )
         }
-        
-        let user = User(
+
+        return User(
             id: data["id"] as? String ?? "",
             name: data["name"] as? String ?? "",
             email: data["email"] as? String ?? "",
             joined: data["joined"] as? TimeInterval ?? 0
         )
-        return user
     }
 
     func updateUserName(newName: String) async throws {
         guard let userID = currentUser?.id else {
-                throw NSError(
-                    domain: "AuthManager",
-                    code: 401,
-                    userInfo: [NSLocalizedDescriptionKey : "Current user not found"]
-                )
+            throw NSError(
+                domain: "AuthManager",
+                code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "Current user not found"]
+            )
         }
         try await db.collection("users").document(userID).updateData(["name": newName])
-        
     }
 
     func sendPasswordReset() async throws {
@@ -97,9 +93,8 @@ class AuthManager: AuthServiceProtocol {
             throw NSError(
                 domain: "AuthManager",
                 code: 400,
-                userInfo: [NSLocalizedDescriptionKey : "User email is missing or unavailble"]
+                userInfo: [NSLocalizedDescriptionKey: "User email is missing or unavailble"]
             )
-            
         }
         try await Auth.auth().sendPasswordReset(withEmail: email)
     }
@@ -109,23 +104,23 @@ class AuthManager: AuthServiceProtocol {
             throw NSError(
                 domain: "AuthManager",
                 code: 401,
-                userInfo: [NSLocalizedDescriptionKey : "No authenticated user to delete account for"]
+                userInfo: [NSLocalizedDescriptionKey: "No authenticated user to delete account for"]
             )
         }
         let userID = authCurrentUser.uid
 
         try await db.collection("users").document(userID).delete()
-        
+
         do {
             try await authCurrentUser.delete()
         } catch {
             let authError = error as NSError
-            
+
             if authError.code == AuthErrorCode.requiresRecentLogin.rawValue {
                 throw NSError(
                     domain: "AuthManager",
                     code: authError.code,
-                    userInfo: [NSLocalizedDescriptionKey : "This operation is sensitive and requires recent authentication. Log in again before retrying."]
+                    userInfo: [NSLocalizedDescriptionKey: "This operation is sensitive and requires recent authentication. Log in again before retrying."]
                 )
             } else {
                 throw error
@@ -140,5 +135,4 @@ class AuthManager: AuthServiceProtocol {
     var isSignedIn: Bool {
         Auth.auth().currentUser != nil
     }
-    
 }

@@ -39,15 +39,31 @@ struct SettingsView: View {
                         Divider()
 
                         setRawView(title: "Set Password", iconname: "lock") {
-                            viewModel.sendPasswordReset { success in
-                                if success {
+                            Task {
+                                do {
+                                    try await viewModel.sendPasswordReset()
                                     showPasswordChange = true
+                                } catch {
+                                    print("Error \(error.localizedDescription)")
                                 }
                             }
+                        }
+                        .alert("Check Your Email", isPresented: $showPasswordChange) {
+                            Button("OK", role: .cancel) {}
+                        } message: {
+                            Text("We've sent a password reset link to your email address. Please check your inbox and follow the instructions.")
                         }
                         Divider()
                         setRawView(title: "Log Out", iconname: "rectangle.portrait.and.arrow.right", optionalColor: .blue) {
                             logOutConfirmation = true
+                        }
+                        .alert("You are logging out...", isPresented: $logOutConfirmation) {
+                            Button("Log Out") {
+                                viewModel.logOut()
+                            }
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text("Are you sure you want to log out?")
                         }
                         Divider()
                         setRawView(title: "Delete Account", iconname: "person.crop.circle.badge.minus", optionalColor: .red) {
@@ -59,32 +75,23 @@ struct SettingsView: View {
                     .cornerRadius(20)
                     .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
                     .padding(.horizontal)
+
                     Spacer()
                 }
                 .padding(.top, 22)
             }
             .navigationTitle("Settings")
-            .alert("You are logging out...", isPresented: $logOutConfirmation) {
-                Button("Log Out") {
-                    viewModel.logOut()
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Are you sure you want to log out?")
-            }
             .alert("Are you absolutely sure", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {
-                    viewModel.deleteAccount {}
+                    Task {
+                        try? await viewModel.deleteAccount()
+                    }
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("This action cannot be undone. Are you sure you want to delete your account?")
             }
-            .alert("Check Your Email", isPresented: $showPasswordChange) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("We've sent a password reset link to your email address. Please check your inbox and follow the instructions.")
-            }
+
             .alert("Security Re-Authentication", isPresented: $viewModel.showReauthAlert) {
                 Button("Log Out & In Again") {
                     viewModel.logOut()
@@ -116,13 +123,15 @@ struct SettingsView: View {
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
-                                viewModel.updateName(newName: newName) { success in
-                                    if success {
+                                Task {
+                                    do {
+                                        try await viewModel.updateName(newName: newName)
                                         showChangeName = false
                                         newName = ""
+                                    } catch {
+                                        print("Error: \(error.localizedDescription)")
                                     }
                                 }
-
                             } label: {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.title2)

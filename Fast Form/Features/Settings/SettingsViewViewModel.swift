@@ -30,7 +30,7 @@ class SettingsViewViewModel {
         await MainActor.run {
             self.isLoading = true
         }
-        
+
         defer {
             Task {
                 await MainActor.run {
@@ -38,7 +38,7 @@ class SettingsViewViewModel {
                 }
             }
         }
-        
+
         do {
             try await authService.updateUserName(newName: trimmedname)
         } catch {
@@ -53,7 +53,7 @@ class SettingsViewViewModel {
         await MainActor.run {
             self.isLoading = true
         }
-        
+
         defer {
             Task {
                 await MainActor.run {
@@ -83,7 +83,7 @@ class SettingsViewViewModel {
         await MainActor.run {
             self.isLoading = true
         }
-        
+
         defer {
             Task {
                 await MainActor.run {

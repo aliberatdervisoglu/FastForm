@@ -19,7 +19,7 @@ class MainViewViewModel {
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
 
-        self.authAbortable = authService.observeAuthState { @MainActor [weak self] uid in
+        authAbortable = authService.observeAuthState { @MainActor [weak self] uid in
             self?.currentUserID = uid ?? ""
             self?.isLoading = false
         }
@@ -28,7 +28,7 @@ class MainViewViewModel {
     var isSignedIn: Bool {
         authService.isSignedIn
     }
-    
+
     deinit {
         authAbortable?.cancel()
     }

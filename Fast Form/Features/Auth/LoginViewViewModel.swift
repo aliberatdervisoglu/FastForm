@@ -28,7 +28,6 @@ class LoginViewViewModel {
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription
                 }
-                
             }
         }
     }
