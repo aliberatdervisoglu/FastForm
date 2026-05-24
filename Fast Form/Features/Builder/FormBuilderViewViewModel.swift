@@ -13,6 +13,7 @@ class FormBuilderViewViewModel {
 
     var showNewQuestionSheet: Bool = false
     var title: String = ""
+    var errorMessage: String = ""
 
     private let formService: FormServiceProtocol
 
@@ -25,12 +26,18 @@ class FormBuilderViewViewModel {
     // MARK: - Public Functions
 
     func save(item: FormModel) {
+        errorMessage = ""
         Task {
             do {
                 try await formService.saveForm(form: item)
-                print("Saved successfuly! ")
+            } catch let error as FormServiceError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription
+                }
             } catch {
-                print("Error: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
     }

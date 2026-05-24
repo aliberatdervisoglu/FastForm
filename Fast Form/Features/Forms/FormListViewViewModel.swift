@@ -22,6 +22,7 @@ class FormListViewViewModel {
 
     var formitems: [FormModel] = []
     var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
+    var errorMessage: String = ""
 
     private let userId: String
     private var formService: FormServiceProtocol
@@ -51,24 +52,31 @@ class FormListViewViewModel {
 
     func fetchForms() {
         formAbortable?.cancel()
+        errorMessage = ""
 
         formAbortable = formService.observeForms(userId: userId) { @MainActor [weak self] result in
             switch result {
             case let .success(forms):
                 self?.formitems = forms
             case let .failure(error):
-                print("Error: \(error.localizedDescription)")
+                self?.errorMessage = error.errorDescription
             }
         }
     }
 
     func deleteForm(id: String) {
+        errorMessage = ""
         Task {
             do {
                 try await formService.deleteForm(userId: userId, formId: id)
-                print("Success deletion form!")
+            } catch let error as FormServiceError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription
+                }
             } catch {
-                print("Error: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
     }

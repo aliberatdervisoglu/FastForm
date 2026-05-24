@@ -24,18 +24,28 @@ class FormManager: FormServiceProtocol {
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     /// ***** Should I use AsynStream instead of this closures
-    func observeForms(userId: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) -> Abortable {
+    func observeForms(userId: String, completion: @escaping (Result<[FormModel], FormServiceError>) -> Void) -> Abortable {
         let listener = db.collection("users")
             .document(userId)
             .collection("forms")
             .addSnapshotListener { snapshot, error in
                 if let error {
-                    completion(.failure(error))
+                    completion(.failure(.databaseError(error.localizedDescription)))
                     return
                 }
-                let forms = snapshot?.documents.compactMap { doc in
-                    try? doc.data(as: FormModel.self)
-                } ?? []
+
+                let snapshotDocuments = snapshot?.documents ?? []
+                var forms: [FormModel] = []
+
+                for eachDocument in snapshotDocuments {
+                    do {
+                        let form = try eachDocument.data(as: FormModel.self)
+                        forms.append(form)
+                    } catch {
+                        completion(.failure(.decodingError))
+                        return
+                    }
+                }
 
                 completion(.success(forms))
             }
@@ -44,22 +54,34 @@ class FormManager: FormServiceProtocol {
         }
     }
 
-    func deleteForm(userId: String, formId: String) async throws {
-        try await db.collection("users").document(userId).collection("forms").document(formId).delete()
+    func deleteForm(userId: String, formId: String) async throws(FormServiceError) {
+        do {
+            try await db.collection("users")
+                .document(userId)
+                .collection("forms")
+                .document(formId)
+                .delete()
+        } catch {
+            throw .databaseError(error.localizedDescription)
+        }
     }
 
-    func saveForm(form: FormModel) async throws {
+    func saveForm(form: FormModel) async throws(FormServiceError) {
         guard let uid = authService.currentUser?.id else {
-            throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "User cannot found"])
+            throw .userNotFound
         }
 
         var handleItem = form
         handleItem.ownerId = uid
 
-        try await db.collection("users")
-            .document(uid)
-            .collection("forms")
-            .document(handleItem.id)
-            .setData(handleItem.asDictionary())
+        do {
+            try await db.collection("users")
+                .document(uid)
+                .collection("forms")
+                .document(handleItem.id)
+                .setData(handleItem.asDictionary())
+        } catch {
+            throw .databaseError(error.localizedDescription)
+        }
     }
 }
