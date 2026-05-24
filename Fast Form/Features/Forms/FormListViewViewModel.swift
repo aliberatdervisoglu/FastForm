@@ -20,14 +20,15 @@ enum FormSortOption: String, CaseIterable {
 class FormListViewViewModel {
     // MARK: - Properties
 
-    var formitems: [FormModel] = []
-    var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
-    var errorMessage: String = ""
+    @MainActor var formitems: [FormModel] = []
+    @MainActor var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
+    @MainActor var errorMessage: String = ""
 
     private let userId: String
     private var formService: FormServiceProtocol
     private var formAbortable: Abortable?
 
+    @MainActor
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
         switch sortOption {
         case .newest:
@@ -50,34 +51,28 @@ class FormListViewViewModel {
 
     // MARK: - Public Functions
 
+    @MainActor
     func fetchForms() {
         formAbortable?.cancel()
         errorMessage = ""
 
-        formAbortable = formService.observeForms(userId: userId) { @MainActor [weak self] result in
+        formAbortable = formService.observeForms(userId: userId) { [weak self] result in
+            guard let self else { return }
             switch result {
             case let .success(forms):
-                self?.formitems = forms
+                self.formitems = forms
             case let .failure(error):
-                self?.errorMessage = error.errorDescription
+                self.errorMessage = error.errorDescription
             }
         }
     }
-
-    func deleteForm(id: String) {
-        errorMessage = ""
-        Task {
-            do {
-                try await formService.deleteForm(userId: userId, formId: id)
-            } catch let error as FormServiceError {
-                await MainActor.run {
-                    self.errorMessage = error.errorDescription
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+    
+    @MainActor
+    func deleteForm(id: String) async throws(FormServiceError) {
+        do {
+            try await formService.deleteForm(userId: userId, formId: id)
+        } catch {
+            throw error
         }
     }
 
