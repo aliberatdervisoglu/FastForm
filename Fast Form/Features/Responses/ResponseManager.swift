@@ -16,24 +16,32 @@ class ResponseManager: ResponseServiceProtocol {
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     /// ***** Should I use AsynStream instead of this closures
-    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponse], any Error>) -> Void) -> Abortable {
+    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponse], ResponseServiceError>) -> Void) -> Abortable {
         guard !ownerId.isEmpty, !formId.isEmpty else {
-            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "ID'ler eksik!"])))
-            print("Invalid Parameters")
+            completion(.failure(.invalidParameters))
             return AnyAbortable {}
         }
         let listener = db.collection("users").document(ownerId)
             .collection("forms").document(formId)
             .collection("responses")
             .order(by: "submittedDate", descending: true)
-            .addSnapshotListener { QuerySnapshot, error in
+            .addSnapshotListener { snapshot, error in
                 if let error {
-                    completion(.failure(error))
+                    completion(.failure(.databaseError(error.localizedDescription)))
                     return
                 }
-                let responses = QuerySnapshot?.documents.compactMap { doc in
-                    try? doc.data(as: FormResponse.self)
-                } ?? []
+                let snapshotDocuments = snapshot?.documents ?? []
+                
+                var responses: [FormResponse] = []
+                for eachDocument in snapshotDocuments {
+                    do {
+                        let response = try eachDocument.data(as: FormResponse.self)
+                        responses.append(response)
+                    } catch {
+                        completion(.failure(.decodingError))
+                        return
+                    }
+                }
                 completion(.success(responses))
             }
         return AnyAbortable {
@@ -41,25 +49,43 @@ class ResponseManager: ResponseServiceProtocol {
         }
     }
 
-    func searchForms(query: String) async throws -> [FormModel] {
-        let querySnapshot = try await db.collectionGroup("forms")
-            .whereField("title", isGreaterThanOrEqualTo: query)
-            .whereField("title", isLessThanOrEqualTo: query + "\u{f8ff}")
-            .getDocuments()
-        return querySnapshot.documents.compactMap { doc in
-            try? doc.data(as: FormModel.self)
+    func searchForms(query: String) async throws(ResponseServiceError) -> [FormModel] {
+        let snapshot: QuerySnapshot
+        do {
+            snapshot = try await db.collectionGroup("forms")
+                .whereField("title", isGreaterThanOrEqualTo: query)
+                .whereField("title", isLessThanOrEqualTo: query + "\u{f8ff}")
+                .getDocuments()
+        } catch {
+            throw .databaseError(error.localizedDescription)
         }
+        var forms: [FormModel] = []
+
+        for eachDocument in snapshot.documents {
+            do {
+                let form = try eachDocument.data(as: FormModel.self)
+                forms.append(form)
+            } catch {
+                throw .decodingError
+            }
+        }
+        return forms
     }
 
-    func submitResponse(ownerId: String, formId: String, response: FormResponse) async throws {
+    func submitResponse(ownerId: String, formId: String, response: FormResponse) async throws(ResponseServiceError) {
         guard !ownerId.isEmpty, !formId.isEmpty, !response.id.isEmpty else {
-            throw NSError(domain: "Firestore", code: -1, userInfo: [NSLocalizedDescriptionKey: "Document path IDs cannot be empty"])
+            throw .invalidParameters
         }
-
+        
+        // It is just a local reference to the path (no network request yet)
         let ref = db.collection("users").document(ownerId)
             .collection("forms").document(formId)
             .collection("responses").document(response.id)
 
-        try await ref.setData(response.asDictionary())
+        do {
+            try await ref.setData(response.asDictionary())
+        } catch {
+            throw .databaseError(error.localizedDescription)
+        }
     }
 }

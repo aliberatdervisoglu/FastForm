@@ -11,8 +11,9 @@ import Foundation
 class FormResponsesListViewViewModel {
     // MARK: - Properties
 
-    var responses: [FormResponse] = []
-    var isLoading = false
+    @MainActor var responses: [FormResponse] = []
+    @MainActor var isLoading = false
+    @MainActor var errorMessage: String = ""
 
     private let responseService: ResponseServiceProtocol
     private var responseAbortable: Abortable?
@@ -25,18 +26,24 @@ class FormResponsesListViewViewModel {
 
     // MARK: - Public Functions
 
-    func fetchResponses(ownerId: String, formId: String) {
+    @MainActor
+    func fetchResponses(ownerId: String, formId: String){
         isLoading = true
+        errorMessage = ""
 
         responseAbortable?.cancel()
 
         responseAbortable = responseService.observeResponse(ownerId: ownerId, formId: formId) { @MainActor [weak self] result in
-            self?.isLoading = false
+            guard let self else { return }
+            
+            isLoading = false
+            
             switch result {
-            case let .success(fetchedResponses):
-                self?.responses = fetchedResponses
-            case let .failure(error):
-                print("Error: \(error.localizedDescription)")
+            case .success(let fetchedResponses):
+                responses = fetchedResponses
+            case .failure(let error):
+                errorMessage = error.errorDescription
+                responses = []
             }
         }
     }

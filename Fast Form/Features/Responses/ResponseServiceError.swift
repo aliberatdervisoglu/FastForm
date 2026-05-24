@@ -6,3 +6,23 @@
 //
 
 import Foundation
+
+enum ResponseServiceError: Error, Equatable {
+    case invalidParameters
+    case databaseError(String)
+    case decodingError
+    case validationFailed(String)
+
+    var errorDescription: String {
+        switch self {
+        case .invalidParameters:
+            return "Required identifiers are missing. Please try again."
+        case let .databaseError(message):
+            return "Database failure: \(message)"
+        case .decodingError:
+            return "Failed to process form responses. Please contact support."
+        case .validationFailed(let message):
+            return message
+        }
+    }
+}

@@ -10,9 +10,9 @@ import Foundation
 protocol ResponseServiceProtocol {
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
-    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponse], Error>) -> Void) -> Abortable
+    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponse], ResponseServiceError>) -> Void) -> Abortable
 
-    func searchForms(query: String) async throws -> [FormModel]
+    func searchForms(query: String) async throws(ResponseServiceError) -> [FormModel]
 
-    func submitResponse(ownerId: String, formId: String, response: FormResponse) async throws
+    func submitResponse(ownerId: String, formId: String, response: FormResponse) async throws(ResponseServiceError)
 }

@@ -11,9 +11,8 @@ import Foundation
 class ResponseChoosenFormViewViewModel {
     // MARK: - Properties
 
-    var isLoading: Bool = false
-    var errorMessage: String?
-    var showAlert: Bool = false
+    @MainActor var isLoading: Bool = false
+    
 
     private let responseService: ResponseServiceProtocol
     private let authService: AuthServiceProtocol
@@ -27,54 +26,48 @@ class ResponseChoosenFormViewViewModel {
 
     // MARK: - Public Functions
 
-    func validateAnswers(form: FormModel, answers: [String: Answer]) -> String? {
+    func validateAnswers(form: FormModel, answers: [String: Answer]) throws(ResponseServiceError) {
         for question in form.questionList {
             let answer = answers[question.id]
 
             if let answerValue = answer?.value {
                 if question.type == .shortAnswer || question.type == .paragraph {
                     if answerValue.count > question.maxCharactersLimit {
-                        showError(message: "\(question.title): answer is too long. Character limit (\(question.maxCharactersLimit)) exceeded!")
-                        return question.id
+                        throw .validationFailed("\(question.title): answer is too long. Character limit (\(question.maxCharactersLimit)) exceeded!")
                     }
                 }
             }
 
             if question.isRequired {
                 if answer == nil {
-                    showError(message: "Please fill: \(question.title)")
-                    return question.id
+                    throw .validationFailed("Please fill: \(question.title)")
                 }
 
                 switch question.type {
                 case .shortAnswer, .paragraph, .dropdown, .multipleChoice:
                     if answer?.value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
-                        showError(message: "Required field: \(question.title)")
-                        return question.id
+                        throw .validationFailed("Required field: \(question.title)")
                     }
                 case .checkboxes:
                     if answer?.selections?.isEmpty ?? true {
-                        showError(message: "Choose at least one: \(question.title)")
-                        return question.id
+                        throw .validationFailed("Choose at least one: \(question.title)")
                     }
                 case .toggle:
                     if answer?.booleanValue != true {
-                        showError(message: "Approval required: \(question.title)")
-                        return question.id
+                        throw .validationFailed("Approval required: \(question.title)")
                     }
                 }
             }
         }
-        return nil
     }
-
-    func submitForm(form: FormModel, answers: [String: Answer]) async -> Bool {
-        guard validateAnswers(form: form, answers: answers) == nil else {
-            return false
-        }
-
+    @MainActor
+    func submitForm(form: FormModel, answers: [String: Answer]) async throws(ResponseServiceError) {
+        try validateAnswers(form: form, answers: answers)
         isLoading = true
 
+        defer {
+            isLoading = false
+        }
         var info: RespondentInfo? = nil
 
         if !form.isAnonymus, let currentUser = authService.currentUser {
@@ -93,23 +86,8 @@ class ResponseChoosenFormViewViewModel {
 
         do {
             try await responseService.submitResponse(ownerId: form.ownerId, formId: form.id, response: newResponse)
-            await MainActor.run {
-                self.isLoading = false
-            }
-            return true
         } catch {
-            await MainActor.run {
-                self.showError(message: "Failed to submit response: \(error.localizedDescription)")
-                self.isLoading = false
-            }
-            return false
+            throw error
         }
-    }
-
-    // MARK: - Private Functions
-
-    private func showError(message: String) {
-        errorMessage = message
-        showAlert = true
     }
 }

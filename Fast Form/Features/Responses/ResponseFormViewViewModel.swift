@@ -11,9 +11,9 @@ import Foundation
 class ResponseFormViewViewModel {
     // MARK: - Properties
 
-    var searchText: String = ""
-    var results: [FormModel] = []
-    var isLoading: Bool = false
+    @MainActor var searchText: String = ""
+    @MainActor var results: [FormModel] = []
+    @MainActor var isLoading: Bool = false
 
     private let responseService: ResponseServiceProtocol
 
@@ -24,30 +24,24 @@ class ResponseFormViewViewModel {
     }
 
     // MARK: - Public Functions
-
-    func searchForms() {
+    @MainActor
+    func searchForms() async throws(ResponseServiceError) {
         guard searchText.count >= 3 else {
             results = []
             return
         }
 
         isLoading = true
+        
+        defer {
+            isLoading = false
+        }
 
-        Task {
-            do {
-                let incomingForms = try await responseService.searchForms(query: searchText)
-
-                await MainActor.run {
-                    self.results = incomingForms
-                    self.isLoading = false
-                }
-            } catch {
-                print("Search Error: \(error.localizedDescription)")
-                await MainActor.run {
-                    self.results = []
-                    self.isLoading = false
-                }
-            }
+        do {
+            results = try await responseService.searchForms(query: searchText)
+        } catch {
+            results = []
+            throw error
         }
     }
 }
