@@ -11,9 +11,9 @@ import Foundation
 class SettingsViewViewModel {
     // MARK: - Properties
 
-    var errorMeessage: String?
-    var isLoading = false
-    var showReauthAlert = false
+    @MainActor var errorMeessage: String = ""
+    @MainActor var isLoading = false
+    @MainActor var showReauthAlert = false
 
     private let authService: AuthServiceProtocol
 
@@ -25,84 +25,70 @@ class SettingsViewViewModel {
 
     // MARK: - Public Functions
 
+    @MainActor
     func updateName(newName: String) async throws {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
-            await MainActor.run {
-                self.errorMeessage = "Name cannot be empty."
-            }
-            throw NSError(domain: "ProfileViewViewModel", code: 400, userInfo: [NSLocalizedDescriptionKey: "Name cannot be empty."])
+            self.errorMeessage = "Name cannot be empty."
+            throw AuthServiceError.unknown("Name field is empty.")
         }
-        await MainActor.run {
-            self.isLoading = true
-        }
+        self.isLoading = true
+        self.errorMeessage = ""
 
         defer {
-            Task {
-                await MainActor.run {
-                    self.isLoading = false
-                }
-            }
+            self.isLoading = false
         }
 
         do {
             try await authService.updateUserName(newName: trimmedname)
         } catch {
-            await MainActor.run {
-                self.errorMeessage = error.localizedDescription
-            }
+            self.errorMeessage = error.errorDescription ?? "An unexpected error occured"
             throw error
         }
     }
 
+    @MainActor
     func sendPasswordReset() async throws {
-        await MainActor.run {
-            self.isLoading = true
-        }
+        self.errorMeessage = ""
+        self.isLoading = true
 
         defer {
-            Task {
-                await MainActor.run {
-                    self.isLoading = false
-                }
-            }
+            self.isLoading = false
         }
         do {
             try await authService.sendPasswordReset()
         } catch {
-            await MainActor.run {
-                self.errorMeessage = error.localizedDescription
-            }
+            self.errorMeessage = error.errorDescription ?? "An unexpected error occured"
             throw error
         }
     }
-
+    
+    @MainActor
     func logOut() {
+        self.errorMeessage = ""
         do {
             try authService.signOut()
         } catch {
-            errorMeessage = "Log Out failed: \(error.localizedDescription)"
+            self.errorMeessage = error.errorDescription ?? "An unexpected error occured"
         }
     }
 
+    @MainActor
     func deleteAccount() async throws {
-        await MainActor.run {
-            self.isLoading = true
-        }
+        self.isLoading = true
+        self.errorMeessage = ""
 
         defer {
-            Task {
-                await MainActor.run {
-                    self.isLoading = false
-                }
-            }
+            self.isLoading = false
         }
         do {
             try await authService.deleteAccount()
         } catch {
-            await MainActor.run {
-                self.errorMeessage = error.localizedDescription
+            if error == AuthServiceError.requiresRecentLogin {
+                self.showReauthAlert = true
             }
+            
+            self.errorMeessage = error.errorDescription ?? "An unexpected error occured"
             throw error
         }
     }
