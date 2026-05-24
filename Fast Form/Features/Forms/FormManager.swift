@@ -9,12 +9,20 @@ import FirebaseFirestore
 import Foundation
 
 class FormManager: FormServiceProtocol {
+    
+    // MARK: - Properties
+    
     private let db = Firestore.firestore()
+    
     private let authService: AuthServiceProtocol
+    
+    // MARK: - Initalizer
 
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
+
+    // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     /// ***** Should I use AsynStream instead of this closures
     func observeForms(userId: String, completion: @escaping (Result<[FormModel], any Error>) -> Void) -> Abortable {

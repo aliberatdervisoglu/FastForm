@@ -8,6 +8,9 @@
 import Foundation
 
 protocol ResponseServiceProtocol {
+    
+    // MARK: - Public / Internal Functions (Accessible from ViewModels)
+
     func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], Error>) -> Void) -> Abortable
 
     func searchForms(query: String) async throws -> [FormModel]

@@ -10,6 +10,11 @@ import FirebaseFirestore
 import Foundation
 
 class AuthManager: AuthServiceProtocol {
+    
+    // MARK: - Properties
+    
+    private let db = Firestore.firestore()
+
     var currentUser: User? {
         guard let firebaseUser = Auth.auth().currentUser else {
             return nil
@@ -23,8 +28,12 @@ class AuthManager: AuthServiceProtocol {
         )
     }
 
-    private let db = Firestore.firestore()
+    var isSignedIn: Bool {
+        Auth.auth().currentUser != nil
+    }
 
+    // MARK: - Public / Internal Functions (Accessible from ViewModels)
+    
     func signIn(email: String, password: String) async throws {
         try await Auth.auth().signIn(withEmail: email, password: password)
     }
@@ -41,11 +50,9 @@ class AuthManager: AuthServiceProtocol {
         )
         try await saveUserData(user: newUser)
     }
-
-    private func saveUserData(user: User) async throws {
-        try await db.collection("users")
-            .document(user.id)
-            .setData(user.asDictionary())
+    
+    func signOut() throws {
+        try Auth.auth().signOut()
     }
 
     /// ***** Should I use AsynStream instead of this closures
@@ -128,11 +135,11 @@ class AuthManager: AuthServiceProtocol {
         }
     }
 
-    func signOut() throws {
-        try Auth.auth().signOut()
-    }
-
-    var isSignedIn: Bool {
-        Auth.auth().currentUser != nil
+    // MARK: - Private Functions
+    
+    private func saveUserData(user: User) async throws {
+        try await db.collection("users")
+            .document(user.id)
+            .setData(user.asDictionary())
     }
 }

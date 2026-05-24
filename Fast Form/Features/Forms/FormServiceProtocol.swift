@@ -8,6 +8,9 @@
 import Foundation
 
 protocol FormServiceProtocol {
+    
+    // MARK: - Public / Internal Functions (Accessible from ViewModels)
+    
     func observeForms(userId: String, completion: @escaping (Result<[FormModel], Error>) -> Void) -> Abortable
 
     func deleteForm(userId: String, formId: String) async throws
