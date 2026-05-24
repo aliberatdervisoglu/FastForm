@@ -33,12 +33,37 @@ class AuthManager: AuthServiceProtocol {
 
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
-    func signIn(email: String, password: String) async throws {
-        try await Auth.auth().signIn(withEmail: email, password: password)
+    func signIn(email: String, password: String) async throws(AuthServiceError) {
+        do {
+            try await Auth.auth().signIn(withEmail: email, password: password)
+        } catch {
+            let authError = error as NSError
+
+            if authError.code == AuthErrorCode.wrongPassword.rawValue || authError.code == AuthErrorCode.userNotFound.rawValue {
+                throw .ivalidEmailOrPassword
+            } else {
+                throw .unknown(error.localizedDescription)
+            }
+        }
     }
 
-    func signUp(name: String, email: String, password: String) async throws {
-        let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
+    func signUp(name: String, email: String, password: String) async throws(AuthServiceError) {
+        var authResult: AuthDataResult
+
+        do {
+            authResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        } catch {
+            let authError = error as NSError
+
+            if authError.code == AuthErrorCode.emailAlreadyInUse.rawValue {
+                throw .emailAlreadyInUse
+            } else if authError.code == AuthErrorCode.weakPassword.rawValue {
+                throw .weakPassword
+            } else {
+                throw .unknown(error.localizedDescription)
+            }
+        }
+
         let userID = authResult.user.uid
 
         let newUser = User(
@@ -47,11 +72,25 @@ class AuthManager: AuthServiceProtocol {
             email: email,
             joined: Date().timeIntervalSince1970
         )
-        try await saveUserData(user: newUser)
+
+        do {
+            try await saveUserData(user: newUser)
+        } catch let dbError {
+            do {
+                try await authResult.user.delete()
+                throw AuthServiceError.databaseError(dbError.localizedDescription)
+            } catch let cleanupError {
+                throw AuthServiceError.unknown("Critical: Firestore save failed (\(dbError.localizedDescription)), and user deletion also failed: \(cleanupError.localizedDescription)")
+            }
+        }
     }
 
-    func signOut() throws {
-        try Auth.auth().signOut()
+    func signOut() throws(AuthServiceError) {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            throw .unknown("Sign out failed:\(error.localizedDescription)")
+        }
     }
 
     /// ***** Should I use AsynStream instead of this closures
@@ -64,58 +103,63 @@ class AuthManager: AuthServiceProtocol {
         }
     }
 
-    func fetchUserData(userId: String) async throws -> User {
-        let snapshot = try await db.collection("users").document(userId).getDocument()
-
-        guard let data = snapshot.data() else {
-            throw NSError(
-                domain: "AuthManager",
-                code: 404,
-                userInfo: [NSLocalizedDescriptionKey: "User Not Found"]
-            )
+    func fetchUserData(userId: String) async throws(AuthServiceError) -> User {
+        let snapshot: DocumentSnapshot
+        do {
+            snapshot = try await db.collection("users").document(userId).getDocument()
+        } catch {
+            throw .databaseError(error.localizedDescription)
+        }
+        guard let userData = snapshot.data() else {
+            throw .userNotFound
         }
 
         return User(
-            id: data["id"] as? String ?? "",
-            name: data["name"] as? String ?? "",
-            email: data["email"] as? String ?? "",
-            joined: data["joined"] as? TimeInterval ?? 0
+            id: userData["id"] as? String ?? "",
+            name: userData["name"] as? String ?? "",
+            email: userData["email"] as? String ?? "",
+            joined: userData["joined"] as? TimeInterval ?? 0
         )
     }
 
-    func updateUserName(newName: String) async throws {
+    func updateUserName(newName: String) async throws(AuthServiceError) {
         guard let userID = currentUser?.id else {
-            throw NSError(
-                domain: "AuthManager",
-                code: 401,
-                userInfo: [NSLocalizedDescriptionKey: "Current user not found"]
-            )
+            throw .userNotFound
         }
-        try await db.collection("users").document(userID).updateData(["name": newName])
+        do {
+            try await db.collection("users").document(userID).updateData(["name": newName])
+        } catch {
+            throw .databaseError("Name update failed: \(error.localizedDescription)")
+        }
     }
 
-    func sendPasswordReset() async throws {
+    func sendPasswordReset() async throws(AuthServiceError) {
         guard let email = currentUser?.email else {
-            throw NSError(
-                domain: "AuthManager",
-                code: 400,
-                userInfo: [NSLocalizedDescriptionKey: "User email is missing or unavailble"]
-            )
+            throw .userNotFound
         }
-        try await Auth.auth().sendPasswordReset(withEmail: email)
+        do {
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+        } catch {
+            let authError = error as NSError
+            if authError.code == AuthErrorCode.invalidEmail.rawValue {
+                throw .unknown("The email address format is invalid.")
+            } else {
+                throw .unknown(error.localizedDescription)
+            }
+        }
     }
 
-    func deleteAccount() async throws {
+    func deleteAccount() async throws(AuthServiceError) {
         guard let authCurrentUser = Auth.auth().currentUser else {
-            throw NSError(
-                domain: "AuthManager",
-                code: 401,
-                userInfo: [NSLocalizedDescriptionKey: "No authenticated user to delete account for"]
-            )
+            throw .userNotFound
         }
         let userID = authCurrentUser.uid
 
-        try await db.collection("users").document(userID).delete()
+        do {
+            try await db.collection("users").document(userID).delete()
+        } catch {
+            throw .databaseError(error.localizedDescription)
+        }
 
         do {
             try await authCurrentUser.delete()
@@ -123,13 +167,9 @@ class AuthManager: AuthServiceProtocol {
             let authError = error as NSError
 
             if authError.code == AuthErrorCode.requiresRecentLogin.rawValue {
-                throw NSError(
-                    domain: "AuthManager",
-                    code: authError.code,
-                    userInfo: [NSLocalizedDescriptionKey: "This operation is sensitive and requires recent authentication. Log in again before retrying."]
-                )
+                throw .requiresRecentLogin
             } else {
-                throw error
+                throw .unknown(error.localizedDescription)
             }
         }
     }

@@ -33,6 +33,10 @@ class RegisterViewViewModel {
         Task {
             do {
                 try await authService.signUp(name: name, email: email, password: password)
+            } catch let error as AuthServiceError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription ?? "An error occurred. Please try again!"
+                }
             } catch {
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription

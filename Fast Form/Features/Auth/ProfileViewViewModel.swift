@@ -12,6 +12,7 @@ class ProfileViewViewModel {
     // MARK: - Properties
 
     var user: User?
+    var errorMessage: String = ""
 
     private let authService: AuthServiceProtocol
 
@@ -24,27 +25,35 @@ class ProfileViewViewModel {
     // MARK: - Public Functions
 
     func fetchUser() {
+        errorMessage = ""
         guard let userId = authService.currentUser?.id else {
-            print("Error: Local user ID is missing")
+            errorMessage = "Local user ID is missing"
             return
         }
         Task {
             do {
-                let user = try await authService.fetchUserData(userId: userId)
+                let fetchedUser = try await authService.fetchUserData(userId: userId)
                 await MainActor.run {
-                    self.user = user
+                    self.user = fetchedUser
+                }
+            } catch let error as AuthServiceError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription ?? "Could not load user data. Please try again later."
                 }
             } catch {
-                print("Error: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.errorMessage = errorMessage.localizedCapitalized
+                }
             }
         }
     }
 
     func logOut() {
+        errorMessage = ""
         do {
             try authService.signOut()
         } catch {
-            print("Error: \(error.localizedDescription)")
+            errorMessage = error.errorDescription ?? "Log out failed!"
         }
     }
 }

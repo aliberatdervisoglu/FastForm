@@ -30,6 +30,10 @@ class LoginViewViewModel {
         Task {
             do {
                 try await authService.signIn(email: email, password: password)
+            } catch let error as AuthServiceError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription ?? "An unknown authentication error occured"
+                }
             } catch {
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription

@@ -16,19 +16,19 @@ protocol AuthServiceProtocol {
 
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
-    func signIn(email: String, password: String) async throws
+    func signIn(email: String, password: String) async throws(AuthServiceError)
 
-    func signUp(name: String, email: String, password: String) async throws
+    func signUp(name: String, email: String, password: String) async throws(AuthServiceError)
 
     func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable
 
-    func fetchUserData(userId: String) async throws -> User
+    func fetchUserData(userId: String) async throws(AuthServiceError) -> User
 
-    func signOut() throws
+    func signOut() throws(AuthServiceError)
 
-    func updateUserName(newName: String) async throws
+    func updateUserName(newName: String) async throws(AuthServiceError)
 
-    func sendPasswordReset() async throws
+    func sendPasswordReset() async throws(AuthServiceError)
 
-    func deleteAccount() async throws
+    func deleteAccount() async throws(AuthServiceError)
 }
