@@ -22,7 +22,7 @@ class ProfileViewViewModel {
     }
 
     // MARK: - Public Functions
-    
+
     @MainActor
     func fetchUser() async throws(AuthServiceError) {
         guard let userId = authService.currentUser?.id else {

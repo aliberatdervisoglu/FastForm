@@ -24,6 +24,7 @@ class ResponseFormViewViewModel {
     }
 
     // MARK: - Public Functions
+
     @MainActor
     func searchForms() async throws(ResponseServiceError) {
         guard searchText.count >= 3 else {
@@ -32,7 +33,7 @@ class ResponseFormViewViewModel {
         }
 
         isLoading = true
-        
+
         defer {
             isLoading = false
         }

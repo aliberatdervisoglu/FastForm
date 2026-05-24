@@ -31,7 +31,7 @@ class ResponseManager: ResponseServiceProtocol {
                     return
                 }
                 let snapshotDocuments = snapshot?.documents ?? []
-                
+
                 var responses: [FormResponse] = []
                 for eachDocument in snapshotDocuments {
                     do {
@@ -76,7 +76,7 @@ class ResponseManager: ResponseServiceProtocol {
         guard !ownerId.isEmpty, !formId.isEmpty, !response.id.isEmpty else {
             throw .invalidParameters
         }
-        
+
         // It is just a local reference to the path (no network request yet)
         let ref = db.collection("users").document(ownerId)
             .collection("forms").document(formId)

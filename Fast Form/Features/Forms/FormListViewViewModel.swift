@@ -60,13 +60,13 @@ class FormListViewViewModel {
             guard let self else { return }
             switch result {
             case let .success(forms):
-                self.formitems = forms
+                formitems = forms
             case let .failure(error):
-                self.errorMessage = error.errorDescription
+                errorMessage = error.errorDescription
             }
         }
     }
-    
+
     @MainActor
     func deleteForm(id: String) async throws(FormServiceError) {
         do {

@@ -12,7 +12,6 @@ class ResponseChoosenFormViewViewModel {
     // MARK: - Properties
 
     @MainActor var isLoading: Bool = false
-    
 
     private let responseService: ResponseServiceProtocol
     private let authService: AuthServiceProtocol
@@ -60,6 +59,7 @@ class ResponseChoosenFormViewViewModel {
             }
         }
     }
+
     @MainActor
     func submitForm(form: FormModel, answers: [String: Answer]) async throws(ResponseServiceError) {
         try validateAnswers(form: form, answers: answers)

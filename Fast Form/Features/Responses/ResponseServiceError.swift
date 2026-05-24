@@ -16,13 +16,13 @@ enum ResponseServiceError: Error, Equatable {
     var errorDescription: String {
         switch self {
         case .invalidParameters:
-            return "Required identifiers are missing. Please try again."
+            "Required identifiers are missing. Please try again."
         case let .databaseError(message):
-            return "Database failure: \(message)"
+            "Database failure: \(message)"
         case .decodingError:
-            return "Failed to process form responses. Please contact support."
-        case .validationFailed(let message):
-            return message
+            "Failed to process form responses. Please contact support."
+        case let .validationFailed(message):
+            message
         }
     }
 }

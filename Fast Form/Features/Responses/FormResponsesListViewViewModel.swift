@@ -27,7 +27,7 @@ class FormResponsesListViewViewModel {
     // MARK: - Public Functions
 
     @MainActor
-    func fetchResponses(ownerId: String, formId: String){
+    func fetchResponses(ownerId: String, formId: String) {
         isLoading = true
         errorMessage = ""
 
@@ -35,13 +35,13 @@ class FormResponsesListViewViewModel {
 
         responseAbortable = responseService.observeResponse(ownerId: ownerId, formId: formId) { @MainActor [weak self] result in
             guard let self else { return }
-            
+
             isLoading = false
-            
+
             switch result {
-            case .success(let fetchedResponses):
+            case let .success(fetchedResponses):
                 responses = fetchedResponses
-            case .failure(let error):
+            case let .failure(error):
                 errorMessage = error.errorDescription
                 responses = []
             }

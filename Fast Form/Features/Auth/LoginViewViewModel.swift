@@ -27,7 +27,7 @@ class LoginViewViewModel {
     @MainActor
     func login() async throws(AuthServiceError) {
         try validate()
-        
+
         do {
             try await authService.signIn(email: email, password: password)
         } catch {

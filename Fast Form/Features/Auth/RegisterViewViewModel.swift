@@ -25,6 +25,7 @@ class RegisterViewViewModel {
     }
 
     // MARK: - Public Functions
+
     @MainActor
     func register() async throws(AuthServiceError) {
         try validate()
@@ -37,6 +38,7 @@ class RegisterViewViewModel {
     }
 
     // MARK: - Private Functions
+
     @MainActor
     private func validate() throws(AuthServiceError) {
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty,
