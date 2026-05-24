@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ResponseDetailView: View {
     let form: FormModel
-    let response: FormResponce
+    let response: FormResponse
 
     var body: some View {
         ScrollView {
@@ -149,7 +149,7 @@ struct ResponseDetailView: View {
         isAnonymus: false
     )
 
-    let mockResponse = FormResponce(
+    let mockResponse = FormResponse(
         formId: "form123",
         answers: mockAnswers,
         submittedDate: Date()

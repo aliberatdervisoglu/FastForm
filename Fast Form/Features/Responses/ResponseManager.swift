@@ -16,7 +16,7 @@ class ResponseManager: ResponseServiceProtocol {
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     /// ***** Should I use AsynStream instead of this closures
-    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], any Error>) -> Void) -> Abortable {
+    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponse], any Error>) -> Void) -> Abortable {
         guard !ownerId.isEmpty, !formId.isEmpty else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "ID'ler eksik!"])))
             print("Invalid Parameters")
@@ -32,7 +32,7 @@ class ResponseManager: ResponseServiceProtocol {
                     return
                 }
                 let responses = QuerySnapshot?.documents.compactMap { doc in
-                    try? doc.data(as: FormResponce.self)
+                    try? doc.data(as: FormResponse.self)
                 } ?? []
                 completion(.success(responses))
             }
@@ -51,7 +51,7 @@ class ResponseManager: ResponseServiceProtocol {
         }
     }
 
-    func submitResponse(ownerId: String, formId: String, response: FormResponce) async throws {
+    func submitResponse(ownerId: String, formId: String, response: FormResponse) async throws {
         guard !ownerId.isEmpty, !formId.isEmpty, !response.id.isEmpty else {
             throw NSError(domain: "Firestore", code: -1, userInfo: [NSLocalizedDescriptionKey: "Document path IDs cannot be empty"])
         }

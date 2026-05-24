@@ -20,7 +20,7 @@ struct RespondentInfo: Codable {
     let email: String
 }
 
-struct FormResponce: Codable, Identifiable {
+struct FormResponse: Codable, Identifiable {
     var id = UUID().uuidString
     var formId: String
     var info: RespondentInfo?

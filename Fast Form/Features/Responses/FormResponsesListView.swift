@@ -43,7 +43,7 @@ struct FormResponsesListView: View {
         }
     }
 
-    private func responseCard(index: Int, response: FormResponce) -> some View {
+    private func responseCard(index: Int, response: FormResponse) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
                 if let email = response.info?.email, !email.isEmpty {

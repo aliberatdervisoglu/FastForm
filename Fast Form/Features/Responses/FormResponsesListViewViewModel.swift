@@ -11,7 +11,7 @@ import Foundation
 class FormResponsesListViewViewModel {
     // MARK: - Properties
 
-    var responses: [FormResponce] = []
+    var responses: [FormResponse] = []
     var isLoading = false
 
     private let responseService: ResponseServiceProtocol
@@ -47,3 +47,4 @@ class FormResponsesListViewViewModel {
         responseAbortable?.cancel()
     }
 }
+ 

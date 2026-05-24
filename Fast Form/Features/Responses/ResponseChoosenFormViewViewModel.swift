@@ -84,7 +84,7 @@ class ResponseChoosenFormViewViewModel {
             )
         }
 
-        let newResponse = FormResponce(
+        let newResponse = FormResponse(
             formId: form.id,
             info: info,
             answers: answers,
