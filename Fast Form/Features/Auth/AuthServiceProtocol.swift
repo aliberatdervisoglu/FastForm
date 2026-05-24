@@ -8,15 +8,14 @@
 import Foundation
 
 protocol AuthServiceProtocol {
-    
     // MARK: - Properties
-    
+
     var currentUser: User? { get }
-    
+
     var isSignedIn: Bool { get }
-    
+
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
-    
+
     func signIn(email: String, password: String) async throws
 
     func signUp(name: String, email: String, password: String) async throws

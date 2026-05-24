@@ -9,13 +9,19 @@ import Foundation
 
 @Observable
 class ProfileViewViewModel {
+    // MARK: - Properties
+
     var user: User?
 
     private let authService: AuthServiceProtocol
 
+    // MARK: - Init
+
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
+
+    // MARK: - Public Functions
 
     func fetchUser() {
         guard let userId = authService.currentUser?.id else {

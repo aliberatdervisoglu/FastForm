@@ -9,15 +9,21 @@ import Foundation
 
 @Observable
 class FormResponsesListViewViewModel {
+    // MARK: - Properties
+
     var responses: [FormResponce] = []
     var isLoading = false
 
     private let responseService: ResponseServiceProtocol
     private var responseAbortable: Abortable?
 
+    // MARK: - Init
+
     init(responseService: ResponseServiceProtocol = ResponseManager()) {
         self.responseService = responseService
     }
+
+    // MARK: - Public Functions
 
     func fetchResponses(ownerId: String, formId: String) {
         isLoading = true
@@ -34,6 +40,8 @@ class FormResponsesListViewViewModel {
             }
         }
     }
+
+    // MARK: - Lifecycle
 
     deinit {
         responseAbortable?.cancel()

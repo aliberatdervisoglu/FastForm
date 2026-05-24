@@ -9,14 +9,20 @@ import Foundation
 
 @Observable
 class FormBuilderViewViewModel {
+    // MARK: - Properties
+
     var showNewQuestionSheet: Bool = false
     var title: String = ""
 
     private let formService: FormServiceProtocol
 
+    // MARK: - Init
+
     init(formService: FormServiceProtocol = FormManager()) {
         self.formService = formService
     }
+
+    // MARK: - Public Functions
 
     func save(item: FormModel) {
         Task {

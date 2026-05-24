@@ -9,13 +9,12 @@ import FirebaseFirestore
 import Foundation
 
 class ResponseManager: ResponseServiceProtocol {
-    
     // MARK: - Properties
-    
+
     private let db = Firestore.firestore()
 
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
-    
+
     /// ***** Should I use AsynStream instead of this closures
     func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponce], any Error>) -> Void) -> Abortable {
         guard !ownerId.isEmpty, !formId.isEmpty else {

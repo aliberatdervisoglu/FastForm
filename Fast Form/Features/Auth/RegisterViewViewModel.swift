@@ -9,6 +9,8 @@ import Foundation
 
 @Observable
 class RegisterViewViewModel {
+    // MARK: - Properties
+
     var name: String = ""
     var email: String = ""
     var password: String = ""
@@ -17,9 +19,13 @@ class RegisterViewViewModel {
 
     private let authService: AuthServiceProtocol
 
+    // MARK: - Init
+
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
+
+    // MARK: - Public Functions
 
     func register() {
         guard validate() else { return }
@@ -34,6 +40,8 @@ class RegisterViewViewModel {
             }
         }
     }
+
+    // MARK: - Private Functions
 
     private func validate() -> Bool {
         errorMessage = ""

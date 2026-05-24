@@ -9,6 +9,8 @@ import Foundation
 
 @Observable
 class ResponseChoosenFormViewViewModel {
+    // MARK: - Properties
+
     var isLoading: Bool = false
     var errorMessage: String?
     var showAlert: Bool = false
@@ -16,10 +18,14 @@ class ResponseChoosenFormViewViewModel {
     private let responseService: ResponseServiceProtocol
     private let authService: AuthServiceProtocol
 
+    // MARK: - Init
+
     init(responseService: ResponseServiceProtocol = ResponseManager(), authService: AuthServiceProtocol = AuthManager()) {
         self.responseService = responseService
         self.authService = authService
     }
+
+    // MARK: - Public Functions
 
     func validateAnswers(form: FormModel, answers: [String: Answer]) -> String? {
         for question in form.questionList {
@@ -99,6 +105,8 @@ class ResponseChoosenFormViewViewModel {
             return false
         }
     }
+
+    // MARK: - Private Functions
 
     private func showError(message: String) {
         errorMessage = message

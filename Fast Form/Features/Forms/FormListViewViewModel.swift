@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum FormSortOption: String, CaseIterable { //  Sort options for formlist
+//  MARK: - Sort options for formlist
+
+enum FormSortOption: String, CaseIterable {
     case newest = "Newest First"
     case oldest = "Oldest First"
     case aToZ = "A - Z"
@@ -16,6 +18,8 @@ enum FormSortOption: String, CaseIterable { //  Sort options for formlist
 
 @Observable
 class FormListViewViewModel {
+    // MARK: - Properties
+
     var formitems: [FormModel] = []
     var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
 
@@ -36,10 +40,14 @@ class FormListViewViewModel {
         }
     }
 
+    // MARK: - Init
+
     init(userId: String, formService: FormServiceProtocol = FormManager()) {
         self.userId = userId
         self.formService = formService
     }
+
+    // MARK: - Public Functions
 
     func fetchForms() {
         formAbortable?.cancel()
@@ -64,6 +72,8 @@ class FormListViewViewModel {
             }
         }
     }
+
+    // MARK: - Lifecycle
 
     deinit {
         formAbortable?.cancel()

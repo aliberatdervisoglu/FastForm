@@ -9,15 +9,21 @@ import Foundation
 
 @Observable
 class LoginViewViewModel {
+    // MARK: - Properties
+
     var email: String = ""
     var password: String = ""
     var errorMessage: String = ""
 
     private let authService: AuthServiceProtocol
 
+    // MARK: - Init
+
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
+
+    // MARK: - Public Functions
 
     func login() {
         guard validate() else { return }
@@ -31,6 +37,8 @@ class LoginViewViewModel {
             }
         }
     }
+
+    // MARK: - Private Functions
 
     private func validate() -> Bool {
         errorMessage = ""

@@ -9,21 +9,27 @@ import Foundation
 
 @Observable
 class SettingsViewViewModel {
-    var errormeessage: String?
+    // MARK: - Properties
+
+    var errorMeessage: String?
     var isLoading = false
     var showReauthAlert = false
 
     private let authService: AuthServiceProtocol
 
+    // MARK: - Init
+
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
     }
+
+    // MARK: - Public Functions
 
     func updateName(newName: String) async throws {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
             await MainActor.run {
-                self.errormeessage = "Name cannot be empty."
+                self.errorMeessage = "Name cannot be empty."
             }
             throw NSError(domain: "ProfileViewViewModel", code: 400, userInfo: [NSLocalizedDescriptionKey: "Name cannot be empty."])
         }
@@ -43,7 +49,7 @@ class SettingsViewViewModel {
             try await authService.updateUserName(newName: trimmedname)
         } catch {
             await MainActor.run {
-                self.errormeessage = error.localizedDescription
+                self.errorMeessage = error.localizedDescription
             }
             throw error
         }
@@ -65,7 +71,7 @@ class SettingsViewViewModel {
             try await authService.sendPasswordReset()
         } catch {
             await MainActor.run {
-                self.errormeessage = error.localizedDescription
+                self.errorMeessage = error.localizedDescription
             }
             throw error
         }
@@ -75,7 +81,7 @@ class SettingsViewViewModel {
         do {
             try authService.signOut()
         } catch {
-            errormeessage = "Log Out failed: \(error.localizedDescription)"
+            errorMeessage = "Log Out failed: \(error.localizedDescription)"
         }
     }
 
@@ -95,7 +101,7 @@ class SettingsViewViewModel {
             try await authService.deleteAccount()
         } catch {
             await MainActor.run {
-                self.errormeessage = error.localizedDescription
+                self.errorMeessage = error.localizedDescription
             }
             throw error
         }

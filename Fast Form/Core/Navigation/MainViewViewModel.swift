@@ -9,12 +9,20 @@ import Foundation
 
 @Observable
 class MainViewViewModel {
+    // MARK: - Properties
+
     var currentUserID: String = ""
     var selectedTabBarItem: Int = 0
     var isLoading = true
 
+    var isSignedIn: Bool {
+        authService.isSignedIn
+    }
+
     private var authAbortable: Abortable?
     private let authService: AuthServiceProtocol
+
+    // MARK: - Init
 
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
@@ -25,9 +33,7 @@ class MainViewViewModel {
         }
     }
 
-    var isSignedIn: Bool {
-        authService.isSignedIn
-    }
+    // MARK: - Lifecycle
 
     deinit {
         authAbortable?.cancel()

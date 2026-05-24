@@ -9,13 +9,12 @@ import FirebaseFirestore
 import Foundation
 
 class FormManager: FormServiceProtocol {
-    
     // MARK: - Properties
-    
+
     private let db = Firestore.firestore()
-    
+
     private let authService: AuthServiceProtocol
-    
+
     // MARK: - Initalizer
 
     init(authService: AuthServiceProtocol = AuthManager()) {
