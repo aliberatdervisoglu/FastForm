@@ -11,8 +11,7 @@ import Foundation
 class ProfileViewViewModel {
     // MARK: - Properties
 
-    var user: User?
-    var errorMessage: String = ""
+    @MainActor var user: User?
 
     private let authService: AuthServiceProtocol
 
@@ -23,37 +22,21 @@ class ProfileViewViewModel {
     }
 
     // MARK: - Public Functions
-
-    func fetchUser() {
-        errorMessage = ""
+    
+    @MainActor
+    func fetchUser() async throws(AuthServiceError) {
         guard let userId = authService.currentUser?.id else {
-            errorMessage = "Local user ID is missing"
-            return
+            throw AuthServiceError.unknown("Local user ID is missing")
         }
-        Task {
-            do {
-                let fetchedUser = try await authService.fetchUserData(userId: userId)
-                await MainActor.run {
-                    self.user = fetchedUser
-                }
-            } catch let error as AuthServiceError {
-                await MainActor.run {
-                    self.errorMessage = error.errorDescription ?? "Could not load user data. Please try again later."
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = errorMessage.localizedCapitalized
-                }
-            }
+        do {
+            user = try await authService.fetchUserData(userId: userId)
+        } catch {
+            throw error
         }
     }
 
-    func logOut() {
-        errorMessage = ""
-        do {
-            try authService.signOut()
-        } catch {
-            errorMessage = error.errorDescription ?? "Log out failed!"
-        }
+    @MainActor
+    func logOut() throws(AuthServiceError) {
+        try authService.signOut()
     }
 }

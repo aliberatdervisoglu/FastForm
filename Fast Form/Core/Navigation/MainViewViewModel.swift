@@ -11,10 +11,11 @@ import Foundation
 class MainViewViewModel {
     // MARK: - Properties
 
-    var currentUserID: String = ""
-    var selectedTabBarItem: Int = 0
-    var isLoading = true
+    @MainActor var currentUserID: String = ""
+    @MainActor var selectedTabBarItem: Int = 0
+    @MainActor var isLoading = true
 
+    @MainActor
     var isSignedIn: Bool {
         authService.isSignedIn
     }
@@ -27,9 +28,10 @@ class MainViewViewModel {
     init(authService: AuthServiceProtocol = AuthManager()) {
         self.authService = authService
 
-        authAbortable = authService.observeAuthState { @MainActor [weak self] uid in
-            self?.currentUserID = uid ?? ""
-            self?.isLoading = false
+        authAbortable = authService.observeAuthState { [weak self] uid in
+            guard let self else { return }
+            currentUserID = uid ?? ""
+            isLoading = false
         }
     }
 

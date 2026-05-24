@@ -11,9 +11,8 @@ import Foundation
 class LoginViewViewModel {
     // MARK: - Properties
 
-    var email: String = ""
-    var password: String = ""
-    var errorMessage: String = ""
+    @MainActor var email: String = ""
+    @MainActor var password: String = ""
 
     private let authService: AuthServiceProtocol
 
@@ -25,38 +24,28 @@ class LoginViewViewModel {
 
     // MARK: - Public Functions
 
-    func login() {
-        guard validate() else { return }
-        Task {
-            do {
-                try await authService.signIn(email: email, password: password)
-            } catch let error as AuthServiceError {
-                await MainActor.run {
-                    self.errorMessage = error.errorDescription ?? "An unknown authentication error occured"
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+    @MainActor
+    func login() async throws(AuthServiceError) {
+        try validate()
+        
+        do {
+            try await authService.signIn(email: email, password: password)
+        } catch {
+            throw error
         }
     }
 
     // MARK: - Private Functions
 
-    private func validate() -> Bool {
-        errorMessage = ""
-
+    private func validate() throws(AuthServiceError) {
         guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
               !password.trimmingCharacters(in: .whitespaces).isEmpty
         else {
-            errorMessage = "Please fill in all the fields!"
-            return false
+            throw .unknown("Please fill in all the fields!")
         }
+
         guard email.contains("@"), email.contains(".") else {
-            errorMessage = "Please enter a valid email!"
-            return false
+            throw .unknown("Please enter a valid email!")
         }
-        return true
     }
 }

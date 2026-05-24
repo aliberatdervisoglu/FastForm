@@ -11,11 +11,10 @@ import Foundation
 class RegisterViewViewModel {
     // MARK: - Properties
 
-    var name: String = ""
-    var email: String = ""
-    var password: String = ""
-    var confirmPassword: String = ""
-    var errorMessage: String = ""
+    @MainActor var name: String = ""
+    @MainActor var email: String = ""
+    @MainActor var password: String = ""
+    @MainActor var confirmPassword: String = ""
 
     private let authService: AuthServiceProtocol
 
@@ -26,50 +25,35 @@ class RegisterViewViewModel {
     }
 
     // MARK: - Public Functions
+    @MainActor
+    func register() async throws(AuthServiceError) {
+        try validate()
 
-    func register() {
-        guard validate() else { return }
-
-        Task {
-            do {
-                try await authService.signUp(name: name, email: email, password: password)
-            } catch let error as AuthServiceError {
-                await MainActor.run {
-                    self.errorMessage = error.errorDescription ?? "An error occurred. Please try again!"
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+        do {
+            try await authService.signUp(name: name, email: email, password: password)
+        } catch {
+            throw error
         }
     }
 
     // MARK: - Private Functions
-
-    private func validate() -> Bool {
-        errorMessage = ""
+    @MainActor
+    private func validate() throws(AuthServiceError) {
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty,
               !email.trimmingCharacters(in: .whitespaces).isEmpty,
               !password.trimmingCharacters(in: .whitespaces).isEmpty,
               !confirmPassword.trimmingCharacters(in: .whitespaces).isEmpty
         else {
-            errorMessage = "Please fill in all the fields"
-            return false
+            throw .unknown("Please fill in all the fields")
         }
         guard password == confirmPassword else {
-            errorMessage = "Passwords do not match"
-            return false
+            throw .unknown("Passwords do not match")
         }
         guard email.contains("@"), email.contains(".") else {
-            errorMessage = "Please enter a valid email"
-            return false
+            throw .unknown("Please enter a valid email")
         }
         guard password.count >= 6 else {
-            errorMessage = "Password must be at least 6 characters long"
-            return false
+            throw .unknown("Password must be at least 6 characters long")
         }
-
-        return true
     }
 }
