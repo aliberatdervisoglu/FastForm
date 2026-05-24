@@ -11,7 +11,6 @@ import Foundation
 class SettingsViewViewModel {
     // MARK: - Properties
 
-    @MainActor var errorMeessage: String = ""
     @MainActor var isLoading = false
     @MainActor var showReauthAlert = false
 
@@ -26,14 +25,12 @@ class SettingsViewViewModel {
     // MARK: - Public Functions
 
     @MainActor
-    func updateName(newName: String) async throws {
+    func updateName(newName: String) async throws(AuthServiceError) {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
-            errorMeessage = "Name cannot be empty."
             throw AuthServiceError.unknown("Name field is empty.")
         }
         isLoading = true
-        errorMeessage = ""
 
         defer {
             self.isLoading = false
@@ -42,14 +39,12 @@ class SettingsViewViewModel {
         do {
             try await authService.updateUserName(newName: trimmedname)
         } catch {
-            errorMeessage = error.errorDescription ?? "An unexpected error occured"
             throw error
         }
     }
 
     @MainActor
-    func sendPasswordReset() async throws {
-        errorMeessage = ""
+    func sendPasswordReset() async throws(AuthServiceError) {
         isLoading = true
 
         defer {
@@ -58,25 +53,18 @@ class SettingsViewViewModel {
         do {
             try await authService.sendPasswordReset()
         } catch {
-            errorMeessage = error.errorDescription ?? "An unexpected error occured"
             throw error
         }
     }
 
     @MainActor
-    func logOut() {
-        errorMeessage = ""
-        do {
-            try authService.signOut()
-        } catch {
-            errorMeessage = error.errorDescription ?? "An unexpected error occured"
-        }
+    func logOut() throws(AuthServiceError) {
+        try authService.signOut()
     }
 
     @MainActor
-    func deleteAccount() async throws {
+    func deleteAccount() async throws(AuthServiceError) {
         isLoading = true
-        errorMeessage = ""
 
         defer {
             self.isLoading = false
@@ -87,8 +75,6 @@ class SettingsViewViewModel {
             if error == AuthServiceError.requiresRecentLogin {
                 showReauthAlert = true
             }
-
-            errorMeessage = error.errorDescription ?? "An unexpected error occured"
             throw error
         }
     }
