@@ -32,28 +32,31 @@ class ResponseChoosenFormViewViewModel {
             if let answerValue = answer?.value {
                 if question.type == .shortAnswer || question.type == .paragraph {
                     if answerValue.count > question.maxCharactersLimit {
-                        throw .validationFailed("\(question.title): answer is too long. Character limit (\(question.maxCharactersLimit)) exceeded!")
+                        throw .validationFailed(
+                            questionId: question.id,
+                            message: "\(question.title): answer is too long. Character limit (\(question.maxCharactersLimit)) exceeded!"
+                        )
                     }
                 }
             }
 
             if question.isRequired {
                 if answer == nil {
-                    throw .validationFailed("Please fill: \(question.title)")
+                    throw .validationFailed(questionId: question.id, message: "Please fill: \(question.title)")
                 }
 
                 switch question.type {
                 case .shortAnswer, .paragraph, .dropdown, .multipleChoice:
                     if answer?.value?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
-                        throw .validationFailed("Required field: \(question.title)")
+                        throw .validationFailed(questionId: question.id, message: "Required field: \(question.title)")
                     }
                 case .checkboxes:
                     if answer?.selections?.isEmpty ?? true {
-                        throw .validationFailed("Choose at least one: \(question.title)")
+                        throw .validationFailed(questionId: question.id, message: "Choose at least one: \(question.title)")
                     }
                 case .toggle:
                     if answer?.booleanValue != true {
-                        throw .validationFailed("Approval required: \(question.title)")
+                        throw .validationFailed(questionId: question.id, message: "Approval required: \(question.title)")
                     }
                 }
             }

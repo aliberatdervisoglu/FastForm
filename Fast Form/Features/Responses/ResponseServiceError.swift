@@ -11,7 +11,7 @@ enum ResponseServiceError: Error, Equatable {
     case invalidParameters
     case databaseError(String)
     case decodingError
-    case validationFailed(String)
+    case validationFailed(questionId: String, message: String)
 
     var errorDescription: String {
         switch self {
@@ -21,7 +21,7 @@ enum ResponseServiceError: Error, Equatable {
             "Database failure: \(message)"
         case .decodingError:
             "Failed to process form responses. Please contact support."
-        case let .validationFailed(message):
+        case let .validationFailed(_, message):
             message
         }
     }

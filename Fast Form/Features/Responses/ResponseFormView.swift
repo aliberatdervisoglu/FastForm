@@ -1,14 +1,8 @@
-//
-//  ResponseFormView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
-
 import SwiftUI
 
 struct ResponseFormView: View {
     @State var viewModel = ResponseFormViewViewModel()
+    @State private var localSearchError: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -28,11 +22,19 @@ struct ResponseFormView: View {
                                 description: Text("Please enter at least 3 characters to search for a form.")
                             )
                             .padding(.top, 40)
-                        } else if viewModel.results.isEmpty, viewModel.isLoading == false {
-                            ContentUnavailableView.search(text: viewModel.searchText)
-                                .padding(.top, 40)
                         } else if viewModel.isLoading {
                             ProgressView("Searching forms...")
+                                .padding(.top, 40)
+                        } else if let errorMessage = localSearchError {
+                            ContentUnavailableView(
+                                "Search Error",
+                                systemImage: "wifi.exclamationmark",
+                                description: Text(errorMessage)
+                            )
+                            .padding(.top, 40)
+
+                        } else if viewModel.results.isEmpty, viewModel.isLoading == false {
+                            ContentUnavailableView.search(text: viewModel.searchText)
                                 .padding(.top, 40)
                         } else {
                             ForEach(viewModel.results) { form in
@@ -49,14 +51,12 @@ struct ResponseFormView: View {
             .navigationTitle("Find Form")
             .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Enter a Form Title...")
             .onChange(of: viewModel.searchText) { _, _ in
-                // 🎯 Task bridge for async search
                 Task {
+                    localSearchError = nil
                     do {
                         try await viewModel.searchForms()
                     } catch {
-                        // Since this is a search-as-you-type feature,
-                        // you can just log the error or update an error state.
-                        print("Search error: \(error.localizedDescription)")
+                        localSearchError = error.localizedDescription
                     }
                 }
             }

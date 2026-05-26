@@ -1,3 +1,8 @@
+//
+//  ResponseChoosenFormView.swift
+//  Fast Form
+//
+
 import SwiftUI
 
 struct ResponseChoosenFormView: View {
@@ -64,8 +69,11 @@ struct ResponseChoosenFormView: View {
             try viewModel.validateAnswers(form: form, answers: userAnswers)
             errorQuestionId = nil
             submitForm()
+        } catch let ResponseServiceError.validationFailed(id, message) {
+            errorQuestionId = id
+            errorMessage = message
+            showAlert = true
         } catch {
-            // This handles any other unexpected errors
             errorMessage = error.localizedDescription
             showAlert = true
         }
@@ -117,7 +125,7 @@ struct ResponseChoosenFormView: View {
             if form.isAnonymus {
                 HStack {
                     Image(systemName: "eye.slash.fill")
-                    Text("This Form is anonymus. Your username will not be stored.")
+                    Text("This Form is anonymous. Your username will not be stored.")
                 }
                 .font(.caption).foregroundStyle(LinearGradient.brandGradient).padding(.top, 4)
             }
@@ -128,6 +136,7 @@ struct ResponseChoosenFormView: View {
     @ViewBuilder
     private func questionCard(for question: Question) -> some View {
         let isError = errorQuestionId == question.id
+
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top) {
@@ -187,8 +196,12 @@ struct ResponseChoosenFormView: View {
                     }
                 }
             }
+
             if isError {
-                Text("Please check this question before submitting.").font(.caption).foregroundStyle(.red).transition(.opacity)
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .transition(.opacity)
             }
         }
         .padding(20).background(Color(uiColor: .systemBackground)).cornerRadius(16)
