@@ -21,6 +21,13 @@ struct ResponseFormView: View {
                         if viewModel.searchText.isEmpty {
                             welcomeSection
                                 .padding(.top, 40)
+                        } else if viewModel.searchText.count > 0, viewModel.searchText.count < 3 {
+                            ContentUnavailableView(
+                                "Keep typing...",
+                                systemImage: "text.cursor",
+                                description: Text("Please enter at least 3 characters to search for a form.")
+                            )
+                            .padding(.top, 40)
                         } else if viewModel.results.isEmpty, viewModel.isLoading == false {
                             ContentUnavailableView.search(text: viewModel.searchText)
                                 .padding(.top, 40)
