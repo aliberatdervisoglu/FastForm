@@ -83,7 +83,7 @@ class ResponseManager: ResponseServiceProtocol {
             .collection("responses").document(response.id)
 
         do {
-            try await ref.setData(response.asDictionary())
+            try ref.setData(from: response)
         } catch {
             throw .databaseError(error.localizedDescription)
         }

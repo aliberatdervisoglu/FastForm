@@ -20,6 +20,14 @@ struct FormResponsesListView: View {
                     if viewModel.isLoading {
                         ProgressView("Loading responses...")
                             .padding(.top, 40)
+                    } else if !viewModel.errorMessage.isEmpty {
+                        ContentUnavailableView(
+                            "Failed to Load",
+                            systemImage: "exclamationmark.triangle.fill",
+                            description: Text(viewModel.errorMessage)
+                        )
+                        .padding(.top, 40)
+
                     } else if viewModel.responses.isEmpty {
                         ContentUnavailableView("No Responses Yet",
                                                systemImage: "bubble.left.and.right",
