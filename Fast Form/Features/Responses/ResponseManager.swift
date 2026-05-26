@@ -49,22 +49,27 @@ class ResponseManager: ResponseServiceProtocol {
         }
     }
 
-    func searchForms(query: String) async throws(ResponseServiceError) -> [FormModel] {
+    func searchForms(query: String) async throws(ResponseServiceError) -> [FormModel] { // MARK: - I now that this is not productive large-scaled. But I don't need in this project.
+
         let snapshot: QuerySnapshot
         do {
             snapshot = try await db.collectionGroup("forms")
-                .whereField("title", isGreaterThanOrEqualTo: query)
-                .whereField("title", isLessThanOrEqualTo: query + "\u{f8ff}")
                 .getDocuments()
         } catch {
             throw .databaseError(error.localizedDescription)
         }
         var forms: [FormModel] = []
+        let lowerQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
         for eachDocument in snapshot.documents {
             do {
                 let form = try eachDocument.data(as: FormModel.self)
-                forms.append(form)
+
+                let matchesTitle = form.title.localizedCaseInsensitiveContains(lowerQuery)
+                let matchesExplanation = form.explanation.localizedCaseInsensitiveContains(lowerQuery)
+                if matchesTitle || matchesExplanation {
+                    forms.append(form)
+                }
             } catch {
                 throw .decodingError
             }
