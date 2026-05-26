@@ -18,6 +18,7 @@ struct FormBuilderView: View {
 
     @Environment(\.dismiss) var dismiss
     @Binding var tabSelection: Int
+
     init(formToEdit: FormModel? = nil, tabselection: Binding<Int>) {
         if let incomingForm = formToEdit {
             _item = State(initialValue: incomingForm)
@@ -83,7 +84,6 @@ struct FormBuilderView: View {
                                 selectedQuestion = question
                             }
                     }
-
                     .onMove { source, destination in
                         item.questionList.move(fromOffsets: source, toOffset: destination)
                     }
@@ -102,10 +102,8 @@ struct FormBuilderView: View {
                             item.questionList.append(updatedQuestion)
                         }
                     })
-//                    .presentationDetents([.medium,.large]) // the half of screen or full of screen
-                    .presentationDragIndicator(.visible) // single line to hold above
+                    .presentationDragIndicator(.visible)
                 }
-
                 .navigationTitle("Build & Edit Form")
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -115,11 +113,17 @@ struct FormBuilderView: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            if saveAndReset() {
-                                if tabSelection == 2 {
-                                    tabSelection = 0
-                                } else {
-                                    dismiss()
+                            Task {
+                                // 🎯 Await the async function here
+                                let success = await saveAndReset()
+                                if success {
+                                    await MainActor.run {
+                                        if tabSelection == 2 {
+                                            tabSelection = 0
+                                        } else {
+                                            dismiss()
+                                        }
+                                    }
                                 }
                             }
                         } label: {
@@ -138,7 +142,8 @@ struct FormBuilderView: View {
         }
     }
 
-    func saveAndReset() -> Bool {
+    /// 🎯 Properly marked as async
+    func saveAndReset() async -> Bool {
         for i in 0 ..< item.questionList.count {
             item.questionList[i].options = item.questionList[i].options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         }
@@ -154,11 +159,18 @@ struct FormBuilderView: View {
             return false
         }
 
-        viewModel.save(item: item)
+        do {
+            try await viewModel.save(item: item)
+        } catch {
+            showSaveErrorMessage = "Failed to save form: \(error.localizedDescription)"
+            showSaveError = true
+            return false
+        }
+
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
 
-        DispatchQueue.main.async {
+        await MainActor.run {
             item = FormModel(
                 id: UUID().uuidString,
                 title: "",
@@ -234,12 +246,6 @@ struct FormBuilderView: View {
         )
         .padding(.horizontal)
     }
-
-//    @ViewBuilder
-//    var questionSection: some View {
-//
-//    }
-//
 }
 
 #Preview {

@@ -21,15 +21,12 @@ struct ResponseFormView: View {
                         if viewModel.searchText.isEmpty {
                             welcomeSection
                                 .padding(.top, 40)
-
                         } else if viewModel.results.isEmpty, viewModel.isLoading == false {
                             ContentUnavailableView.search(text: viewModel.searchText)
                                 .padding(.top, 40)
-
                         } else if viewModel.isLoading {
                             ProgressView("Searching forms...")
                                 .padding(.top, 40)
-
                         } else {
                             ForEach(viewModel.results) { form in
                                 NavigationLink(destination: ResponseChoosenFormView(form: form)) {
@@ -45,7 +42,16 @@ struct ResponseFormView: View {
             .navigationTitle("Find Form")
             .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Enter a Form Title...")
             .onChange(of: viewModel.searchText) { _, _ in
-                viewModel.searchForms()
+                // 🎯 Task bridge for async search
+                Task {
+                    do {
+                        try await viewModel.searchForms()
+                    } catch {
+                        // Since this is a search-as-you-type feature,
+                        // you can just log the error or update an error state.
+                        print("Search error: \(error.localizedDescription)")
+                    }
+                }
             }
         }
     }

@@ -10,6 +10,8 @@ import SwiftUI
 struct LoginView: View {
     @State var viewModel = LoginViewViewModel()
 
+    @State private var localErrorMessage: String = ""
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -33,15 +35,46 @@ struct LoginView: View {
                     .scrollDisabled(true)
                     .foregroundColor(.black)
 
-                    if !viewModel.errorMessage.isEmpty {
-                        Text(viewModel.errorMessage)
-                            .foregroundStyle(.red)
-                    } else {
-                        Text("  ")
+                    VStack {
+                        if !localErrorMessage.isEmpty {
+                            HStack(spacing: 10) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+
+                                Text(localErrorMessage)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.red)
+                                    .multilineTextAlignment(.leading)
+
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color.red.opacity(0.1)) // Subtle tint background
+                            .cornerRadius(10)
+                            .transition(.opacity.combined(with: .move(edge: .top))) // Smooth drop-down transition
+                        }
                     }
+                    .frame(height: 60) // 🎯 Locks the vertical space completely to eliminate layout jumps!
+                    .padding(.horizontal, 20)
 
                     BigButtonView(title: "Log In") {
-                        viewModel.login()
+                        Task { @MainActor in
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                localErrorMessage = ""
+                            }
+
+                            do {
+                                try await viewModel.login()
+                            } catch let lerror as AuthServiceError {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    localErrorMessage = lerror.errorDescription ?? "An unexpected error occurred."
+                                }
+                            } catch {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    localErrorMessage = error.localizedDescription
+                                }
+                            }
+                        }
                     }
                     Spacer()
                     VStack(spacing: 5) {

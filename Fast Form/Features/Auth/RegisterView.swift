@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RegisterView: View {
     @State var viewModel = RegisterViewViewModel()
+    @State private var localErrorMessage: String = ""
 
     /// go back to LoginView
     @Environment(\.dismiss) var dismiss
@@ -43,14 +44,31 @@ struct RegisterView: View {
             .foregroundColor(.black)
             .padding(.bottom, -20)
 
-            if !viewModel.errorMessage.isEmpty {
-                Text(viewModel.errorMessage)
-                    .foregroundStyle(.red)
-            } else {
-                Text("  ")
+            VStack {
+                if !localErrorMessage.isEmpty {
+                    Text(localErrorMessage)
+                        .foregroundStyle(.red)
+                        .font(.footnote)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
             }
+            .frame(height: 40)
             BigButtonView(title: "Sign Up") {
-                viewModel.register()
+                Task {
+                    withAnimation { localErrorMessage = "" }
+                    do {
+                        try await viewModel.register()
+                    } catch let lerror as AuthServiceError {
+                        withAnimation {
+                            localErrorMessage = lerror.errorDescription ?? "Registration failed."
+                        }
+                    } catch {
+                        withAnimation {
+                            localErrorMessage = error.localizedDescription
+                        }
+                    }
+                }
             }
 
             Spacer()

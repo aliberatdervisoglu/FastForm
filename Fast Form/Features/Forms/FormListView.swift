@@ -58,7 +58,13 @@ struct FormListView: View {
                     .alert("Delete Form", isPresented: $showingDeleteAlert) {
                         Button("Delete", role: .destructive) {
                             if let id = itemToDelete?.id {
-                                viewModel.deleteForm(id: id)
+                                Task {
+                                    do {
+                                        try await viewModel.deleteForm(id: id)
+                                    } catch {
+                                        print("Failed to delete form: \(error)")
+                                    }
+                                }
                             }
                         }
                         Button("Cancel", role: .cancel) {}

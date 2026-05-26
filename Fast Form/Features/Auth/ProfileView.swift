@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @State var viewModel = ProfileViewViewModel()
+    @State private var localErrorMessage: String = ""
 
     private let userID: String
 
@@ -36,7 +37,15 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile")
             .onAppear {
-                viewModel.fetchUser()
+                Task {
+                    do {
+                        try await viewModel.fetchUser()
+                    } catch let error as AuthServiceError {
+                        localErrorMessage = error.errorDescription ?? "Failed to load profile."
+                    } catch {
+                        localErrorMessage = "An unexpected error occurred."
+                    }
+                }
             }
         }
     }
