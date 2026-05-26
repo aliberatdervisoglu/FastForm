@@ -107,34 +107,34 @@ struct FormBuilderView: View {
                 .navigationTitle("Build & Edit Form")
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        EditButton()
-                            .font(.headline)
-                            .foregroundStyle(.gray)
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            Task {
-                                // 🎯 Await the async function here
-                                let success = await saveAndReset()
-                                if success {
-                                    await MainActor.run {
-                                        if tabSelection == 2 {
-                                            tabSelection = 0
-                                        } else {
-                                            dismiss()
+                        HStack(spacing: 12) {
+                            EditButton()
+                                .font(.headline)
+                                .foregroundStyle(.gray)
+
+                            Button {
+                                Task {
+                                    let success = await saveAndReset()
+                                    if success {
+                                        await MainActor.run {
+                                            if tabSelection == 2 {
+                                                tabSelection = 0
+                                            } else {
+                                                dismiss()
+                                            }
                                         }
                                     }
                                 }
+                            } label: {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(Color(.systemGreen))
                             }
-                        } label: {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.title)
-                                .foregroundStyle(Color(.green))
                         }
                     }
                 }
             }
-            .alert("FormBuilder Error", isPresented: $showSaveError) {
+            .alert("Form Error", isPresented: $showSaveError) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(showSaveErrorMessage)
@@ -142,17 +142,12 @@ struct FormBuilderView: View {
         }
     }
 
-    /// 🎯 Properly marked as async
     func saveAndReset() async -> Bool {
+        // Clear trailing whitespace from all question options
         for i in 0 ..< item.questionList.count {
             item.questionList[i].options = item.questionList[i].options.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         }
 
-        if item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            showSaveErrorMessage = "Please enter a valid title for your form!"
-            showSaveError = true
-            return false
-        }
         guard !item.questionList.isEmpty else {
             showSaveErrorMessage = "Your form must have at least one question!"
             showSaveError = true
@@ -162,7 +157,7 @@ struct FormBuilderView: View {
         do {
             try await viewModel.save(item: item)
         } catch {
-            showSaveErrorMessage = "Failed to save form: \(error.localizedDescription)"
+            showSaveErrorMessage = error.errorDescription
             showSaveError = true
             return false
         }
@@ -205,7 +200,7 @@ struct FormBuilderView: View {
                     .font(.title)
                     .bold()
                     .foregroundStyle(.white.opacity(0.8))
-                TextField("Enter a title...", text: $item.explanation, axis: .vertical)
+                TextField("Enter an explanation...", text: $item.explanation, axis: .vertical)
                     .lineLimit(3, reservesSpace: true)
                     .font(.title2)
                     .bold()

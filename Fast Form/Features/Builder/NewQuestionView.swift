@@ -517,9 +517,10 @@ struct NewQuestionView: View {
     }
 
     func validateQuestion() -> Bool {
-        // to check invalid title
-        guard !question.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            showSaveErrorAlertErrorMessage = "Please enter a valid question title."
+        let trimmedTitle = question.title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard trimmedTitle.count >= 3 else {
+            showSaveErrorAlertErrorMessage = FormServiceError.questionTitleTooShort.errorDescription
             return false
         }
 
