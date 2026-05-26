@@ -16,6 +16,8 @@ class RegisterViewViewModel {
     @MainActor var password: String = ""
     @MainActor var confirmPassword: String = ""
 
+    @MainActor var isAuthenticating = false
+
     private let authService: AuthServiceProtocol
 
     // MARK: - Init
@@ -30,6 +32,8 @@ class RegisterViewViewModel {
     func register() async throws(AuthServiceError) {
         try validate()
 
+        isAuthenticating = true
+        defer { isAuthenticating = false }
         do {
             try await authService.signUp(name: name, email: email, password: password)
         } catch {

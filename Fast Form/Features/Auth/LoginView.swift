@@ -37,25 +37,14 @@ struct LoginView: View {
 
                     VStack {
                         if !localErrorMessage.isEmpty {
-                            HStack(spacing: 10) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.red)
-
-                                Text(localErrorMessage)
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.red)
-                                    .multilineTextAlignment(.leading)
-
-                                Spacer()
-                            }
-                            .padding()
-                            .background(Color.red.opacity(0.1)) // Subtle tint background
-                            .cornerRadius(10)
-                            .transition(.opacity.combined(with: .move(edge: .top))) // Smooth drop-down transition
+                            ErrorBannerView(message: localErrorMessage)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                                .id(localErrorMessage)
                         }
                     }
-                    .frame(height: 60) // 🎯 Locks the vertical space completely to eliminate layout jumps!
+                    .frame(height: 60)
                     .padding(.horizontal, 20)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.75), value: localErrorMessage)
 
                     BigButtonView(title: "Log In") {
                         Task { @MainActor in

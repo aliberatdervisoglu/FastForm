@@ -46,14 +46,15 @@ struct RegisterView: View {
 
             VStack {
                 if !localErrorMessage.isEmpty {
-                    Text(localErrorMessage)
-                        .foregroundStyle(.red)
-                        .font(.footnote)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    ErrorBannerView(message: localErrorMessage)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                        .id(localErrorMessage)
                 }
             }
             .frame(height: 40)
+            .padding(.horizontal, 20)
+            .animation(.spring(response: 0.4, dampingFraction: 0.75), value: localErrorMessage)
+
             BigButtonView(title: "Sign Up") {
                 Task {
                     withAnimation { localErrorMessage = "" }
@@ -70,6 +71,13 @@ struct RegisterView: View {
                     }
                 }
             }
+            .overlay {
+                if viewModel.isAuthenticating {
+                    ProgressView()
+                        .tint(.white)
+                }
+            }
+            .disabled(viewModel.isAuthenticating)
 
             Spacer()
 
