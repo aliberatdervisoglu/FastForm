@@ -59,6 +59,7 @@ class SettingsViewViewModel {
 
     @MainActor
     func logOut() throws(AuthServiceError) {
+        isLoading = true
         try authService.signOut()
     }
 

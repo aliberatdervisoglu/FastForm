@@ -76,6 +76,13 @@ struct LoginView: View {
                             }
                         }
                     }
+                    .overlay {
+                        if viewModel.isAuthenticating {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                    }
+                    .disabled(viewModel.isAuthenticating)
                     Spacer()
                     VStack(spacing: 5) {
                         Text("Are you new here?")

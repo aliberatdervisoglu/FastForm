@@ -98,7 +98,7 @@ class AuthManager: AuthServiceProtocol {
         let listener = Auth.auth().addStateDidChangeListener { _, user in
             handler(user?.uid)
         }
-        return AnyAbortable {
+        return AnyAbortable { [listener] in
             Auth.auth().removeStateDidChangeListener(listener)
         }
     }

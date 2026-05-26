@@ -60,7 +60,9 @@ struct SettingsView: View {
                         }
                         .alert("You are logging out...", isPresented: $logOutConfirmation) {
                             Button("Log Out", role: .destructive) {
-                                try? viewModel.logOut() // logOut is sync based on your VM
+                                withAnimation {
+                                    try? viewModel.logOut()
+                                }
                             }
                             Button("Cancel", role: .cancel) {}
                         } message: {
@@ -83,6 +85,21 @@ struct SettingsView: View {
                 .padding(.top, 22)
             }
             .navigationTitle("Settings")
+            .overlay {
+                if viewModel.isLoading {
+                    ZStack {
+                        Color.black.opacity(0.2).ignoresSafeArea()
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .padding(25)
+                            .background(Color(uiColor: .secondarySystemGroupedBackground))
+                            .cornerRadius(15)
+                            .shadow(radius: 10)
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .disabled(viewModel.isLoading)
             .alert("Are you absolutely sure", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {
                     Task {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 @Observable
 class MainViewViewModel {
@@ -14,11 +15,6 @@ class MainViewViewModel {
     @MainActor var currentUserID: String = ""
     @MainActor var selectedTabBarItem: Int = 0
     @MainActor var isLoading = true
-
-    @MainActor
-    var isSignedIn: Bool {
-        authService.isSignedIn
-    }
 
     private var authAbortable: Abortable?
     private let authService: AuthServiceProtocol
@@ -29,9 +25,12 @@ class MainViewViewModel {
         self.authService = authService
 
         authAbortable = authService.observeAuthState { [weak self] uid in
-            guard let self else { return }
-            currentUserID = uid ?? ""
-            isLoading = false
+            Task { @MainActor in
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                    self?.currentUserID = uid ?? ""
+                    self?.isLoading = false
+                }
+            }
         }
     }
 

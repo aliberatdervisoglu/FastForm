@@ -24,10 +24,13 @@ struct MainView: View {
         Group {
             if viewModel.isLoading {
                 LoadingPlaygroundView()
-            } else if viewModel.isSignedIn, !viewModel.currentUserID.isEmpty {
+                    .transition(.opacity)
+            } else if !viewModel.currentUserID.isEmpty {
                 mainTabView
+                    .transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
                 LoginView()
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 1.5), value: viewModel.isLoading)

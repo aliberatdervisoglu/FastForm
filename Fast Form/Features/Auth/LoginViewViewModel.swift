@@ -13,6 +13,7 @@ class LoginViewViewModel {
 
     @MainActor var email: String = ""
     @MainActor var password: String = ""
+    @MainActor var isAuthenticating = false
 
     private let authService: AuthServiceProtocol
 
@@ -28,10 +29,12 @@ class LoginViewViewModel {
     func login() async throws(AuthServiceError) {
         try validate()
 
+        isAuthenticating = true
+        defer { isAuthenticating = false }
         do {
             try await authService.signIn(email: email, password: password)
         } catch {
-            throw error
+            throw .ivalidEmailOrPassword
         }
     }
 
