@@ -17,6 +17,10 @@ struct FormListView: View {
         _viewModel = State(wrappedValue: FormListViewViewModel(userId: userId))
     }
 
+    init(viewModel: FormListViewViewModel) {
+        _viewModel = State(wrappedValue: viewModel)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -83,5 +87,10 @@ struct FormListView: View {
 }
 
 #Preview {
-    FormListView(userId: "UiJ9L9CvhXgDUa19COge2C7y2RB3")
+    FormListView(
+        viewModel: FormListViewViewModel(
+            userId: "preview_user_123",
+            formService: MockFormManager()
+        )
+    )
 }
