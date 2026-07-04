@@ -1,9 +1,3 @@
-//
-//  MainViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import Foundation
 import SwiftUI
@@ -18,12 +12,12 @@ class MainViewViewModel {
     var isLoading = true
 
     nonisolated private var authAbortable: Abortable?
-    private let authService: AuthServiceProtocol
+    private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol? = nil) {
-        self.authService = authService ?? AuthManager()
+    init(authService: AuthManager? = nil) {
+        self.authService = authService ?? AuthManagerImpl()
 
         authAbortable = self.authService.observeAuthState { [weak self] uid in
             Task {

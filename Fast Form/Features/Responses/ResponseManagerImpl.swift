@@ -1,9 +1,3 @@
-//
-//  ResponseManager.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 12.05.2026.
-//
 
 import FirebaseFirestore
 import Foundation

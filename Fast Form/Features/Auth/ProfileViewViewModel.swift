@@ -1,9 +1,3 @@
-//
-//  ProfileViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import Foundation
 
@@ -13,20 +7,20 @@ class ProfileViewViewModel {
 
     @MainActor var user: User?
 
-    private let authService: AuthServiceProtocol
+    private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol = AuthManager()) {
+    init(authService: AuthManager = AuthManagerImpl()) {
         self.authService = authService
     }
 
     // MARK: - Public Functions
 
     @MainActor
-    func fetchUser() async throws(AuthServiceError) {
+    func fetchUser() async throws(AuthManagerError) {
         guard let userId = authService.currentUser?.id else {
-            throw AuthServiceError.unknown("Local user ID is missing")
+            throw AuthManagerError.unknown("Local user ID is missing")
         }
         do {
             user = try await authService.fetchUserData(userId: userId)
@@ -36,7 +30,7 @@ class ProfileViewViewModel {
     }
 
     @MainActor
-    func logOut() throws(AuthServiceError) {
+    func logOut() throws(AuthManagerError) {
         try authService.signOut()
     }
 }

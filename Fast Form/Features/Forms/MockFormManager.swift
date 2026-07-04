@@ -1,9 +1,3 @@
-//
-//  MockFormManager.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.06.2026.
-//
 
 import Foundation
 

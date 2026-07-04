@@ -1,9 +1,3 @@
-//
-//  FormResponsesListViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 21.03.2026.
-//
 
 import Foundation
 

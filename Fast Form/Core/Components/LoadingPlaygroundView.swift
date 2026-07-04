@@ -1,9 +1,3 @@
-//
-//  LoadingPlaygroundView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 11.03.2026.
-//
 
 import SwiftUI
 

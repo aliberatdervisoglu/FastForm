@@ -1,9 +1,3 @@
-//
-//  ResponseChoosenFormViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.03.2026.
-//
 
 import Foundation
 
