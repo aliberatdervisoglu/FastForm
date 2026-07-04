@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 struct MainView: View {
     @State private var draftForm: FormModel = .init(
         id: UUID().uuidString,
@@ -18,7 +19,7 @@ struct MainView: View {
         isAnonymus: false
     )
 
-    @State var viewModel = MainViewViewModel()
+    @State var viewModel: MainViewViewModel
     @State private var selectedTab: Int = 0
     var body: some View {
         Group {
@@ -74,5 +75,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView()
+    MainView(viewModel: MainViewViewModel())
 }

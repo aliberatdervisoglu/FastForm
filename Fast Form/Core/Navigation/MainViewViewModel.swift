@@ -8,24 +8,25 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 @Observable
 class MainViewViewModel {
     // MARK: - Properties
 
-    @MainActor var currentUserID: String = ""
-    @MainActor var selectedTabBarItem: Int = 0
-    @MainActor var isLoading = true
+    var currentUserID: String = ""
+    var selectedTabBarItem: Int = 0
+    var isLoading = true
 
-    private var authAbortable: Abortable?
+    nonisolated private var authAbortable: Abortable?
     private let authService: AuthServiceProtocol
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol = AuthManager()) {
-        self.authService = authService
+    init(authService: AuthServiceProtocol? = nil) {
+        self.authService = authService ?? AuthManager()
 
-        authAbortable = authService.observeAuthState { [weak self] uid in
-            Task { @MainActor in
+        authAbortable = self.authService.observeAuthState { [weak self] uid in
+            Task {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                     self?.currentUserID = uid ?? ""
                     self?.isLoading = false
@@ -37,6 +38,9 @@ class MainViewViewModel {
     // MARK: - Lifecycle
 
     deinit {
-        authAbortable?.cancel()
+        let abortable = authAbortable
+        Task { @MainActor in
+            abortable?.cancel()
+        }
     }
 }
