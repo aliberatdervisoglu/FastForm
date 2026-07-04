@@ -1,7 +1,7 @@
 
 import Foundation
 
-class MockFormManager: FormManager {
+final class MockFormManagerImpl: FormManager {
     private var mockForms: [FormModel] = [
         FormModel(
             id: UUID().uuidString,

@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class ResponseChoosenFormViewViewModel {
+final class ResponseChoosenFormViewViewModel {
     // MARK: - Properties
 
     @MainActor var isLoading: Bool = false

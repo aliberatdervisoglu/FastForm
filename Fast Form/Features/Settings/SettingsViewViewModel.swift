@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class SettingsViewViewModel {
+final class SettingsViewViewModel {
     // MARK: - Properties
 
     @MainActor var isLoading = false

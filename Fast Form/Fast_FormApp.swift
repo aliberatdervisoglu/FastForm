@@ -3,7 +3,7 @@ import FirebaseCore
 import FirebaseFirestore
 import SwiftUI
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_: UIApplication,
                      didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool
     {

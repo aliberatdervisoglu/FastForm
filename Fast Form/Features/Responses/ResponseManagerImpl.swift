@@ -2,7 +2,7 @@
 import FirebaseFirestore
 import Foundation
 
-class ResponseManagerImpl: ResponseManager {
+final class ResponseManagerImpl: ResponseManager {
     // MARK: - Properties
 
     private let db = Firestore.firestore()

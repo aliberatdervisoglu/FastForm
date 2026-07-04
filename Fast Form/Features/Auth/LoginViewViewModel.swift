@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class LoginViewViewModel {
+final class LoginViewViewModel {
     // MARK: - Properties
 
     @MainActor var email: String = ""

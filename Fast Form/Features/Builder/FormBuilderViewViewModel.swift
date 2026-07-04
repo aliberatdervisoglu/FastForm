@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class FormBuilderViewViewModel {
+final class FormBuilderViewViewModel {
     // MARK: - Properties
 
     @MainActor var showNewQuestionSheet: Bool = false

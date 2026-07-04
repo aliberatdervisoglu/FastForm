@@ -3,7 +3,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import Foundation
 
-class AuthManagerImpl: AuthManager {
+final class AuthManagerImpl: AuthManager {
     // MARK: - Properties
 
     private let db = Firestore.firestore()

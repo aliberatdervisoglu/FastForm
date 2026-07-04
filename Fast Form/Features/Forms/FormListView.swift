@@ -85,7 +85,7 @@ struct FormListView: View {
     FormListView(
         viewModel: FormListViewViewModel(
             userId: "preview_user_123",
-            formService: MockFormManager()
+            formService: MockFormManagerImpl()
         )
     )
 }

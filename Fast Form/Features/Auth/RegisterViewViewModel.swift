@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class RegisterViewViewModel {
+final class RegisterViewViewModel {
     // MARK: - Properties
 
     @MainActor var name: String = ""

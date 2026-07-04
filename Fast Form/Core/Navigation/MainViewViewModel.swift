@@ -4,7 +4,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-class MainViewViewModel {
+final class MainViewViewModel {
     // MARK: - Properties
 
     var currentUserID: String = ""

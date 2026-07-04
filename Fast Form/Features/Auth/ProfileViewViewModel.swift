@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class ProfileViewViewModel {
+final class ProfileViewViewModel {
     // MARK: - Properties
 
     @MainActor var user: User?

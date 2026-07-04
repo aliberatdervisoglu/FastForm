@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class FormResponsesListViewViewModel {
+final class FormResponsesListViewViewModel {
     // MARK: - Properties
 
     @MainActor var responses: [FormResponse] = []

@@ -2,7 +2,7 @@
 import Foundation
 
 @Observable
-class ResponseFormViewViewModel {
+final class ResponseFormViewViewModel {
     // MARK: - Properties
 
     @MainActor var searchText: String = ""

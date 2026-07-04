@@ -11,7 +11,7 @@ enum FormSortOption: String, CaseIterable {
 }
 
 @Observable
-class FormListViewViewModel {
+final class FormListViewViewModel {
     // MARK: - Properties
 
     @MainActor var formitems: [FormModel] = []
