@@ -7,7 +7,7 @@
 
 import Foundation
 
-class MockFormManager: FormServiceProtocol {
+class MockFormManager: FormManager {
     private var mockForms: [FormModel] = [
         FormModel(
             id: UUID().uuidString,
@@ -36,7 +36,7 @@ class MockFormManager: FormServiceProtocol {
 
     // MARK: - Mocked Functions
 
-    func observeForms(userId _: String, completion: @escaping (Result<[FormModel], FormServiceError>) -> Void) -> Abortable {
+    func observeForms(userId _: String, completion: @escaping (Result<[FormModel], FormManagerError>) -> Void) -> Abortable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             completion(.success(self.mockForms))
         }
@@ -46,14 +46,14 @@ class MockFormManager: FormServiceProtocol {
         }
     }
 
-    func deleteForm(userId _: String, formId: String) async throws(FormServiceError) {
+    func deleteForm(userId _: String, formId: String) async throws(FormManagerError) {
         try? await Task.sleep(nanoseconds: 500_000_000)
 
         mockForms.removeAll { $0.id == formId }
         print("🗑️ Mock: Successfully deleted form \(formId)")
     }
 
-    func saveForm(form: FormModel) async throws(FormServiceError) {
+    func saveForm(form: FormModel) async throws(FormManagerError) {
         try? await Task.sleep(nanoseconds: 500_000_000)
 
         var newForm = form

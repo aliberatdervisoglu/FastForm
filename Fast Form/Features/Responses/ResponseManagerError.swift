@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ResponseServiceError: Error, Equatable {
+enum ResponseManagerError: Error, Equatable {
     case invalidParameters
     case databaseError(String)
     case decodingError

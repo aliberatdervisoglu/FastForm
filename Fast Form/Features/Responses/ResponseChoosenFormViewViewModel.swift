@@ -13,19 +13,19 @@ class ResponseChoosenFormViewViewModel {
 
     @MainActor var isLoading: Bool = false
 
-    private let responseService: ResponseServiceProtocol
-    private let authService: AuthServiceProtocol
+    private let responseService: ResponseManager
+    private let authService: AuthManager
 
     // MARK: - Init
 
-    init(responseService: ResponseServiceProtocol = ResponseManager(), authService: AuthServiceProtocol = AuthManager()) {
+    init(responseService: ResponseManager = ResponseManagerImpl(), authService: AuthManager = AuthManagerImpl()) {
         self.responseService = responseService
         self.authService = authService
     }
 
     // MARK: - Public Functions
 
-    func validateAnswers(form: FormModel, answers: [String: Answer]) throws(ResponseServiceError) {
+    func validateAnswers(form: FormModel, answers: [String: Answer]) throws(ResponseManagerError) {
         for question in form.questionList {
             let answer = answers[question.id]
 
@@ -64,7 +64,7 @@ class ResponseChoosenFormViewViewModel {
     }
 
     @MainActor
-    func submitForm(form: FormModel, answers: [String: Answer]) async throws(ResponseServiceError) {
+    func submitForm(form: FormModel, answers: [String: Answer]) async throws(ResponseManagerError) {
         try validateAnswers(form: form, answers: answers)
         isLoading = true
 

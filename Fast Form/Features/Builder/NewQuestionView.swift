@@ -520,7 +520,7 @@ struct NewQuestionView: View {
         let trimmedTitle = question.title.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard trimmedTitle.count >= 3 else {
-            showSaveErrorAlertErrorMessage = FormServiceError.questionTitleTooShort.errorDescription
+            showSaveErrorAlertErrorMessage = FormManagerError.questionTitleTooShort.errorDescription
             return false
         }
 

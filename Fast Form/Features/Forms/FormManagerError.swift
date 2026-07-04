@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum FormServiceError: Error, Equatable {
+enum FormManagerError: Error, Equatable {
     case userNotFound
     case databaseError(String)
     case decodingError

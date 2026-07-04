@@ -60,7 +60,7 @@ struct RegisterView: View {
                     withAnimation { localErrorMessage = "" }
                     do {
                         try await viewModel.register()
-                    } catch let lerror as AuthServiceError {
+                    } catch let lerror as AuthManagerError {
                         withAnimation {
                             localErrorMessage = lerror.errorDescription ?? "Registration failed."
                         }

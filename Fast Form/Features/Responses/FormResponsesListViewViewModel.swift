@@ -15,12 +15,12 @@ class FormResponsesListViewViewModel {
     @MainActor var isLoading = false
     @MainActor var errorMessage: String = ""
 
-    private let responseService: ResponseServiceProtocol
+    private let responseService: ResponseManager
     private var responseAbortable: Abortable?
 
     // MARK: - Init
 
-    init(responseService: ResponseServiceProtocol = ResponseManager()) {
+    init(responseService: ResponseManager = ResponseManagerImpl()) {
         self.responseService = responseService
     }
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AuthServiceError: Error, Equatable {
+enum AuthManagerError: Error, Equatable {
     case userNotFound
     case requiresRecentLogin
     case ivalidEmailOrPassword

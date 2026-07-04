@@ -54,7 +54,7 @@ struct LoginView: View {
 
                             do {
                                 try await viewModel.login()
-                            } catch let lerror as AuthServiceError {
+                            } catch let lerror as AuthManagerError {
                                 withAnimation(.easeInOut(duration: 0.25)) {
                                     localErrorMessage = lerror.errorDescription ?? "An unexpected error occurred."
                                 }

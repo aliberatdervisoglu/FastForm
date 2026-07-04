@@ -14,18 +14,18 @@ class FormBuilderViewViewModel {
     @MainActor var showNewQuestionSheet: Bool = false
     @MainActor var title: String = ""
 
-    private let formService: FormServiceProtocol
+    private let formService: FormManager
 
     // MARK: - Init
 
-    init(formService: FormServiceProtocol = FormManager()) {
+    init(formService: FormManager = FormManagerImpl()) {
         self.formService = formService
     }
 
     // MARK: - Public Functions
 
     @MainActor
-    func save(item: FormModel) async throws(FormServiceError) {
+    func save(item: FormModel) async throws(FormManagerError) {
         try validateFormMetadata(item)
 
         do {
@@ -41,7 +41,7 @@ class FormBuilderViewViewModel {
 
     // MARK: - Private Validation Ranks
 
-    private func validateFormMetadata(_ item: FormModel) throws(FormServiceError) {
+    private func validateFormMetadata(_ item: FormModel) throws(FormManagerError) {
         let trimmedTitle = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedTitle.isEmpty else {
