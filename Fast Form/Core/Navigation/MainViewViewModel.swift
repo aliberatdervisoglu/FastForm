@@ -11,7 +11,7 @@ final class MainViewViewModel {
     var selectedTabBarItem: Int = 0
     var isLoading = true
 
-    nonisolated private var authAbortable: Abortable?
+    nonisolated private var authTask: Task<Void, Never>?
     private let authService: AuthManager
 
     // MARK: - Init
@@ -19,22 +19,25 @@ final class MainViewViewModel {
     init(authService: AuthManager? = nil) {
         self.authService = authService ?? AuthManagerImpl()
 
-        authAbortable = self.authService.observeAuthState { [weak self] uid in
-            Task {
+        self.listenToAuthState()
+    }
+
+    // MARK: - Private Functions
+    
+    private func listenToAuthState() {
+        authTask?.cancel()
+        authTask = Task {
+            for await uid in authService.observeAuthState() {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                    self?.currentUserID = uid ?? ""
-                    self?.isLoading = false
+                    self.currentUserID = uid ?? ""
+                    self.isLoading = false
                 }
             }
         }
     }
-
     // MARK: - Lifecycle
 
     deinit {
-        let abortable = authAbortable
-        Task { @MainActor in
-            abortable?.cancel()
-        }
+        authTask?.cancel()
     }
 }

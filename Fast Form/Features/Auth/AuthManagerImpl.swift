@@ -89,12 +89,14 @@ final class AuthManagerImpl: AuthManager {
     }
 
     /// ***** Should I use AsynStream instead of this closures
-    func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable {
-        let listener = Auth.auth().addStateDidChangeListener { _, user in
-            handler(user?.uid)
-        }
-        return AnyAbortable { [listener] in
-            Auth.auth().removeStateDidChangeListener(listener)
+    func observeAuthState() -> AsyncStream<String?> {
+        return AsyncStream { continuation in
+            let listener = Auth.auth().addStateDidChangeListener { _, user in
+                continuation.yield(user?.uid)
+            }
+            continuation.onTermination = { _ in
+                Auth.auth().removeStateDidChangeListener(listener)
+            }
         }
     }
 
