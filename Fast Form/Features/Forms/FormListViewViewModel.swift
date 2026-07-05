@@ -10,19 +10,19 @@ enum FormSortOption: String, CaseIterable {
     case zToA = "Z - A"
 }
 
+@MainActor
 @Observable
 final class FormListViewViewModel {
     // MARK: - Properties
 
-    @MainActor var formitems: [FormModel] = []
-    @MainActor var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
-    @MainActor var errorMessage: String = ""
+    var formitems: [FormModel] = []
+    var sortOption: FormSortOption = .newest //  it is published an if it is changed, all modules run again like 'sortedForms'
+    var errorMessage: String = ""
 
     private let userId: String
     private var formService: FormManager
-    private var formAbortable: Abortable?
+    nonisolated private var formTask: Task<Void, Error>?
 
-    @MainActor
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
         switch sortOption {
         case .newest:
@@ -38,41 +38,39 @@ final class FormListViewViewModel {
 
     // MARK: - Init
 
-    init(userId: String, formService: FormManager = FormManagerImpl()) {
+    init(userId: String, formService: FormManager? = nil) {
+        self.formService = formService ?? FormManagerImpl()
         self.userId = userId
-        self.formService = formService
     }
 
     // MARK: - Public Functions
 
-    @MainActor
+    
     func fetchForms() {
-        formAbortable?.cancel()
+        formTask?.cancel() // Eski dinlemeyi iptal et (Savunmacı programlama)
         errorMessage = ""
 
-        formAbortable = formService.observeForms(userId: userId) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case let .success(forms):
-                formitems = forms
-            case let .failure(error):
-                errorMessage = error.errorDescription
+        formTask = Task {
+            do {
+                for try await forms in formService.observeForms(userId: userId) {
+                    self.formitems = forms
+                }
+            } catch let error as FormManagerError {
+                self.errorMessage = error.errorDescription
+            } catch {
+                self.errorMessage = error.localizedDescription
             }
         }
     }
 
-    @MainActor
+    
     func deleteForm(id: String) async throws(FormManagerError) {
-        do {
-            try await formService.deleteForm(userId: userId, formId: id)
-        } catch {
-            throw error
-        }
+        try await formService.deleteForm(userId: userId, formId: id)
     }
 
     // MARK: - Lifecycle
 
     deinit {
-        formAbortable?.cancel()
+        formTask?.cancel()
     }
 }

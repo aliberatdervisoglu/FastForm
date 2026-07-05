@@ -30,13 +30,15 @@ final class MockFormManagerImpl: FormManager {
 
     // MARK: - Mocked Functions
 
-    func observeForms(userId _: String, completion: @escaping (Result<[FormModel], FormManagerError>) -> Void) -> Abortable {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            completion(.success(self.mockForms))
-        }
-
-        return AnyAbortable {
-            print("Mock Listener removed")
+    func observeForms(userId _: String) -> AsyncThrowingStream<[FormModel],Error> {
+        return AsyncThrowingStream([FormModel].self) { continuation in
+            Task {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                continuation.yield(self.mockForms)
+            }
+            continuation.onTermination = { _ in
+            print("🛑 Mock Listener removed")
+            }
         }
     }
 

@@ -88,7 +88,6 @@ final class AuthManagerImpl: AuthManager {
         }
     }
 
-    /// ***** Should I use AsynStream instead of this closures
     func observeAuthState() -> AsyncStream<String?> {
         return AsyncStream { continuation in
             let listener = Auth.auth().addStateDidChangeListener { _, user in
