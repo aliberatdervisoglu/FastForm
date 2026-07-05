@@ -8,7 +8,7 @@ final class AuthManagerImpl: AuthManager {
 
     private let db = Firestore.firestore()
 
-    var currentUser: User? {
+    @MainActor var currentUser: User? {
         guard let firebaseUser = Auth.auth().currentUser else {
             return nil
         }
@@ -21,7 +21,7 @@ final class AuthManagerImpl: AuthManager {
         )
     }
 
-    var isSignedIn: Bool {
+    @MainActor var isSignedIn: Bool {
         Auth.auth().currentUser != nil
     }
 
@@ -79,6 +79,7 @@ final class AuthManagerImpl: AuthManager {
         }
     }
 
+    @MainActor
     func signOut() throws(AuthManagerError) {
         do {
             try Auth.auth().signOut()
