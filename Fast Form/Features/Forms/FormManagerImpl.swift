@@ -8,7 +8,7 @@ final class FormManagerImpl: FormManager {
     private var db: Firestore {
         Firestore.firestore()
     }
-    
+
     private let authService: AuthManager
 
     // MARK: - Initalizer

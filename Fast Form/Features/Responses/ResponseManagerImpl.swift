@@ -8,6 +8,7 @@ final class ResponseManagerImpl: ResponseManager {
     private var db: Firestore {
         Firestore.firestore()
     }
+
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     func observeResponse(ownerId: String, formId: String) -> AsyncThrowingStream<[FormResponse], Error> {
