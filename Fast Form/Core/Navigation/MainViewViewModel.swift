@@ -11,7 +11,7 @@ final class MainViewViewModel {
     var selectedTabBarItem: Int = 0
     var isLoading = true
 
-    nonisolated private var authTask: Task<Void, Never>?
+    private var authTask: Task<Void, Never>?
     private let authService: AuthManager
 
     // MARK: - Init
@@ -19,11 +19,11 @@ final class MainViewViewModel {
     init(authService: AuthManager? = nil) {
         self.authService = authService ?? AuthManagerImpl()
 
-        self.listenToAuthState()
+        listenToAuthState()
     }
 
     // MARK: - Private Functions
-    
+
     private func listenToAuthState() {
         authTask?.cancel()
         authTask = Task {
@@ -35,9 +35,9 @@ final class MainViewViewModel {
             }
         }
     }
-    // MARK: - Lifecycle
 
-    deinit {
+    func cancelListening() {
         authTask?.cancel()
+        authTask = nil
     }
 }

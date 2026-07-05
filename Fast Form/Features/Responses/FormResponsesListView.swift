@@ -43,6 +43,9 @@ struct FormResponsesListView: View {
         .onAppear {
             viewModel.fetchResponses(ownerId: form.ownerId, formId: form.id)
         }
+        .onDisappear {
+            viewModel.cancelListening()
+        }
     }
 
     private func responseCard(index: Int, response: FormResponse) -> some View {

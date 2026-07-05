@@ -21,7 +21,7 @@ final class FormListViewViewModel {
 
     private let userId: String
     private var formService: FormManager
-    nonisolated private var formTask: Task<Void, Never>?
+    private var formTask: Task<Void, Never>?
 
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
         switch sortOption {
@@ -45,7 +45,6 @@ final class FormListViewViewModel {
 
     // MARK: - Public Functions
 
-    
     func fetchForms() {
         formTask?.cancel() // Eski dinlemeyi iptal et (Savunmacı programlama)
         errorMessage = ""
@@ -63,14 +62,12 @@ final class FormListViewViewModel {
         }
     }
 
-    
     func deleteForm(id: String) async throws(FormManagerError) {
         try await formService.deleteForm(userId: userId, formId: id)
     }
 
-    // MARK: - Lifecycle
-
-    deinit {
+    func cancelListening() {
         formTask?.cancel()
+        formTask = nil
     }
 }

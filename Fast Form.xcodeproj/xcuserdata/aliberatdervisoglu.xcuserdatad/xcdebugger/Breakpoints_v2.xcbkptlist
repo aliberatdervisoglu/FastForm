@@ -3,4 +3,38 @@
    uuid = "040359D0-053C-4704-B09E-26136EE7E94D"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F155EC9D-A2E5-43D5-8F97-2A352D078A71"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../../../var/folders/nz/n05_ypx10m1_d59r26j_1hp40000gn/T/swift-generated-sources/@__swiftmacro_9Fast_Form08MainViewD5ModelC8authTask33_199C00649BF53DFF1CC510C00B035F15LL18ObservationTrackedfMp_.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1"
+            endingLineNumber = "1"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "35EFD5D2-1323-44EF-8781-9E761143E1B0"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../../../var/folders/nz/n05_ypx10m1_d59r26j_1hp40000gn/T/swift-generated-sources/@__swiftmacro_9Fast_Form0b17ResponsesListViewE5ModelC12responseTask33_234F885F69DA69C9F198277C6FCEA9B8LL18ObservationTrackedfMp_.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1"
+            endingLineNumber = "1"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

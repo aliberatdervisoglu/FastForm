@@ -15,7 +15,7 @@ protocol AuthManager {
     func signUp(name: String, email: String, password: String) async throws(AuthManagerError)
 
     func observeAuthState() -> AsyncStream<String?>
-    
+
     func fetchUserData(userId: String) async throws(AuthManagerError) -> User
 
     func signOut() throws(AuthManagerError)

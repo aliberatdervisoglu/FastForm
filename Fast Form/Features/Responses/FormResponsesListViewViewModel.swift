@@ -11,7 +11,7 @@ final class FormResponsesListViewViewModel {
     var errorMessage: String = ""
 
     private let responseService: ResponseManager
-    nonisolated private var responseTask: Task<Void, Never>?
+    private var responseTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -46,9 +46,8 @@ final class FormResponsesListViewViewModel {
         }
     }
 
-    // MARK: - Lifecycle
-    
-    deinit {
+    func cancelListening() {
         responseTask?.cancel()
+        responseTask = nil
     }
 }

@@ -5,8 +5,10 @@ import Foundation
 final class FormManagerImpl: FormManager {
     // MARK: - Properties
 
-    private let db = Firestore.firestore()
-
+    private var db: Firestore {
+        Firestore.firestore()
+    }
+    
     private let authService: AuthManager
 
     // MARK: - Initalizer
@@ -18,7 +20,7 @@ final class FormManagerImpl: FormManager {
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     func observeForms(userId: String) -> AsyncThrowingStream<[FormModel], Error> {
-        return AsyncThrowingStream([FormModel].self) { continuation in
+        AsyncThrowingStream([FormModel].self) { continuation in
             let listener = db.collection("users")
                 .document(userId)
                 .collection("forms")
@@ -27,9 +29,9 @@ final class FormManagerImpl: FormManager {
                         continuation.finish(throwing: FormManagerError.databaseError(error.localizedDescription))
                         return
                     }
-                    
+
                     let snapshoDocuments = snapshot?.documents ?? []
-                    
+
                     let forms: [FormModel] = snapshoDocuments.compactMap { doc in
                         try? doc.data(as: FormModel.self)
                     }

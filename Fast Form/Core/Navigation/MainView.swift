@@ -64,6 +64,9 @@ struct MainView: View {
         .onAppear {
             selectedTab = 0
         }
+        .onDisappear {
+            viewModel.cancelListening()
+        }
         .tint(Color("BrandGradientStart"))
     }
 }

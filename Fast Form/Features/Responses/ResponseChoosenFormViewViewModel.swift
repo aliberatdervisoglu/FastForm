@@ -1,7 +1,7 @@
 
 import Foundation
 
-@MainActor 
+@MainActor
 @Observable
 final class ResponseChoosenFormViewViewModel {
     // MARK: - Properties
@@ -13,7 +13,7 @@ final class ResponseChoosenFormViewViewModel {
 
     // MARK: - Init
 
-    init(responseService: ResponseManager? = nil , authService: AuthManager? = nil) {
+    init(responseService: ResponseManager? = nil, authService: AuthManager? = nil) {
         self.responseService = responseService ?? ResponseManagerImpl()
         self.authService = authService ?? AuthManagerImpl()
     }

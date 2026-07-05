@@ -5,12 +5,13 @@ import Foundation
 final class ResponseManagerImpl: ResponseManager {
     // MARK: - Properties
 
-    private let db = Firestore.firestore()
-
+    private var db: Firestore {
+        Firestore.firestore()
+    }
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
     func observeResponse(ownerId: String, formId: String) -> AsyncThrowingStream<[FormResponse], Error> {
-        return AsyncThrowingStream([FormResponse].self) { continuation in
+        AsyncThrowingStream([FormResponse].self) { continuation in
             guard !ownerId.isEmpty, !formId.isEmpty else {
                 continuation.finish(throwing: ResponseManagerError.invalidParameters)
                 return
@@ -25,7 +26,7 @@ final class ResponseManagerImpl: ResponseManager {
                         return
                     }
                     let snapshotDocuments = snapshot?.documents ?? []
-                                    
+
                     let responses = snapshotDocuments.compactMap { doc in
                         try? doc.data(as: FormResponse.self)
                     }

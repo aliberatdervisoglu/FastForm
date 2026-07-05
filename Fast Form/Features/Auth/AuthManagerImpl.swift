@@ -6,7 +6,9 @@ import Foundation
 final class AuthManagerImpl: AuthManager {
     // MARK: - Properties
 
-    private let db = Firestore.firestore()
+    private var db: Firestore {
+        Firestore.firestore()
+    }
 
     @MainActor var currentUser: User? {
         guard let firebaseUser = Auth.auth().currentUser else {
@@ -89,7 +91,7 @@ final class AuthManagerImpl: AuthManager {
     }
 
     func observeAuthState() -> AsyncStream<String?> {
-        return AsyncStream { continuation in
+        AsyncStream { continuation in
             let listener = Auth.auth().addStateDidChangeListener { _, user in
                 continuation.yield(user?.uid)
             }
