@@ -13,8 +13,8 @@ final class ResponseFormViewViewModel {
 
     // MARK: - Init
 
-    init(responseService: ResponseManager = ResponseManagerImpl()) {
-        self.responseService = responseService
+    init(responseService: ResponseManager? = nil) {
+        self.responseService = responseService ?? ResponseManagerImpl()
     }
 
     // MARK: - Public Functions

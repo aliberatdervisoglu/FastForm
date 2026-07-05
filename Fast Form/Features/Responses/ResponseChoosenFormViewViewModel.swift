@@ -1,20 +1,21 @@
 
 import Foundation
 
+@MainActor 
 @Observable
 final class ResponseChoosenFormViewViewModel {
     // MARK: - Properties
 
-    @MainActor var isLoading: Bool = false
+    var isLoading: Bool = false
 
     private let responseService: ResponseManager
     private let authService: AuthManager
 
     // MARK: - Init
 
-    init(responseService: ResponseManager = ResponseManagerImpl(), authService: AuthManager = AuthManagerImpl()) {
-        self.responseService = responseService
-        self.authService = authService
+    init(responseService: ResponseManager? = nil , authService: AuthManager? = nil) {
+        self.responseService = responseService ?? ResponseManagerImpl()
+        self.authService = authService ?? AuthManagerImpl()
     }
 
     // MARK: - Public Functions
@@ -57,7 +58,6 @@ final class ResponseChoosenFormViewViewModel {
         }
     }
 
-    @MainActor
     func submitForm(form: FormModel, answers: [String: Answer]) async throws(ResponseManagerError) {
         try validateAnswers(form: form, answers: answers)
         isLoading = true

@@ -1,25 +1,25 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class LoginViewViewModel {
     // MARK: - Properties
 
-    @MainActor var email: String = ""
-    @MainActor var password: String = ""
-    @MainActor var isAuthenticating = false
+    var email: String = ""
+    var password: String = ""
+    var isAuthenticating = false
 
     private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthManager = AuthManagerImpl()) {
-        self.authService = authService
+    init(authService: AuthManager? = nil) {
+        self.authService = authService ?? AuthManagerImpl()
     }
 
     // MARK: - Public Functions
 
-    @MainActor
     func login() async throws(AuthManagerError) {
         try validate()
 

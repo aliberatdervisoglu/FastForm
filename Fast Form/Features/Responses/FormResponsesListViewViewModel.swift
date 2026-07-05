@@ -1,26 +1,26 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class FormResponsesListViewViewModel {
     // MARK: - Properties
 
-    @MainActor var responses: [FormResponse] = []
-    @MainActor var isLoading = false
-    @MainActor var errorMessage: String = ""
+    var responses: [FormResponse] = []
+    var isLoading = false
+    var errorMessage: String = ""
 
     private let responseService: ResponseManager
     private var responseAbortable: Abortable?
 
     // MARK: - Init
 
-    init(responseService: ResponseManager = ResponseManagerImpl()) {
-        self.responseService = responseService
+    init(responseService: ResponseManager? = nil) {
+        self.responseService = responseService ?? ResponseManagerImpl()
     }
 
     // MARK: - Public Functions
 
-    @MainActor
     func fetchResponses(ownerId: String, formId: String) {
         isLoading = true
         errorMessage = ""
@@ -43,8 +43,9 @@ final class FormResponsesListViewViewModel {
     }
 
     // MARK: - Lifecycle
-
-    deinit {
-        responseAbortable?.cancel()
-    }
+    
+//   it will be changed
+//    deinit {
+//        responseAbortable?.cancel()
+//    }
 }

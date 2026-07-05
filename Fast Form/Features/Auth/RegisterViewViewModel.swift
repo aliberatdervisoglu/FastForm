@@ -1,28 +1,28 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class RegisterViewViewModel {
     // MARK: - Properties
 
-    @MainActor var name: String = ""
-    @MainActor var email: String = ""
-    @MainActor var password: String = ""
-    @MainActor var confirmPassword: String = ""
+    var name: String = ""
+    var email: String = ""
+    var password: String = ""
+    var confirmPassword: String = ""
 
-    @MainActor var isAuthenticating = false
+    var isAuthenticating = false
 
     private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthManager = AuthManagerImpl()) {
-        self.authService = authService
+    init(authService: AuthManager? = nil) {
+        self.authService = authService ?? AuthManagerImpl()
     }
 
     // MARK: - Public Functions
 
-    @MainActor
     func register() async throws(AuthManagerError) {
         try validate()
 
@@ -37,7 +37,6 @@ final class RegisterViewViewModel {
 
     // MARK: - Private Functions
 
-    @MainActor
     private func validate() throws(AuthManagerError) {
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty,
               !email.trimmingCharacters(in: .whitespaces).isEmpty,
