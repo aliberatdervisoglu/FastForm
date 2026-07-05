@@ -11,7 +11,7 @@ final class FormResponsesListViewViewModel {
     var errorMessage: String = ""
 
     private let responseService: ResponseManager
-    private var responseAbortable: Abortable?
+    nonisolated private var responseTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -22,30 +22,33 @@ final class FormResponsesListViewViewModel {
     // MARK: - Public Functions
 
     func fetchResponses(ownerId: String, formId: String) {
+        responseTask?.cancel()
+
         isLoading = true
         errorMessage = ""
 
-        responseAbortable?.cancel()
-
-        responseAbortable = responseService.observeResponse(ownerId: ownerId, formId: formId) { @MainActor [weak self] result in
-            guard let self else { return }
-
-            isLoading = false
-
-            switch result {
-            case let .success(fetchedResponses):
-                responses = fetchedResponses
-            case let .failure(error):
-                errorMessage = error.errorDescription
-                responses = []
+        responseTask = Task {
+            do {
+                for try await fetchedResponses in responseService.observeResponse(ownerId: ownerId, formId: formId) {
+                    self.responses = fetchedResponses
+                    self.isLoading = false
+                }
+            } catch let error as ResponseManagerError {
+                self.errorMessage = error.errorDescription
+                self.responses = []
+                self.isLoading = false
+            } catch {
+                // Genel/Beklenmeyen bir hata olursa yakalıyoruz
+                self.errorMessage = error.localizedDescription
+                self.responses = []
+                self.isLoading = false
             }
         }
     }
 
     // MARK: - Lifecycle
     
-//   it will be changed
-//    deinit {
-//        responseAbortable?.cancel()
-//    }
+    deinit {
+        responseTask?.cancel()
+    }
 }

@@ -21,7 +21,7 @@ final class FormListViewViewModel {
 
     private let userId: String
     private var formService: FormManager
-    nonisolated private var formTask: Task<Void, Error>?
+    nonisolated private var formTask: Task<Void, Never>?
 
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
         switch sortOption {
