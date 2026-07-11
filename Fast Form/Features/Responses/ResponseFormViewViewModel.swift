@@ -1,32 +1,26 @@
-//
-//  ResponseFormViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import Foundation
 
 @Observable
-class ResponseFormViewViewModel {
+final class ResponseFormViewViewModel {
     // MARK: - Properties
 
     @MainActor var searchText: String = ""
     @MainActor var results: [FormModel] = []
     @MainActor var isLoading: Bool = false
 
-    private let responseService: ResponseServiceProtocol
+    private let responseService: ResponseManager
 
     // MARK: - Init
 
-    init(responseService: ResponseServiceProtocol = ResponseManager()) {
+    init(responseService: ResponseManager = ResponseManagerImpl()) {
         self.responseService = responseService
     }
 
     // MARK: - Public Functions
 
     @MainActor
-    func searchForms() async throws(ResponseServiceError) {
+    func searchForms() async throws(ResponseManagerError) {
         guard searchText.count >= 3 else {
             results = []
             return

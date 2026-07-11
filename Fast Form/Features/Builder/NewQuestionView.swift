@@ -1,10 +1,4 @@
 //
-//  NewQuestionView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
-//  aşağıdan kaydırmalı olarak formbuildera ekleyelim...
 
 import SwiftUI
 
@@ -520,7 +514,7 @@ struct NewQuestionView: View {
         let trimmedTitle = question.title.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard trimmedTitle.count >= 3 else {
-            showSaveErrorAlertErrorMessage = FormServiceError.questionTitleTooShort.errorDescription
+            showSaveErrorAlertErrorMessage = FormManagerError.questionTitleTooShort.errorDescription
             return false
         }
 

@@ -1,14 +1,8 @@
-//
-//  RegisterViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import Foundation
 
 @Observable
-class RegisterViewViewModel {
+final class RegisterViewViewModel {
     // MARK: - Properties
 
     @MainActor var name: String = ""
@@ -18,18 +12,18 @@ class RegisterViewViewModel {
 
     @MainActor var isAuthenticating = false
 
-    private let authService: AuthServiceProtocol
+    private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol = AuthManager()) {
+    init(authService: AuthManager = AuthManagerImpl()) {
         self.authService = authService
     }
 
     // MARK: - Public Functions
 
     @MainActor
-    func register() async throws(AuthServiceError) {
+    func register() async throws(AuthManagerError) {
         try validate()
 
         isAuthenticating = true
@@ -44,7 +38,7 @@ class RegisterViewViewModel {
     // MARK: - Private Functions
 
     @MainActor
-    private func validate() throws(AuthServiceError) {
+    private func validate() throws(AuthManagerError) {
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty,
               !email.trimmingCharacters(in: .whitespaces).isEmpty,
               !password.trimmingCharacters(in: .whitespaces).isEmpty,

@@ -1,9 +1,3 @@
-//
-//  BigButtonView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 21.02.2026.
-//
 
 import SwiftUI
 

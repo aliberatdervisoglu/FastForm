@@ -1,26 +1,20 @@
-//
-//  FormResponsesListViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 21.03.2026.
-//
 
 import Foundation
 
 @Observable
-class FormResponsesListViewViewModel {
+final class FormResponsesListViewViewModel {
     // MARK: - Properties
 
     @MainActor var responses: [FormResponse] = []
     @MainActor var isLoading = false
     @MainActor var errorMessage: String = ""
 
-    private let responseService: ResponseServiceProtocol
+    private let responseService: ResponseManager
     private var responseAbortable: Abortable?
 
     // MARK: - Init
 
-    init(responseService: ResponseServiceProtocol = ResponseManager()) {
+    init(responseService: ResponseManager = ResponseManagerImpl()) {
         self.responseService = responseService
     }
 

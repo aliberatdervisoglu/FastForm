@@ -69,7 +69,7 @@ struct ResponseChoosenFormView: View {
             try viewModel.validateAnswers(form: form, answers: userAnswers)
             errorQuestionId = nil
             submitForm()
-        } catch let ResponseServiceError.validationFailed(id, message) {
+        } catch let ResponseManagerError.validationFailed(id, message) {
             errorQuestionId = id
             errorMessage = message
             showAlert = true

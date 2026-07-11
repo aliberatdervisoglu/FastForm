@@ -1,32 +1,26 @@
-//
-//  LoginViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import Foundation
 
 @Observable
-class LoginViewViewModel {
+final class LoginViewViewModel {
     // MARK: - Properties
 
     @MainActor var email: String = ""
     @MainActor var password: String = ""
     @MainActor var isAuthenticating = false
 
-    private let authService: AuthServiceProtocol
+    private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol = AuthManager()) {
+    init(authService: AuthManager = AuthManagerImpl()) {
         self.authService = authService
     }
 
     // MARK: - Public Functions
 
     @MainActor
-    func login() async throws(AuthServiceError) {
+    func login() async throws(AuthManagerError) {
         try validate()
 
         isAuthenticating = true
@@ -40,7 +34,7 @@ class LoginViewViewModel {
 
     // MARK: - Private Functions
 
-    private func validate() throws(AuthServiceError) {
+    private func validate() throws(AuthManagerError) {
         guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
               !password.trimmingCharacters(in: .whitespaces).isEmpty
         else {

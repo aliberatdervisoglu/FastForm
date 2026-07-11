@@ -1,9 +1,3 @@
-//
-//  ErrorBannerView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 26.05.2026.
-//
 
 import SwiftUI
 

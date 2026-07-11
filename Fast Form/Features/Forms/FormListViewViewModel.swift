@@ -1,9 +1,3 @@
-//
-//  FormListViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 22.02.2026.
-//
 
 import Foundation
 
@@ -17,7 +11,7 @@ enum FormSortOption: String, CaseIterable {
 }
 
 @Observable
-class FormListViewViewModel {
+final class FormListViewViewModel {
     // MARK: - Properties
 
     @MainActor var formitems: [FormModel] = []
@@ -25,7 +19,7 @@ class FormListViewViewModel {
     @MainActor var errorMessage: String = ""
 
     private let userId: String
-    private var formService: FormServiceProtocol
+    private var formService: FormManager
     private var formAbortable: Abortable?
 
     @MainActor
@@ -44,7 +38,7 @@ class FormListViewViewModel {
 
     // MARK: - Init
 
-    init(userId: String, formService: FormServiceProtocol = FormManager()) {
+    init(userId: String, formService: FormManager = FormManagerImpl()) {
         self.userId = userId
         self.formService = formService
     }
@@ -68,7 +62,7 @@ class FormListViewViewModel {
     }
 
     @MainActor
-    func deleteForm(id: String) async throws(FormServiceError) {
+    func deleteForm(id: String) async throws(FormManagerError) {
         do {
             try await formService.deleteForm(userId: userId, formId: id)
         } catch {

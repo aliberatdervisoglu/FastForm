@@ -1,34 +1,28 @@
-//
-//  SettingsViewViewModel.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import Foundation
 
 @Observable
-class SettingsViewViewModel {
+final class SettingsViewViewModel {
     // MARK: - Properties
 
     @MainActor var isLoading = false
     @MainActor var showReauthAlert = false
 
-    private let authService: AuthServiceProtocol
+    private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthServiceProtocol = AuthManager()) {
+    init(authService: AuthManager = AuthManagerImpl()) {
         self.authService = authService
     }
 
     // MARK: - Public Functions
 
     @MainActor
-    func updateName(newName: String) async throws(AuthServiceError) {
+    func updateName(newName: String) async throws(AuthManagerError) {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
-            throw AuthServiceError.unknown("Name field is empty.")
+            throw AuthManagerError.unknown("Name field is empty.")
         }
         isLoading = true
 
@@ -44,7 +38,7 @@ class SettingsViewViewModel {
     }
 
     @MainActor
-    func sendPasswordReset() async throws(AuthServiceError) {
+    func sendPasswordReset() async throws(AuthManagerError) {
         isLoading = true
 
         defer {
@@ -58,13 +52,13 @@ class SettingsViewViewModel {
     }
 
     @MainActor
-    func logOut() throws(AuthServiceError) {
+    func logOut() throws(AuthManagerError) {
         isLoading = true
         try authService.signOut()
     }
 
     @MainActor
-    func deleteAccount() async throws(AuthServiceError) {
+    func deleteAccount() async throws(AuthManagerError) {
         isLoading = true
 
         defer {
@@ -73,7 +67,7 @@ class SettingsViewViewModel {
         do {
             try await authService.deleteAccount()
         } catch {
-            if error == AuthServiceError.requiresRecentLogin {
+            if error == AuthManagerError.requiresRecentLogin {
                 showReauthAlert = true
             }
             throw error

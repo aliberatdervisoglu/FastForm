@@ -1,9 +1,3 @@
-//
-//  ProfileView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 20.02.2026.
-//
 
 import SwiftUI
 
@@ -40,7 +34,7 @@ struct ProfileView: View {
                 Task {
                     do {
                         try await viewModel.fetchUser()
-                    } catch let error as AuthServiceError {
+                    } catch let error as AuthManagerError {
                         localErrorMessage = error.errorDescription ?? "Failed to load profile."
                     } catch {
                         localErrorMessage = "An unexpected error occurred."

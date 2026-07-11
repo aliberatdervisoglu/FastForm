@@ -1,9 +1,4 @@
-//
-//  FormListView.swift
-//  Fast Form
-//
-//  Created by Ali Berat Dervişoğlu on 22.02.2026.
-//
+
 
 import SwiftUI
 
@@ -90,7 +85,7 @@ struct FormListView: View {
     FormListView(
         viewModel: FormListViewViewModel(
             userId: "preview_user_123",
-            formService: MockFormManager()
+            formService: MockFormManagerImpl()
         )
     )
 }
