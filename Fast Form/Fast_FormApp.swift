@@ -20,7 +20,7 @@ struct FastFormApp: App {
     @State private var mainViewModel: MainViewViewModel
 
     init() {
-        let vm = MainViewViewModel()
+        let vm = MainViewViewModel(authService: AuthManagerImpl())
         _mainViewModel = State(wrappedValue: vm)
     }
 

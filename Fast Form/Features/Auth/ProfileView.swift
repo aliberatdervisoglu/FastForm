@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @State var viewModel = ProfileViewViewModel()
+    @State var viewModel = ProfileViewViewModel(authService: AuthManagerImpl())
     @State private var localErrorMessage: String = ""
 
     private let userID: String

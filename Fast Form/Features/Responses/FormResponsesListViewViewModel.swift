@@ -15,8 +15,8 @@ final class FormResponsesListViewViewModel {
 
     // MARK: - Init
 
-    init(responseService: ResponseManager? = nil) {
-        self.responseService = responseService ?? ResponseManagerImpl()
+    init(responseService: ResponseManager) {
+        self.responseService = responseService
     }
 
     // MARK: - Public Functions

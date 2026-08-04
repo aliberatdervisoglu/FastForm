@@ -13,9 +13,9 @@ final class ResponseChoosenFormViewViewModel {
 
     // MARK: - Init
 
-    init(responseService: ResponseManager? = nil, authService: AuthManager? = nil) {
-        self.responseService = responseService ?? ResponseManagerImpl()
-        self.authService = authService ?? AuthManagerImpl()
+    init(responseService: ResponseManager, authService: AuthManager) {
+        self.responseService = responseService
+        self.authService = authService
     }
 
     // MARK: - Public Functions

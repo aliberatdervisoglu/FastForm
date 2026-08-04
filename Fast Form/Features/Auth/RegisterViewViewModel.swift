@@ -17,8 +17,8 @@ final class RegisterViewViewModel {
 
     // MARK: - Init
 
-    init(authService: AuthManager? = nil) {
-        self.authService = authService ?? AuthManagerImpl()
+    init(authService: AuthManager) {
+        self.authService = authService
     }
 
     // MARK: - Public Functions

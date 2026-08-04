@@ -27,7 +27,7 @@ struct FormBuilderView: View {
                 isAnonymus: false
             ))
         }
-        _viewModel = State(wrappedValue: FormBuilderViewViewModel())
+        _viewModel = State(wrappedValue: FormBuilderViewViewModel(formService: FormManagerImpl()))
         _tabSelection = tabselection
     }
 

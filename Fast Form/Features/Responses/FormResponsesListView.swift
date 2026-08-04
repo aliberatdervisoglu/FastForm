@@ -3,7 +3,7 @@ import SwiftUI
 
 struct FormResponsesListView: View {
     let form: FormModel
-    @State private var viewModel = FormResponsesListViewViewModel()
+    @State private var viewModel = FormResponsesListViewViewModel(responseService: ResponseManagerImpl())
 
     var body: some View {
         ZStack {

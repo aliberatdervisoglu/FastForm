@@ -13,8 +13,8 @@ final class FormBuilderViewViewModel {
 
     // MARK: - Init
 
-    init(formService: FormManager? = nil) {
-        self.formService = formService ?? FormManagerImpl()
+    init(formService: FormManager) {
+        self.formService = formService
     }
 
     // MARK: - Public Functions

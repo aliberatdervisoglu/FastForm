@@ -9,7 +9,7 @@ struct FormListView: View {
     @State private var itemToDelete: FormModel? = nil
 
     init(userId: String) {
-        _viewModel = State(wrappedValue: FormListViewViewModel(userId: userId))
+        _viewModel = State(wrappedValue: FormListViewViewModel(userId: userId, formService: FormManagerImpl()))
     }
 
     init(viewModel: FormListViewViewModel) {

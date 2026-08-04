@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @State var viewModel = RegisterViewViewModel()
+    @State var viewModel = RegisterViewViewModel(authService: AuthManagerImpl())
     @State private var localErrorMessage: String = ""
 
     /// go back to LoginView

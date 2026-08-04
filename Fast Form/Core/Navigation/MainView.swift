@@ -13,7 +13,7 @@ struct MainView: View {
         isAnonymus: false
     )
 
-    @State var viewModel: MainViewViewModel
+    @State var viewModel = MainViewViewModel(authService: AuthManagerImpl())
     @State private var selectedTab: Int = 0
     var body: some View {
         Group {
@@ -72,5 +72,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView(viewModel: MainViewViewModel())
+    MainView()
 }

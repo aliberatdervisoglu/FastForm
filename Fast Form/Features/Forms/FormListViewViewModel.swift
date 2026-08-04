@@ -38,8 +38,8 @@ final class FormListViewViewModel {
 
     // MARK: - Init
 
-    init(userId: String, formService: FormManager? = nil) {
-        self.formService = formService ?? FormManagerImpl()
+    init(userId: String, formService: FormManager) {
+        self.formService = formService
         self.userId = userId
     }
 

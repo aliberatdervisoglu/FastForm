@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State var viewModel = LoginViewViewModel()
+    @State var viewModel = LoginViewViewModel(authService: AuthManagerImpl())
 
     @State private var localErrorMessage: String = ""
 
