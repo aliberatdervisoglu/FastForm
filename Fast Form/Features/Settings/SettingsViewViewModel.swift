@@ -1,24 +1,24 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class SettingsViewViewModel {
     // MARK: - Properties
 
-    @MainActor var isLoading = false
-    @MainActor var showReauthAlert = false
+    var isLoading = false
+    var showReauthAlert = false
 
     private let authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthManager = AuthManagerImpl()) {
-        self.authService = authService
+    init(authService: AuthManager? = nil) {
+        self.authService = authService ?? AuthManagerImpl()
     }
 
     // MARK: - Public Functions
 
-    @MainActor
     func updateName(newName: String) async throws(AuthManagerError) {
         let trimmedname = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedname.isEmpty else {
@@ -37,7 +37,6 @@ final class SettingsViewViewModel {
         }
     }
 
-    @MainActor
     func sendPasswordReset() async throws(AuthManagerError) {
         isLoading = true
 
@@ -51,13 +50,11 @@ final class SettingsViewViewModel {
         }
     }
 
-    @MainActor
     func logOut() throws(AuthManagerError) {
         isLoading = true
         try authService.signOut()
     }
 
-    @MainActor
     func deleteAccount() async throws(AuthManagerError) {
         isLoading = true
 

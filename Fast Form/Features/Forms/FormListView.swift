@@ -76,6 +76,9 @@ struct FormListView: View {
         .onAppear {
             viewModel.fetchForms()
         }
+        .onDisappear {
+            viewModel.cancelListening()
+        }
         .animation(.easeInOut, value: viewModel.sortOption) // to resort
         .animation(.easeInOut, value: viewModel.formitems.count) // to delete anything or open this window
     }

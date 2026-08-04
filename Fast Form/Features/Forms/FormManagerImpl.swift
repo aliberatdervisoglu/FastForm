@@ -5,7 +5,9 @@ import Foundation
 final class FormManagerImpl: FormManager {
     // MARK: - Properties
 
-    private let db = Firestore.firestore()
+    private var db: Firestore {
+        Firestore.firestore()
+    }
 
     private let authService: AuthManager
 
@@ -17,34 +19,27 @@ final class FormManagerImpl: FormManager {
 
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
-    /// ***** Should I use AsynStream instead of this closures
-    func observeForms(userId: String, completion: @escaping (Result<[FormModel], FormManagerError>) -> Void) -> Abortable {
-        let listener = db.collection("users")
-            .document(userId)
-            .collection("forms")
-            .addSnapshotListener { snapshot, error in
-                if let error {
-                    completion(.failure(.databaseError(error.localizedDescription)))
-                    return
-                }
-
-                let snapshotDocuments = snapshot?.documents ?? []
-                var forms: [FormModel] = []
-
-                for eachDocument in snapshotDocuments {
-                    do {
-                        let form = try eachDocument.data(as: FormModel.self)
-                        forms.append(form)
-                    } catch {
-                        completion(.failure(.decodingError))
+    func observeForms(userId: String) -> AsyncThrowingStream<[FormModel], Error> {
+        AsyncThrowingStream([FormModel].self) { continuation in
+            let listener = db.collection("users")
+                .document(userId)
+                .collection("forms")
+                .addSnapshotListener { snapshot, error in
+                    if let error {
+                        continuation.finish(throwing: FormManagerError.databaseError(error.localizedDescription))
                         return
                     }
-                }
 
-                completion(.success(forms))
+                    let snapshoDocuments = snapshot?.documents ?? []
+
+                    let forms: [FormModel] = snapshoDocuments.compactMap { doc in
+                        try? doc.data(as: FormModel.self)
+                    }
+                    continuation.yield(forms)
+                }
+            continuation.onTermination = { _ in
+                listener.remove()
             }
-        return AnyAbortable {
-            listener.remove()
         }
     }
 

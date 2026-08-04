@@ -1,25 +1,25 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class ResponseFormViewViewModel {
     // MARK: - Properties
 
-    @MainActor var searchText: String = ""
-    @MainActor var results: [FormModel] = []
-    @MainActor var isLoading: Bool = false
+    var searchText: String = ""
+    var results: [FormModel] = []
+    var isLoading: Bool = false
 
     private let responseService: ResponseManager
 
     // MARK: - Init
 
-    init(responseService: ResponseManager = ResponseManagerImpl()) {
-        self.responseService = responseService
+    init(responseService: ResponseManager? = nil) {
+        self.responseService = responseService ?? ResponseManagerImpl()
     }
 
     // MARK: - Public Functions
 
-    @MainActor
     func searchForms() async throws(ResponseManagerError) {
         guard searchText.count >= 3 else {
             results = []

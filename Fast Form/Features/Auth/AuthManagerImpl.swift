@@ -6,9 +6,11 @@ import Foundation
 final class AuthManagerImpl: AuthManager {
     // MARK: - Properties
 
-    private let db = Firestore.firestore()
+    private var db: Firestore {
+        Firestore.firestore()
+    }
 
-    var currentUser: User? {
+    @MainActor var currentUser: User? {
         guard let firebaseUser = Auth.auth().currentUser else {
             return nil
         }
@@ -21,7 +23,7 @@ final class AuthManagerImpl: AuthManager {
         )
     }
 
-    var isSignedIn: Bool {
+    @MainActor var isSignedIn: Bool {
         Auth.auth().currentUser != nil
     }
 
@@ -79,6 +81,7 @@ final class AuthManagerImpl: AuthManager {
         }
     }
 
+    @MainActor
     func signOut() throws(AuthManagerError) {
         do {
             try Auth.auth().signOut()
@@ -87,13 +90,14 @@ final class AuthManagerImpl: AuthManager {
         }
     }
 
-    /// ***** Should I use AsynStream instead of this closures
-    func observeAuthState(handler: @escaping (String?) -> Void) -> Abortable {
-        let listener = Auth.auth().addStateDidChangeListener { _, user in
-            handler(user?.uid)
-        }
-        return AnyAbortable { [listener] in
-            Auth.auth().removeStateDidChangeListener(listener)
+    func observeAuthState() -> AsyncStream<String?> {
+        AsyncStream { continuation in
+            let listener = Auth.auth().addStateDidChangeListener { _, user in
+                continuation.yield(user?.uid)
+            }
+            continuation.onTermination = { _ in
+                Auth.auth().removeStateDidChangeListener(listener)
+            }
         }
     }
 

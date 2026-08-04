@@ -1,24 +1,24 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class FormBuilderViewViewModel {
     // MARK: - Properties
 
-    @MainActor var showNewQuestionSheet: Bool = false
-    @MainActor var title: String = ""
+    var showNewQuestionSheet: Bool = false
+    var title: String = ""
 
     private let formService: FormManager
 
     // MARK: - Init
 
-    init(formService: FormManager = FormManagerImpl()) {
-        self.formService = formService
+    init(formService: FormManager? = nil) {
+        self.formService = formService ?? FormManagerImpl()
     }
 
     // MARK: - Public Functions
 
-    @MainActor
     func save(item: FormModel) async throws(FormManagerError) {
         try validateFormMetadata(item)
 

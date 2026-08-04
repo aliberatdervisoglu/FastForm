@@ -5,41 +5,37 @@ import Foundation
 final class ResponseManagerImpl: ResponseManager {
     // MARK: - Properties
 
-    private let db = Firestore.firestore()
+    private var db: Firestore {
+        Firestore.firestore()
+    }
 
     // MARK: - Public / Internal Functions (Accessible from ViewModels)
 
-    /// ***** Should I use AsynStream instead of this closures
-    func observeResponse(ownerId: String, formId: String, completion: @escaping (Result<[FormResponse], ResponseManagerError>) -> Void) -> Abortable {
-        guard !ownerId.isEmpty, !formId.isEmpty else {
-            completion(.failure(.invalidParameters))
-            return AnyAbortable {}
-        }
-        let listener = db.collection("users").document(ownerId)
-            .collection("forms").document(formId)
-            .collection("responses")
-            .order(by: "submittedDate", descending: true)
-            .addSnapshotListener { snapshot, error in
-                if let error {
-                    completion(.failure(.databaseError(error.localizedDescription)))
-                    return
-                }
-                let snapshotDocuments = snapshot?.documents ?? []
-
-                var responses: [FormResponse] = []
-                for eachDocument in snapshotDocuments {
-                    do {
-                        let response = try eachDocument.data(as: FormResponse.self)
-                        responses.append(response)
-                    } catch {
-                        completion(.failure(.decodingError))
+    func observeResponse(ownerId: String, formId: String) -> AsyncThrowingStream<[FormResponse], Error> {
+        AsyncThrowingStream([FormResponse].self) { continuation in
+            guard !ownerId.isEmpty, !formId.isEmpty else {
+                continuation.finish(throwing: ResponseManagerError.invalidParameters)
+                return
+            }
+            let listener = db.collection("users").document(ownerId)
+                .collection("forms").document(formId)
+                .collection("responses")
+                .order(by: "submittedDate", descending: true)
+                .addSnapshotListener { snapshot, error in
+                    if let error {
+                        continuation.finish(throwing: ResponseManagerError.databaseError(error.localizedDescription))
                         return
                     }
+                    let snapshotDocuments = snapshot?.documents ?? []
+
+                    let responses = snapshotDocuments.compactMap { doc in
+                        try? doc.data(as: FormResponse.self)
+                    }
+                    continuation.yield(responses)
                 }
-                completion(.success(responses))
+            continuation.onTermination = { _ in
+                listener.remove()
             }
-        return AnyAbortable {
-            listener.remove()
         }
     }
 
