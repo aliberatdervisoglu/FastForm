@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 @MainActor
@@ -9,13 +10,7 @@ final class SettingsViewViewModel {
     var isLoading = false
     var showReauthAlert = false
 
-    private let authService: AuthManager
-
-    // MARK: - Init
-
-    init(authService: AuthManager) {
-        self.authService = authService
-    }
+    @ObservationIgnored @Injected(\.authService) private var authService: AuthManager
 
     // MARK: - Public Functions
 

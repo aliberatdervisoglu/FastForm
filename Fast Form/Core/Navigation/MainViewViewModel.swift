@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 import SwiftUI
 
@@ -12,13 +13,11 @@ final class MainViewViewModel {
     var isLoading = true
 
     private var authTask: Task<Void, Never>?
-    private let authService: AuthManager
+    @ObservationIgnored @Injected(\.authService) private var authService: AuthManager
 
     // MARK: - Init
 
-    init(authService: AuthManager) {
-        self.authService = authService
-
+    init() {
         listenToAuthState()
     }
 

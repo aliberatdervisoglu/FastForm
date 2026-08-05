@@ -13,7 +13,7 @@ struct MainView: View {
         isAnonymus: false
     )
 
-    @State var viewModel = MainViewViewModel(authService: AuthManagerImpl())
+    @State var viewModel = MainViewViewModel()
     @State private var selectedTab: Int = 0
     var body: some View {
         Group {

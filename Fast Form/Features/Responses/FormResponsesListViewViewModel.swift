@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 @MainActor
@@ -10,14 +11,8 @@ final class FormResponsesListViewViewModel {
     var isLoading = false
     var errorMessage: String = ""
 
-    private let responseService: ResponseManager
+    @ObservationIgnored @Injected(\.responseService) private var responseService: ResponseManager
     private var responseTask: Task<Void, Never>?
-
-    // MARK: - Init
-
-    init(responseService: ResponseManager) {
-        self.responseService = responseService
-    }
 
     // MARK: - Public Functions
 
