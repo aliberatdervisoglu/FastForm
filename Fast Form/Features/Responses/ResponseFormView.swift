@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct ResponseFormView: View {
-    @State var viewModel = ResponseFormViewViewModel(responseService: ResponseManagerImpl())
+    @State var viewModel = ResponseFormViewViewModel()
     @State private var localSearchError: String? = nil
 
     var body: some View {

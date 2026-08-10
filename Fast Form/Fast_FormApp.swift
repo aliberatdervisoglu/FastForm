@@ -17,12 +17,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 struct FastFormApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-    @State private var mainViewModel: MainViewViewModel
-
-    init() {
-        let vm = MainViewViewModel(authService: AuthManagerImpl())
-        _mainViewModel = State(wrappedValue: vm)
-    }
+    @State private var mainViewModel = MainViewViewModel()
 
     var body: some Scene {
         WindowGroup {
