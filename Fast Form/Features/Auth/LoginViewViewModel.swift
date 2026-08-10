@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 @MainActor
@@ -10,13 +11,7 @@ final class LoginViewViewModel {
     var password: String = ""
     var isAuthenticating = false
 
-    private let authService: AuthManager
-
-    // MARK: - Init
-
-    init(authService: AuthManager) {
-        self.authService = authService
-    }
+    @ObservationIgnored @Injected(\.authService) private var authService: AuthManager
 
     // MARK: - Public Functions
 

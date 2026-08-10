@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 //  MARK: - Sort options for formlist
@@ -20,7 +21,7 @@ final class FormListViewViewModel {
     var errorMessage: String = ""
 
     private let userId: String
-    private var formService: FormManager
+    @ObservationIgnored @Injected(\.formService) private var formService: FormManager
     private var formTask: Task<Void, Never>?
 
     var sortedforms: [FormModel] { // works about current sort option and resort the forms.
@@ -38,8 +39,7 @@ final class FormListViewViewModel {
 
     // MARK: - Init
 
-    init(userId: String, formService: FormManager) {
-        self.formService = formService
+    init(userId: String) {
         self.userId = userId
     }
 

@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 @MainActor
@@ -8,15 +9,8 @@ final class ResponseChoosenFormViewViewModel {
 
     var isLoading: Bool = false
 
-    private let responseService: ResponseManager
-    private let authService: AuthManager
-
-    // MARK: - Init
-
-    init(responseService: ResponseManager, authService: AuthManager) {
-        self.responseService = responseService
-        self.authService = authService
-    }
+    @ObservationIgnored @Injected(\.responseService) private var responseService: ResponseManager
+    @ObservationIgnored @Injected(\.authService) private var authService: AuthManager
 
     // MARK: - Public Functions
 

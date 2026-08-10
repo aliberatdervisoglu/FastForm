@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct FormBuilderView: View {
-    @State var viewModel: FormBuilderViewViewModel
+    @State var viewModel = FormBuilderViewViewModel()
     @State var item: FormModel
     @State private var selectedQuestion: Question? = nil // to add direct sheet link to add button
     @State private var showSuccessAnimation = false
@@ -27,7 +27,6 @@ struct FormBuilderView: View {
                 isAnonymus: false
             ))
         }
-        _viewModel = State(wrappedValue: FormBuilderViewViewModel(formService: FormManagerImpl()))
         _tabSelection = tabselection
     }
 

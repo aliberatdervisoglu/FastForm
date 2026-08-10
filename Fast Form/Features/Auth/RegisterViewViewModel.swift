@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 @MainActor
@@ -13,13 +14,7 @@ final class RegisterViewViewModel {
 
     var isAuthenticating = false
 
-    private let authService: AuthManager
-
-    // MARK: - Init
-
-    init(authService: AuthManager) {
-        self.authService = authService
-    }
+    @ObservationIgnored @Injected(\.authService) private var authService: AuthManager
 
     // MARK: - Public Functions
 

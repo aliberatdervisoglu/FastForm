@@ -1,4 +1,5 @@
 
+import FactoryKit
 import Foundation
 
 @MainActor
@@ -9,13 +10,7 @@ final class FormBuilderViewViewModel {
     var showNewQuestionSheet: Bool = false
     var title: String = ""
 
-    private let formService: FormManager
-
-    // MARK: - Init
-
-    init(formService: FormManager) {
-        self.formService = formService
-    }
+    @ObservationIgnored @Injected(\.formService) private var formService: FormManager
 
     // MARK: - Public Functions
 
